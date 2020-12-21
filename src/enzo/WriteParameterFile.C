@@ -315,6 +315,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "PressureFree                   = %"ISYM"\n", PressureFree);
   /* FDM: write FDM parameters */  
   fprintf(fptr, "QuantumPressure                = %"ISYM"\n", QuantumPressure);
+  fprintf(fptr, "FDMCollapseAbsorbingBoundary   = %"ISYM"\n", FDMCollapseAbsorbingBoundary);
   fprintf(fptr, "FDMMass                        = %"FSYM"\n", FDMMass);
 
   fprintf(fptr, "RefineBy                       = %"ISYM"\n", RefineBy);
@@ -1244,9 +1245,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   /* Write out Grackle specific parameters */
 
-  if (GrackleWriteParameters(fptr) == FAIL) {
+  /*if (GrackleWriteParameters(fptr) == FAIL) {
     ENZO_FAIL("Error in GrackleWriteParameters.\n");
-  }
+  }*/
 
   if (UsePhysicalUnit) {
     /* Change input physical parameters into code units */
