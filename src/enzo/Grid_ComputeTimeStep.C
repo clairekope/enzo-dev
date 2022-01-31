@@ -373,11 +373,11 @@ float grid::ComputeTimeStep()
       float dCell = CellWidth[dim][0]*a;
       for (i = 0; i < NumberOfParticles; i++) {
         dtTemp = dCell/max(fabs(ParticleVelocity[dim][i]), tiny_number);
-	dtParticles = min(dtParticles, dtTemp);
+      	dtParticles = min(dtParticles, dtTemp);
       }
       for (i = 0; i < NumberOfActiveParticles; i++) {
-    dtTemp = dCell/max(fabs(ActiveParticles[i]->ReturnVelocity()[dim]), tiny_number);
-    dtParticles = min(dtParticles, dtTemp);
+        dtTemp = dCell/max(fabs(ActiveParticles[i]->ReturnVelocity()[dim]), tiny_number);
+        dtParticles = min(dtParticles, dtTemp);
       }
     }
  
@@ -401,12 +401,12 @@ float grid::ComputeTimeStep()
   if (SelfGravity) {
     for (dim = 0; dim < GridRank; dim++)
       if (AccelerationField[dim])
-	for (i = 0; i < size; i++) {
-	  dtTemp = sqrt(CellWidth[dim][0]/
-			fabs(AccelerationField[dim][i])+tiny_number);
-	  dtAcceleration = min(dtAcceleration, dtTemp);
+	      for (i = 0; i < size; i++) {
+	        dtTemp = sqrt(CellWidth[dim][0]/
+			    fabs(AccelerationField[dim][i])+tiny_number);
+	        dtAcceleration = min(dtAcceleration, dtTemp);
 	}
-    if (dtAcceleration != huge_number)
+  if (dtAcceleration != huge_number)
       dtAcceleration *= 0.5;
   }
 
@@ -421,13 +421,21 @@ float grid::ComputeTimeStep()
   
   /* 6) Calculate minimum dt due to CR diffusion */
 
-  if(CRModel && CRDiffusion ){
+  if(CRModel==1 && CRDiffusion ){
     if( this->ComputeCRDiffusionTimeStep(dtCR) == FAIL) {
       fprintf(stderr, "Error in ComputeCRDiffusionTimeStep.\n");
       return FAIL;
     }
     dtCR *= CRCourantSafetyNumber;
     dtCR *= float(NumberOfGhostZones);  // for subcycling
+  }
+
+  if (CRModel == 2){
+    if(this->ComputeCRTwoMomentTimeStep(dtCR) == FAIL){
+      fprintf(stderr, "Error in ComputeCRTwoMomentTimeStep.\n");
+      return FAIL;
+    }
+    dtCR *= CRCourantSafetyNumber; // TODO: is this still needed?
   }
 
   /* 7) GasDrag time step */

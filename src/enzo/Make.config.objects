@@ -410,6 +410,8 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeCoolingTime.o \
         Grid_ComputeCRDiffusion.o \
         Grid_ComputeCRDiffusionTimeStep.o \
+        Grid_ComputeCRTwoMoment.o \
+        Grid_ComputeCRTwoMomentTimeStep.o \
         Grid_ComputeDomainBoundaryMassFlux.o \
 	Grid_ComputeDustTemperatureField.o \
 	Grid_ComputeElementalDensity.o \

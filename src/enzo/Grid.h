@@ -450,6 +450,11 @@ public:
    int ComputeCRDiffusion(); // CR Diffusion Method 
    int ComputeCRDiffusionTimeStep(float &dt);
 
+/* Ditto but for the two-moment CR method (Jiang & Oh 2018) */
+
+   int ComputeCRTwoMoment();
+   int ComputeCRTwoMomentTimeStep(float &dt);
+
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
 

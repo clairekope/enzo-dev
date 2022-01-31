@@ -692,7 +692,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
-	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove, TopGridTimeStep);
+	    (Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove, TopGridTimeStep);
 
       Grids[grid1]->GridData->ActiveParticleHandler
         (Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove,
@@ -704,32 +704,40 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Compute and apply thermal conduction. */
       if(IsotropicConduction || AnisotropicConduction){
-	if(Grids[grid1]->GridData->ConductHeat() == FAIL){
-	  ENZO_FAIL("Error in grid->ConductHeat.\n");
-	}
+        if(Grids[grid1]->GridData->ConductHeat() == FAIL){
+          ENZO_FAIL("Error in grid->ConductHeat.\n");
+        }
       }
 
       /* Compute and Apply Cosmic Ray Diffusion */
-      if(CRModel && CRDiffusion){
+      if(CRModel==1 && CRDiffusion){
         if(Grids[grid1]->GridData->ComputeCRDiffusion() == FAIL){
           fprintf(stderr, "Error in grid->ComputeCRDiffusion.\n");
           return FAIL;
         } // end ComputeCRDiffusion if
       }// end CRDiffusion if
 
+      /* Update Two-Moment Cosmic Rays */
+      if (CRModel == 2){
+        if (Grids[grid1]->GridData->ComputeCRTwoMoment() == FAIL){
+          fprintf(stderr, "Error in grid->ComputeCRTwoMoment.\n");
+          return FAIL;
+        }
+      }
+
       /* Gravity: clean up AccelerationField. */
 
 #ifndef SAB
       if ((level != MaximumGravityRefinementLevel ||
-	   MaximumGravityRefinementLevel == MaximumRefinementLevel) &&
-	  !PressureFree)
-	Grids[grid1]->GridData->DeleteAccelerationField();
+        MaximumGravityRefinementLevel == MaximumRefinementLevel) &&
+	      !PressureFree)
+        Grids[grid1]->GridData->DeleteAccelerationField();
 #endif //!SAB
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();
 
       if (UseFloor) 
-	Grids[grid1]->GridData->SetFloor();
+	      Grids[grid1]->GridData->SetFloor();
  
       /* Update current problem time of this subgrid. */
  
@@ -738,10 +746,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* If using comoving co-ordinates, do the expansion terms now. */
  
       if (ComovingCoordinates)
-	Grids[grid1]->GridData->ComovingExpansionTerms();
+	      Grids[grid1]->GridData->ComovingExpansionTerms();
  
       if (UseMagneticSupernovaFeedback)
-	Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
+      	Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
     } //end loop over grids
 
     /* Finalize (accretion, feedback etc) for Active particles. */
