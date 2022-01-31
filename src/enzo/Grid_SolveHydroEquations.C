@@ -261,11 +261,11 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Add Cosmic Ray Energy Density as a colour variable. */
     if(CRModel){
-      int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRNum;
+      int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRENum, CRFNum;
       if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-                       Vel3Num, TENum, CRNum ) == FAIL )
+                       Vel3Num, TENum, CRENum, CRFNum ) == FAIL )
         ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
-      colnum[NumberOfColours++] = CRNum;
+      colnum[NumberOfColours++] = CRENum;
     } // end CR if
 
     /* Add shock variables as a colour variable. */

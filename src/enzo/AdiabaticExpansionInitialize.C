@@ -59,7 +59,8 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   char *BzName = "Bz";
   char *PhiName = "Phi";
   char *Phi_pName = "Phip";
-  char *CRName = "CREnergyDensity";
+  char *CREName = "CREnergyDensity";
+  char *CRFName = "CREnergyFlux";
   char *GPotName  = "Grav_Potential";
 
   /* declarations */
@@ -192,7 +193,11 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   if(UsePoissonDivergenceCleaning){
     DataLabel[i++] = Phi_pName;
   }
-	if(CRModel) DataLabel[i++] = CRName;
+	if(CRModel) {
+    DataLabel[i++] = CREName;
+    if (CRModel > 1)
+      DataLabel[i++] = CRFName;
+  }
   if (WritePotential)
     DataLabel[i++] = GPotName;  
  

@@ -74,6 +74,7 @@ cdef extern from "typedefs.h" nogil:
     enum: PreShockTemperature
     enum: PreShockDensity
     enum: CRDensity
+    enum: CRFlux
   
     enum: CIDensity
     enum: CIIDensity
@@ -186,6 +187,7 @@ cdef field_enums = {
     "PreShockTemperature" : PreShockTemperature,
     "PreShockDensity" : PreShockDensity,
     "CRDensity" : CRDensity,
+    "CRFlux" : CRFlux,
   
     "CI_Density" : CIDensity,
     "CII_Density" : CIIDensity,

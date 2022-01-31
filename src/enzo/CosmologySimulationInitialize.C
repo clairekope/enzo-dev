@@ -110,7 +110,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
-  char *CRName   = "CREnergyDensity";
+  char *CREName  = "CREnergyDensity";
+  char *CRFName  = "CREnergyFlux";
   char *ElectronName = "Electron_Density";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
@@ -729,8 +730,11 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (MaxVelocityIndex > 2)
     DataLabel[i++] = Vel3Name;
   DataLabel[i++] = TEName;
-	if(CRModel)
-    DataLabel[i++] = CRName;
+	if(CRModel) {
+    DataLabel[i++] = CREName;
+    if (CRModel)
+      DataLabel[i++] = CRFName;
+  }
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;
   if (UseMHD) {

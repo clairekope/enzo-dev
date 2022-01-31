@@ -116,7 +116,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   /*  Locals */
 
   int i, ie, is, j, je, js, k, ks, ke, n, ixyz, ret;
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRENum;
   float pmin;
   float *d, *e, *u, *v, *w, *cr, *m;
 
@@ -138,9 +138,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum );
   if (CRModel) {
-    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+    if ((CRENum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
       ENZO_FAIL("Cannot Find Cosmic Rays");
-    cr = BaryonField[CRNum];
+    cr = BaryonField[CRENum];
   }
   
   d = BaryonField[DensNum];

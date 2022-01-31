@@ -87,20 +87,23 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
 
 int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
              int &Vel1Num, int &Vel2Num,
-             int &Vel3Num, int &TENum, int &CRNum )
+             int &Vel3Num, int &TENum, int &CRENum, int &CRFNum)
 {
 
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
 
-  CRNum = 0;
+  CRENum = 0;
 
   /* Find Cosmic Rays, if possible */
 
-  if(CRModel)
-    if ((CRNum = FindField(CRDensity, BoundaryFieldType,
-           NumberOfBaryonFields)) < 0) {
+  if(CRModel) {
+    if ((CRENum = FindField(CRDensity, BoundaryFieldType, NumberOfBaryonFields)) < 0) {
       ENZO_FAIL("Cannot Find Cosmic Rays");
     }
+    if (CRModel > 1)
+      if((CRFNum = FindField(CRFlux, BoundaryFieldType, NumberOfBaryonFields)) <0)
+        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux")
+  }
 
   return SUCCESS;
 }

@@ -167,12 +167,13 @@ const field_type
   MetalSNIaDensity = 95,
   MetalSNIIDensity = 96,
 
-  /* Cosmic Ray Energy Density */
+  /* Cosmic Ray Energy Density & Energy Flux */
   CRDensity = 97,
+  CRFlux = 98,
  
   /* IR photodetachment fields */
-  kdissH2II = 98,
-  kphHM     = 99,
+  kdissH2II = 99,
+  kphHM     = 100,
 
   /* Real and Imag of Wave Function */
   RePsi = 101,

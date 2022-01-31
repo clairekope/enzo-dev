@@ -61,12 +61,12 @@ int grid::ComputeCRDiffusion(){
   float *kdCRdz = new float[size];
 
   // We obtain the current cr field ...
-	int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRNum;
+	int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRENum, CRFNum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-            Vel3Num, TENum, CRNum) == FAIL) {
+            Vel3Num, TENum, CRENum, CRFNum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
-  cr = BaryonField[CRNum];
+  cr = BaryonField[CRENum];
 
  // Some locals
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;

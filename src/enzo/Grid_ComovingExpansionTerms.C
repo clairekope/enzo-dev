@@ -74,9 +74,9 @@ int grid::ComovingExpansionTerms()
        (where appropriate). */
 
     int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, 
-		    B1Num, B2Num, B3Num, PhiNum, CRNum;
+		    B1Num, B2Num, B3Num, PhiNum, CRENum, CRFNum;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRNum) == FAIL) {
+					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRFNum) == FAIL) {
             ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
     }
 
@@ -123,7 +123,7 @@ int grid::ComovingExpansionTerms()
 				 OldBaryonField[DensNum], OldBaryonField[TENum], 
 				 OldBaryonField[GENum], OldBaryonField[Vel1Num], 
 				 OldBaryonField[Vel2Num], OldBaryonField[Vel3Num],
-				 &CRModel, BaryonField[CRNum], OldBaryonField[CRNum]);
+				 &CRModel, BaryonField[CRENum], OldBaryonField[CRENum]);
     
 
 #else /* USE_FORTRAN */
@@ -148,7 +148,7 @@ int grid::ComovingExpansionTerms()
 	  BaryonField[TENum][i] *= gas_coeff;
 	double cr_coeff = (2.0-Coefficient)/(2.0+Coefficient);
 	for( i = 0 ; i != size; ++i )
-	  BaryonField[CRNum][i] *= cr_coeff;
+	  BaryonField[CRENum][i] *= cr_coeff;
       } // end CR model if
       else {
 	for (i = 0; i < size; i++) {

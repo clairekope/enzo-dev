@@ -67,10 +67,10 @@ int grid::ComputePressure(FLOAT time, float *pressure,
     size *= GridDimension[dim];
  
   /* Find fields: density, total energy, velocity1-3. */
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, CRNum;
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, CRENum, CRFNum;
   if(CRModel) {
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-              Vel3Num, TENum, CRNum) == FAIL) {
+              Vel3Num, TENum, CRENum, CRFNum) == FAIL) {
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
   } else {
@@ -317,10 +317,11 @@ int grid::ComputePressure(FLOAT time, float *pressure,
     }
 
    /* If cosmic rays present, add pressure contribution */
+   // TODO re-evaluate if this is necessary for CRModel = 2
    if( CRModel && IncludeCRs){
      float crDensity;
      for (i=0; i<size; i++) {
-       crDensity = BaryonField[CRNum][i];
+       crDensity = BaryonField[CRENum][i];
        pressure[i] += max((CRgamma-1.0)*crDensity,0.0);
      } // end for
    } // end CRModel if

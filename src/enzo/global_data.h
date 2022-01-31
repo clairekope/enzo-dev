@@ -422,6 +422,7 @@ EXTERN int MultiMetals;
 /* Cosmic Ray Model
  * 0: Off - default
  * 1: On, (two fluid model)
+ * 2: On, two-moment two-fluid model (Jiang & Oh 2018)
  */
 EXTERN int CRModel;
 /* Cosmic Ray Diffusion

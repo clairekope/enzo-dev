@@ -540,7 +540,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
-  int CRNum;
+  int CRENum, CRFNum;
 
   /* Find Multi-species fields. */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
@@ -575,10 +575,14 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
-  if (CRModel)
-    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
-      ENZO_FAIL("Cannot Find Cosmic Rays");
- 
+  if (CRModel) {
+    if ((CRENum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+      ENZO_FAIL("Cannot Find Cosmic Ray Energy Density");
+      if (CRModel > 1)
+         if((CRFNum = FindField(CRFlux, FieldType, NumberOfBaryonFields)) <0)
+           ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux")
+  }
+
   /* If using MHD, subtract magnetic energy from total energy because 
      density may be modified in star_maker8. */
   
@@ -1633,7 +1637,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation,
-       &CRModel, &CRFeedback, (CRModel?BaryonField[CRNum]:NULL));
+       &CRModel, &CRFeedback, (CRModel?BaryonField[CRENum]:NULL));
  
   } // end: if UNIGRID_STAR
  

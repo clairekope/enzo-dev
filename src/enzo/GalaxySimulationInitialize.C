@@ -57,7 +57,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name    = "x-velocity";
   char *Vel2Name    = "y-velocity";
   char *Vel3Name    = "z-velocity";
-  char *CRName      = "CREnergyDensity";
+  char *CREName     = "CREnergyDensity";
+  char *CRFName     = "CREnergyFlux";
   char *MetalName   = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
 
@@ -380,8 +381,11 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = Vel2Name;
  if(MetaData.TopGridRank > 2)
    DataLabel[count++] = Vel3Name;
- if(CRModel)
-   DataLabel[count++] = CRName;
+ if(CRModel) {
+   DataLabel[count++] = CREName;
+   if (CRModel > 1)
+    DataLabel[count++] = CRFName;
+ }
  if (GalaxySimulationUseMetallicityField)
    DataLabel[count++] = MetalName;
  if (StarMakerTypeIaSNe)

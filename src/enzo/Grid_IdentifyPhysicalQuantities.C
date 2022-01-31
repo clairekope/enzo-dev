@@ -79,20 +79,24 @@ int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
 }
 
 int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
-             int &Vel2Num, int &Vel3Num, int &TENum, int &CRNum)
+             int &Vel2Num, int &Vel3Num, int &TENum, int &CRENum, int &CRFNum)
 {
 
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
   
   /* Find Cosmic Rays, if possible */
 
-  CRNum = 0;
-  if(CRModel)
-    if ((CRNum = FindField(CRDensity, FieldType,
-           NumberOfBaryonFields)) < 0) {
+  CRENum = 0;
+  CRFNum = 0;
+  if(CRModel) {
+    if ((CRENum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0) {
       ENZO_FAIL("Cannot Find Cosmic Rays");
     }
-  
+    if (CRModel > 1)
+      if((CRFNum = FindField(CRFlux, FieldType, NumberOfBaryonFields)) < 0)
+        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux")
+  }
+
   return SUCCESS;
 }
 
@@ -249,15 +253,20 @@ int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
 
 int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
              int &Vel2Num, int &Vel3Num, int &TENum,
-             int &B1Num, int &B2Num, int &B3Num, int &PhiNum, int &CRNum){
+             int &B1Num, int &B2Num, int &B3Num, int &PhiNum, int &CRENum, int &CRFNum){
 
   this->IdentifyPhysicalQuantities(DensNum,GENum,Vel1Num,Vel2Num,Vel3Num,
 				   TENum,B1Num,B2Num,B3Num,PhiNum);
 
-  CRNum = 0;
-  if (CRModel)
-    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+  CRENum = 0;
+  CRFNum = 0;
+  if (CRModel) {
+    if ((CRENum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
       ENZO_FAIL("Cannot Find Cosmic Rays");
+    if (CRModel > 1)
+      if((CRFNum = FindField(CRFlux, FieldType, NumberOfBaryonFields)) <0)
+        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux")
+  }
 
   return SUCCESS;
 

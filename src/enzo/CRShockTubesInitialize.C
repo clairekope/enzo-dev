@@ -35,7 +35,8 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
-  char *CRName = "CREnergyDensity";
+  char *CREName  = "CREnergyDensity";
+  char *CRFName  = "CREnergyFlux";
   char *ColourName = "colour";
 
   /* declarations */
@@ -209,7 +210,9 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = Vel2Name;
   DataLabel[count++] = Vel3Name;
   DataLabel[count++] = TEName;
-  DataLabel[count++] = CRName;
+  DataLabel[count++] = CREName;
+  if (CRModel > 1)
+    DataLabel[count++] = CRFName;
   if (DualEnergyFormalism) {
     DataLabel[count++] = GEName;
   }
