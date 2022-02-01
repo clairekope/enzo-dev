@@ -37,10 +37,10 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
   }
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, PhiNum;
+    B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
 
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				   Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum);
+				   Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
 
   int i, j, k, n, n_dU, dim, igrid, field, size, activesize;
   for (dim = 0, size = 1; dim < GridRank; dim++) {

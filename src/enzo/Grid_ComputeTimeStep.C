@@ -115,9 +115,9 @@ float grid::ComputeTimeStep()
     /* Find fields: density, total energy, velocity1-3. */
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-        B1Num, B2Num, B3Num, PhiNum;
+        B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
     this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
-                                     TENum, B1Num, B2Num, B3Num, PhiNum); 
+                                     TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num); 
 
     /* For one-zone free-fall test, just compute free-fall time. */
     if (ProblemType == 63) {
@@ -275,9 +275,9 @@ float grid::ComputeTimeStep()
   if (NumberOfBaryonFields > 0 && HydroMethod == MHD_RK) {
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-      B1Num, B2Num, B3Num, PhiNum;
+      B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL)
+					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num) == FAIL)
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
 
     FLOAT dxinv = 1.0 / CellWidth[0][0]/a;

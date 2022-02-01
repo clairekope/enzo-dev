@@ -42,9 +42,9 @@ void grid::SGS_AddEMF_nonlinear_compressive(float **EMF) {
         printf("[%"ISYM"] grid::SGS_AddEMF_nonlinear_compressive start\n",MyProcessorNumber);
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-    int B1Num, B2Num, B3Num, PhiNum;
+    int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
     this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num,
-            TENum, B1Num, B2Num, B3Num, PhiNum);
+            TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
 
     float *rho, *Bx, *By, *Bz;
 
@@ -142,9 +142,9 @@ void grid::SGS_AddEMF_eddy_resistivity(float **EMF) {
         printf("[%"ISYM"] grid::SGS_AddEMF_eddy_resistivity start\n",MyProcessorNumber);
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-    int B1Num, B2Num, B3Num, PhiNum;
+    int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
     this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num,
-            TENum, B1Num, B2Num, B3Num, PhiNum);
+            TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
 
     float* rho; 
     // if an explicit filter should be used
@@ -281,9 +281,9 @@ int grid::SGS_AddEMFTerms(float **dU) {
         printf("[%"ISYM"] grid::SGS_AddEMFTerms start\n",MyProcessorNumber);
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-    int B1Num, B2Num, B3Num, PhiNum;
+    int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
     this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num,
-            TENum, B1Num, B2Num, B3Num, PhiNum);
+            TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
 
     int size = 1;
     float *EMF[MAX_DIMENSION];

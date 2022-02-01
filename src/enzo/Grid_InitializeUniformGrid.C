@@ -35,7 +35,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
   int dim, i, j, k, index, size, field, GCM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRFNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRENum;
 
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
@@ -69,11 +69,11 @@ int grid::InitializeUniformGrid(float UniformDensity,
   }
 
   if ( CRModel ) {
-    CRENum = NumberOfBaryonFields;
-    FieldType[NumberOfBaryonFields++] = CRDensity;
+    FieldType[CRENum = NumberOfBaryonFields++] = CRDensity;
     if (CRModel > 1) {
-      CRFNum = NumberOfBaryonFields;
-      FieldType[NumberOfBaryonFields++] = CRFlux;
+      FieldType[NumberOfBaryonFields++] = CRFlux1;
+      FieldType[NumberOfBaryonFields++] = CRFlux2;
+      FieldType[NumberOfBaryonFields++] = CRFlux3;
     }
   }
 

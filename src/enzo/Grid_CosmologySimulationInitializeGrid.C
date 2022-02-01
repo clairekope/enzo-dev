@@ -237,8 +237,11 @@ int grid::CosmologySimulationInitializeGrid(
     if(CRModel){
         iCRE = NumberOfBaryonFields;
         FieldType[NumberOfBaryonFields++] = CRDensity;
-        if (CRModel > 1)
-          FieldType[NumberOfBaryonFields++] = CRFlux;
+        if (CRModel > 1) {
+          FieldType[NumberOfBaryonFields++] = CRFlux1;
+          FieldType[NumberOfBaryonFields++] = CRFlux2;
+          FieldType[NumberOfBaryonFields++] = CRFlux3;
+        }
     }
     if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;

@@ -74,9 +74,9 @@ int grid::ComovingExpansionTerms()
        (where appropriate). */
 
     int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, 
-		    B1Num, B2Num, B3Num, PhiNum, CRENum, CRFNum;
+		    B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRFNum) == FAIL) {
+					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num) == FAIL) {
             ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
     }
 

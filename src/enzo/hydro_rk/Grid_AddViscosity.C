@@ -39,9 +39,9 @@ int grid::AddViscosity()
     return SUCCESS;
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum;
+  int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
-				   TENum, B1Num, B2Num, B3Num, PhiNum);
+				   TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
 
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++) {

@@ -87,9 +87,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
   int dim, i, j, k, m, disk, size, MetalNum, MetalIaNum, vel;
  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-   DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
+   DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
  float DiskDensity, DiskVelocityMag;
-  int CRENum, DensNum;
+  int DensNum;
 
   /* global-scope variables for disk potential functions (would be better if not global) */
 
@@ -132,11 +132,13 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   }
 
   /* If cosmic rays present, set up field */
-  CRENum = NumberOfBaryonFields;
-  if( CRModel ) {
-    FieldType[NumberOfBaryonFields++] = CRDensity;
-	if (CRModel > 1)
-	  FieldType[NumberOfBaryonFields++] = CRFlux;
+  if ( CRModel ) {
+    FieldType[CRENum = NumberOfBaryonFields++] = CRDensity;
+    if (CRModel > 1) {
+      FieldType[NumberOfBaryonFields++] = CRFlux1;
+      FieldType[NumberOfBaryonFields++] = CRFlux2;
+      FieldType[NumberOfBaryonFields++] = CRFlux3;
+    }
   }
 
   if (MultiSpecies) {

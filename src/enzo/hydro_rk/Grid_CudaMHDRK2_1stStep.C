@@ -94,10 +94,10 @@ int grid::CudaMHDRK2_1stStep(fluxes *SubgridFluxes[],
   /* RK2 first step */
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum;
+  int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
                                    Vel3Num, TENum, B1Num, B2Num, B3Num, 
-                                   PhiNum);
+                                   PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
   int IdxBaryon[10] = 
     {DensNum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, GENum};
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,

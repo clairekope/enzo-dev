@@ -45,9 +45,9 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
   }
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, PhiNum;
+    B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
-				   TENum, B1Num, B2Num, B3Num, PhiNum);
+				   TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
 
 
   FLOAT a = 1, dadt;

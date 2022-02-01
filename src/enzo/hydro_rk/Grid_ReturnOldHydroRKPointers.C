@@ -35,7 +35,7 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   int i, n, dim, size, nfield, n0;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum;
+  int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
@@ -49,8 +49,8 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   else if (HydroMethod == MHD_RK) {
     this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				     Vel3Num, TENum, B1Num, B2Num, B3Num, 
-				     PhiNum);
+				     Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum,
+             CRENum, CRF1Num, CRF2Num, CRF3Num);
     nfield = n0 = NEQ_MHD;
   }
   

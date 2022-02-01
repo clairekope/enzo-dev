@@ -169,18 +169,20 @@ const field_type
 
   /* Cosmic Ray Energy Density & Energy Flux */
   CRDensity = 97,
-  CRFlux = 98,
+  CRFlux1 = 98,
+  CRFlux2 = 99,
+  CRFlux3 = 100,
  
   /* IR photodetachment fields */
-  kdissH2II = 99,
-  kphHM     = 100,
+  kdissH2II = 101,
+  kphHM     = 102,
 
   /* Real and Imag of Wave Function */
-  RePsi = 101,
-  ImPsi = 102,
-  FDMDensity = 103,
+  RePsi = 103,
+  ImPsi = 104,
+  FDMDensity = 105,
 
-  FieldUndefined  = 104;
+  FieldUndefined  = 106;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

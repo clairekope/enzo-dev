@@ -79,7 +79,8 @@ int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
 }
 
 int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
-             int &Vel2Num, int &Vel3Num, int &TENum, int &CRENum, int &CRFNum)
+                                     int &Vel2Num, int &Vel3Num, int &TENum,
+                                     int &CRENum, int &CRF1Num, int &CRF2Num, int &CRF3Num)
 {
 
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
@@ -87,14 +88,21 @@ int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
   /* Find Cosmic Rays, if possible */
 
   CRENum = 0;
-  CRFNum = 0;
+  CRF1Num = 0;
+  CRF2Num = 0;
+  CRF3Num = 0;
   if(CRModel) {
     if ((CRENum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0) {
       ENZO_FAIL("Cannot Find Cosmic Rays");
     }
-    if (CRModel > 1)
-      if((CRFNum = FindField(CRFlux, FieldType, NumberOfBaryonFields)) < 0)
-        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux")
+    if (CRModel > 1) {
+      if((CRF1Num = FindField(CRFlux1, FieldType, NumberOfBaryonFields)) < 0)
+        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
+      if((CRF2Num = FindField(CRFlux2, FieldType, NumberOfBaryonFields)) < 0)
+        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
+      if((CRF3Num = FindField(CRFlux3, FieldType, NumberOfBaryonFields)) < 0)
+        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
+    }
   }
 
   return SUCCESS;
@@ -172,100 +180,31 @@ int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
   return SUCCESS;
 }
 
-int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
-				     int &Vel2Num, int &Vel3Num, int &TENum,
-				     int &B1Num, int &B2Num, int &B3Num, int &PhiNum)
-{
-
-  DensNum = GENum = Vel1Num = Vel2Num = Vel3Num = TENum = 0;
-    
-  /* Find Density, if possible. */
-
-  if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
-        ENZO_FAIL("Cannot find density.");
-  }
-
-  /* Find Total energy, if possible. */
-
-  if ((TENum = FindField(TotalEnergy, FieldType, NumberOfBaryonFields)) < 0) {
-    if( EquationOfState != 1)
-      ENZO_FAIL("Cannot find total energy.");
-  }
-
-  /* Find gas energy, if possible. */
-
-  if (DualEnergyFormalism == TRUE) {
-    if ((GENum = FindField(InternalEnergy, FieldType,
-			   NumberOfBaryonFields)) < 0) {
-            ENZO_FAIL("Cannot find gas energy.");
-    }
-  }
-
-  /* Find Velocity1, if possible. */
-   
-  if ((Vel1Num = FindField(Velocity1, FieldType, NumberOfBaryonFields)) < 0) {
-        ENZO_FAIL("Cannot find Velocity1.");
-  }
-
-  /* Find Velocity2, if possible. */
-
-  if (MaxVelocityIndex>1)
-      if ((Vel2Num = FindField(Velocity2, FieldType, 
-			   NumberOfBaryonFields)) < 0) {
-        ENZO_FAIL("Cannot find Velocity2.");
-  }
-
-  /* Find Velocity3, if possible. */
-
-  if (MaxVelocityIndex>2)
-      if ((Vel3Num = FindField(Velocity3, FieldType, 
-                      NumberOfBaryonFields)) == 0) {
-          ENZO_FAIL("Cannot find Velocity3.");
-      }
-
-  if ( ! UseMHD ) {
-    return SUCCESS;
-  }
-
-  /* Find magnetic field components */
-
-  if ((B1Num = FindField(Bfield1, FieldType, NumberOfBaryonFields)) < 0) {
-        ENZO_FAIL("Cannot find Bfield1.");
-  }
-
-  if ((B2Num = FindField(Bfield2, FieldType, NumberOfBaryonFields)) < 0) {
-        ENZO_FAIL("Cannot find Bfield2.");
-  }
-   
-  if ((B3Num = FindField(Bfield3, FieldType, NumberOfBaryonFields)) < 0) {
-        ENZO_FAIL("Cannot find Bfield3.");
-  }
-
-  if ( HydroMethod == MHD_RK ){
-      if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
-            ENZO_FAIL("Cannot find Phi field.");
-      }
-  }
-
-  return SUCCESS;
-}
-
 
 int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
              int &Vel2Num, int &Vel3Num, int &TENum,
-             int &B1Num, int &B2Num, int &B3Num, int &PhiNum, int &CRENum, int &CRFNum){
+             int &B1Num, int &B2Num, int &B3Num, int &PhiNum, 
+             int &CRENum, int &CRF1Num, int &CRF2Num, int &CRF3Num){
 
   this->IdentifyPhysicalQuantities(DensNum,GENum,Vel1Num,Vel2Num,Vel3Num,
 				   TENum,B1Num,B2Num,B3Num,PhiNum);
 
   CRENum = 0;
-  CRFNum = 0;
-  if (CRModel) {
-    if ((CRENum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+  CRF1Num = 0;
+  CRF2Num = 0;
+  CRF3Num = 0;
+  if(CRModel) {
+    if ((CRENum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0) {
       ENZO_FAIL("Cannot Find Cosmic Rays");
-    if (CRModel > 1)
-      if((CRFNum = FindField(CRFlux, FieldType, NumberOfBaryonFields)) <0)
-        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux")
+    }
+    if (CRModel > 1) {
+      if((CRF1Num = FindField(CRFlux1, FieldType, NumberOfBaryonFields)) < 0)
+        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
+      if((CRF2Num = FindField(CRFlux2, FieldType, NumberOfBaryonFields)) < 0)
+        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
+      if((CRF3Num = FindField(CRFlux3, FieldType, NumberOfBaryonFields)) < 0)
+        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
+    }
   }
 
   return SUCCESS;

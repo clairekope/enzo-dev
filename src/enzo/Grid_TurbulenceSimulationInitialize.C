@@ -184,11 +184,12 @@ int grid::TurbulenceSimulationInitializeGrid(
   if (NumberOfBaryonFields > 0) {
 
       int DensNum = -1, GENum = -1, Vel1Num = -1, 
-                         Vel2Num=-1, Vel3Num=-1, TENum=-1,
-                         B1Num=-1, B2Num=-1, B3Num=-1, PhiNum=-1;
+          Vel2Num=-1, Vel3Num=-1, TENum=-1,
+          B1Num=-1, B2Num=-1, B3Num=-1, PhiNum=-1,
+          CRENum=-1, CRF1Num=-1, CRF2Num=-1, CRF3Num=-1;
       IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, 
                            Vel2Num, Vel3Num, TENum,
-                           B1Num, B2Num, B3Num, PhiNum);
+                           B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
 
  
   /* Determine the size of the fields. */

@@ -43,9 +43,9 @@ int grid::AddAmbipolarDiffusion()
     return SUCCESS;
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum;
+  int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
-				   TENum, B1Num, B2Num, B3Num, PhiNum);
+				   TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, 
     TimeUnits = 1.0, VelocityUnits = 1.0;
