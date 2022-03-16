@@ -822,6 +822,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   iS3	= 3;
   iEtot = 4;
   iEint = 0;
+  iCRE = 0;
+  iCRF1 = 0;
+  iCRF2 = 0;
+  iCRF3 = 0;
 
   UsePoissonDivergenceCleaning		   = 0;
   PoissonDivergenceCleaningBoundaryBuffer = 0;

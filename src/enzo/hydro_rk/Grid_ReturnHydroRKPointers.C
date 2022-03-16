@@ -68,12 +68,16 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[iBz] = BaryonField[B3Num];
     Prim[iPhi]= BaryonField[PhiNum];
   }
-  /*
-  printf("Physical Quantities: %"ISYM" %"ISYM"  %"ISYM" %"ISYM" %"ISYM"  %"ISYM"  %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n", 
-	 DensNum, GENum, Vel1Num, Vel2Num, 
-	 Vel3Num, TENum, B1Num, B2Num, B3Num, 
-	 PhiNum);
-  */
+
+  if (CRModel){
+    Prim[iCRE] = BaryonField[CRENum];
+    if (CRModel > 1){
+      Prim[iCRF1] = BaryonField[CRF1Num];
+      Prim[iCRF2] = BaryonField[CRF2Num];
+      Prim[iCRF3] = BaryonField[CRF3Num];
+    }
+  }
+
   /* Add the species */
 
   if (MultiSpecies) {

@@ -1844,6 +1844,29 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     iEint = 5;
   }
 
+  /* for cosmic rays we also need to set stuff */
+  if (( CRModel ) && ( HydroMethod == 4 )){ 
+    // Along with the variables above, iCRE is a hard-coded index used in arrays generated
+    // in the hydro_rk riemann solvers
+    NEQ_MHD += 1;
+    if (DualEnergyFormalism)
+      iCRE = 10;
+    else iCRE = 9;
+
+    if (CRModel > 1){
+      NEQ_MHD += 3;
+      if (DualEnergyFormalism){
+        iCRF1 = 11;
+        iCRF2 = 12;
+        iCRF3 = 13;
+      } else {
+        iCRF1 = 10;
+        iCRF2 = 11;
+        iCRF3 = 12;
+      }
+    }
+  }
+
   // Determine color fields (NColor) later inside a grid object.
   // Don't include free electron field
   switch (MultiSpecies) {

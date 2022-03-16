@@ -34,7 +34,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
   FieldType[NumberOfBaryonFields++] = CRDensity;
   
-  int iCRE = FindField(CRDensity, FieldType, NumberOfBaryonFields);
+  int CRENum = FindField(CRDensity, FieldType, NumberOfBaryonFields);
 
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
@@ -74,7 +74,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,
       BaryonField[ivy  ][i] = vyl;
       BaryonField[ivz  ][i] = vzl;
       BaryonField[ietot][i] = etotl;
-      BaryonField[iCRE ][i] = crl;
+      BaryonField[CRENum ][i] = crl;
       if (DualEnergyFormalism) {
 	BaryonField[ieint][i] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
       }
@@ -84,7 +84,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,
       BaryonField[ivy  ][i] = vyr;
       BaryonField[ivz  ][i] = vzr;
       BaryonField[ietot][i] = etotr;
-      BaryonField[iCRE ][i] = crr;
+      BaryonField[CRENum ][i] = crr;
       if (DualEnergyFormalism) {
 	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
       }
@@ -117,7 +117,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
 
-  int iCRE = FindField( CRDensity , FieldType, NumberOfBaryonFields);
+  int CRENum = FindField( CRDensity , FieldType, NumberOfBaryonFields);
 
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
@@ -156,7 +156,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       BaryonField[ivy  ][i] = vyl;
       BaryonField[ivz  ][i] = vzl;
       BaryonField[ietot][i] = etotl;
-      BaryonField[iCRE ][i] = crl;
+      BaryonField[CRENum ][i] = crl;
       if (DualEnergyFormalism) {
 	BaryonField[ieint][i] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
       }
@@ -166,7 +166,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       BaryonField[ivy  ][i] = vyc;
       BaryonField[ivz  ][i] = vzc;
       BaryonField[ietot][i] = etotc;
-      BaryonField[iCRE ][i] = crc;
+      BaryonField[CRENum ][i] = crc;
       if (DualEnergyFormalism) {
 	BaryonField[ieint][i] = etotc - 0.5*(vxc*vxc+vyc*vyc+vzc*vzc);
       }
@@ -177,7 +177,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       BaryonField[ivy  ][i] = vyr;
       BaryonField[ivz  ][i] = vzr;
       BaryonField[ietot][i] = etotr;
-      BaryonField[iCRE ][i] = crr;
+      BaryonField[CRENum ][i] = crr;
       if (DualEnergyFormalism) {
 	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
       }
@@ -199,13 +199,13 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
 	
     for (i = 0; i < GridDimension[0]; i++) {
       if( i < i0 )
-	BaryonField[iCRE][i] = crl;
+	BaryonField[CRENum][i] = crl;
       else if( i < i1 )
-	BaryonField[iCRE][i] = crl + mCR*(i-i0);
+	BaryonField[CRENum][i] = crl + mCR*(i-i0);
       else if( i < i2 )
-	BaryonField[iCRE][i] = crc - mCR*(i-i1);
+	BaryonField[CRENum][i] = crc - mCR*(i-i1);
       else
-	BaryonField[iCRE][i] = crl;
+	BaryonField[CRENum][i] = crl;
     } // end i for
   } // end if
 
@@ -217,7 +217,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
     for (i = 0; i < GridDimension[0]; i++) {
       x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];		
       x = x - x0;	// translate gaussian to center
-      BaryonField[iCRE][i] = 1.0/sqrt(4.0*pi*CRkappa*t0)
+      BaryonField[CRENum][i] = 1.0/sqrt(4.0*pi*CRkappa*t0)
 	* PEXP( -x*x/(4.0*CRkappa*t0));
     } // end i for
   } // end if

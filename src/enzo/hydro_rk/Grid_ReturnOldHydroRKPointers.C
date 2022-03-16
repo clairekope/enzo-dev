@@ -71,6 +71,15 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[iPhi] = OldBaryonField[PhiNum];
   }
 
+  if (CRModel){ 
+    Prim[iCRE] = OldBaryonField[CRENum];
+    if (CRModel > 1){
+      Prim[iCRF1] = OldBaryonField[CRF1Num];
+      Prim[iCRF2] = OldBaryonField[CRF2Num];
+      Prim[iCRF3] = OldBaryonField[CRF3Num];
+    }
+  }
+
   /* Add the species */
 
   if (MultiSpecies) {
