@@ -41,8 +41,6 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  if (DualEnergyFormalism > 0) NEQ_MHD = 10;
-
   TIMER_START("MHDRK2");
 #ifdef ECUDA
   if (UseCUDA) {
@@ -56,50 +54,50 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
   int size = 1;
   for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
-  double time1 = ReturnWallTime();
-  int igrid;
+    double time1 = ReturnWallTime();
+    int igrid;
 
-  /* allocate space for fluxes */
-  int fluxsize;
-  for (int subgrid = 0; subgrid < NumberOfSubgrids; subgrid++) {
-    for (int flux = 0; flux < GridRank; flux++)  {
+    /* allocate space for fluxes */
+    int fluxsize;
+    for (int subgrid = 0; subgrid < NumberOfSubgrids; subgrid++) {
+      for (int flux = 0; flux < GridRank; flux++)  {
+        
+        fluxsize = 1;
+        for (int j = 0; j < GridRank; j++) {
+          fluxsize *= SubgridFluxes[subgrid]->LeftFluxEndGlobalIndex[flux][j] -
+            SubgridFluxes[subgrid]->LeftFluxStartGlobalIndex[flux][j] + 1;
+        }
       
-      fluxsize = 1;
-      for (int j = 0; j < GridRank; j++) {
-	fluxsize *= SubgridFluxes[subgrid]->LeftFluxEndGlobalIndex[flux][j] -
-	  SubgridFluxes[subgrid]->LeftFluxStartGlobalIndex[flux][j] + 1;
-      }
-      
-      for (int j = GridRank; j < 3; j++) {
-	SubgridFluxes[subgrid]->LeftFluxStartGlobalIndex[flux][j] = 0;
-	SubgridFluxes[subgrid]->LeftFluxEndGlobalIndex[flux][j] = 0;
-	SubgridFluxes[subgrid]->RightFluxStartGlobalIndex[flux][j] = 0;
-	SubgridFluxes[subgrid]->RightFluxEndGlobalIndex[flux][j] = 0;
-      }
+        for (int j = GridRank; j < 3; j++) {
+          SubgridFluxes[subgrid]->LeftFluxStartGlobalIndex[flux][j] = 0;
+          SubgridFluxes[subgrid]->LeftFluxEndGlobalIndex[flux][j] = 0;
+          SubgridFluxes[subgrid]->RightFluxStartGlobalIndex[flux][j] = 0;
+          SubgridFluxes[subgrid]->RightFluxEndGlobalIndex[flux][j] = 0;
+        }
        
-      for (int field = 0; field < NumberOfBaryonFields; field++) {
-	if (SubgridFluxes[subgrid]->LeftFluxes[field][flux] == NULL) {
-	  SubgridFluxes[subgrid]->LeftFluxes[field][flux]  = new float[fluxsize];
-	}
-	if (SubgridFluxes[subgrid]->RightFluxes[field][flux] == NULL)
-	  SubgridFluxes[subgrid]->RightFluxes[field][flux] = new float[fluxsize];
-	for (int n = 0; n < fluxsize; n++) {
-	  SubgridFluxes[subgrid]->LeftFluxes[field][flux][n] = 0.0;
-	  SubgridFluxes[subgrid]->RightFluxes[field][flux][n] = 0.0;
-	}
-      }
+        for (int field = 0; field < NumberOfBaryonFields; field++) {
+          if (SubgridFluxes[subgrid]->LeftFluxes[field][flux] == NULL) {
+            SubgridFluxes[subgrid]->LeftFluxes[field][flux]  = new float[fluxsize];
+          }
+          if (SubgridFluxes[subgrid]->RightFluxes[field][flux] == NULL)
+            SubgridFluxes[subgrid]->RightFluxes[field][flux] = new float[fluxsize];
+          for (int n = 0; n < fluxsize; n++) {
+            SubgridFluxes[subgrid]->LeftFluxes[field][flux][n] = 0.0;
+            SubgridFluxes[subgrid]->RightFluxes[field][flux][n] = 0.0;
+          }
+        }
       
       for (int field = NumberOfBaryonFields; field < MAX_NUMBER_OF_BARYON_FIELDS; field++) {
-	SubgridFluxes[subgrid]->LeftFluxes[field][flux] = NULL;
-	SubgridFluxes[subgrid]->RightFluxes[field][flux] = NULL;
+        SubgridFluxes[subgrid]->LeftFluxes[field][flux] = NULL;
+        SubgridFluxes[subgrid]->RightFluxes[field][flux] = NULL;
       }
       
     }  // next flux
     
     for (int flux = GridRank; flux < 3; flux++) {
       for (int field = 0; field < MAX_NUMBER_OF_BARYON_FIELDS; field++) {
-	SubgridFluxes[subgrid]->LeftFluxes[field][flux] = NULL;
-	SubgridFluxes[subgrid]->RightFluxes[field][flux] = NULL;
+        SubgridFluxes[subgrid]->LeftFluxes[field][flux] = NULL;
+        SubgridFluxes[subgrid]->RightFluxes[field][flux] = NULL;
       }
     }
     

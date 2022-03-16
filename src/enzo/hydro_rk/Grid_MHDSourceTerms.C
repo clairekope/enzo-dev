@@ -69,24 +69,24 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
     int n = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  ip1 = igrid + 1;
-	  im1 = igrid - 1;
-	  jp1 = (GridRank > 1) ? i + GridDimension[0]*(j + 1 + k*GridDimension[1]) : 0;
-	  jm1 = (GridRank > 1) ? i + GridDimension[0]*(j - 1 + k*GridDimension[1]) : 0;
-	  kp1 = (GridRank > 2) ? i + GridDimension[0]*(j + (k+1)*GridDimension[1]) : 0;
-	  km1 = (GridRank > 2) ? i + GridDimension[0]*(j + (k-1)*GridDimension[1]) : 0;
-	  divVdt = dtdx*(BaryonField[Vel1Num][ip1] - BaryonField[Vel1Num][im1]) +
-	    dtdy*(BaryonField[Vel2Num][jp1] - BaryonField[Vel2Num][jm1]) +
-	    dtdz*(BaryonField[Vel3Num][kp1] - BaryonField[Vel3Num][km1]);
-	  rho = BaryonField[DensNum][igrid];
-	  eint = BaryonField[GENum][igrid];
-	  eint = max(eint, min_coeff*rho);
-	  EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
-	  dU[iEint][n] -= p*divVdt;
+        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+          igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+          ip1 = igrid + 1;
+          im1 = igrid - 1;
+          jp1 = (GridRank > 1) ? i + GridDimension[0]*(j + 1 + k*GridDimension[1]) : 0;
+          jm1 = (GridRank > 1) ? i + GridDimension[0]*(j - 1 + k*GridDimension[1]) : 0;
+          kp1 = (GridRank > 2) ? i + GridDimension[0]*(j + (k+1)*GridDimension[1]) : 0;
+          km1 = (GridRank > 2) ? i + GridDimension[0]*(j + (k-1)*GridDimension[1]) : 0;
+          divVdt = dtdx*(BaryonField[Vel1Num][ip1] - BaryonField[Vel1Num][im1]) +
+            dtdy*(BaryonField[Vel2Num][jp1] - BaryonField[Vel2Num][jm1]) +
+            dtdz*(BaryonField[Vel3Num][kp1] - BaryonField[Vel3Num][km1]);
+          rho = BaryonField[DensNum][igrid];
+          eint = BaryonField[GENum][igrid];
+          eint = max(eint, min_coeff*rho);
+          EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
+          dU[iEint][n] -= p*divVdt;
 
-	}
+        }
       }
     }
   }
@@ -106,19 +106,19 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
           vx  = BaryonField[Vel1Num][igrid];
           vy  = BaryonField[Vel2Num][igrid];
           vz  = BaryonField[Vel3Num][igrid];
-	  Bx  = BaryonField[B1Num  ][igrid];
-	  By  = BaryonField[B2Num  ][igrid];
-	  Bz  = BaryonField[B3Num  ][igrid];
-	  if (DualEnergyFormalism) {
-	    eint = BaryonField[ieint][igrid];
-	  }
-	  else {
-	    etot = BaryonField[TENum][igrid];
-	    v2 = vx*vx + vy*vy + vz*vz;
-	    B2 = Bx*Bx + By*By + Bz*Bz;
-	    eint = etot - 0.5*v2 - 0.5*B2/rho;
-	  }
-                  
+          Bx  = BaryonField[B1Num  ][igrid];
+          By  = BaryonField[B2Num  ][igrid];
+          Bz  = BaryonField[B3Num  ][igrid];
+          if (DualEnergyFormalism) {
+            eint = BaryonField[ieint][igrid];
+          }
+          else {
+            etot = BaryonField[TENum][igrid];
+            v2 = vx*vx + vy*vy + vz*vz;
+            B2 = Bx*Bx + By*By + Bz*Bz;
+            eint = etot - 0.5*v2 - 0.5*B2/rho;
+          }
+                        
           EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
          
           dtxinv = dtFixed/x;
@@ -138,25 +138,25 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
     int n = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[DensNum][igrid];
-	  
-	  gx = ConstantAcceleration[0];
-	  gy = ConstantAcceleration[1];
-	  gz = ConstantAcceleration[2];
-	  vx = BaryonField[Vel1Num][igrid];
-	  vy = BaryonField[Vel2Num][igrid];
-	  vz = BaryonField[Vel3Num][igrid];
-	  
-	  dU[iS1][n] += dtFixed*gx*rho;
-	  dU[iS2][n] += dtFixed*gy*rho;
-	  dU[iS3][n] += dtFixed*gz*rho;
-	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
+        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+          igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+          rho = BaryonField[DensNum][igrid];
+          
+          gx = ConstantAcceleration[0];
+          gy = ConstantAcceleration[1];
+          gz = ConstantAcceleration[2];
+          vx = BaryonField[Vel1Num][igrid];
+          vy = BaryonField[Vel2Num][igrid];
+          vz = BaryonField[Vel3Num][igrid];
+          
+          dU[iS1][n] += dtFixed*gx*rho;
+          dU[iS2][n] += dtFixed*gy*rho;
+          dU[iS3][n] += dtFixed*gz*rho;
+          dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
 
-	if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	  printf("StermStart4 old %"GSYM" \n", dU[iS2][n])  ;
-	}
+        if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
+          printf("StermStart4 old %"GSYM" \n", dU[iS2][n])  ;
+        }
       }
     }
   }
@@ -168,24 +168,24 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
     int n = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[DensNum][igrid];
-	  
-	  vx = BaryonField[Vel1Num][igrid];
-	  vy = BaryonField[Vel2Num][igrid];
-	  vz = BaryonField[Vel3Num][igrid];
-	  
-	  dU[iS1][n] -= dtFixed*GasDragCoefficient*vx*rho;
-	  dU[iS2][n] -= dtFixed*GasDragCoefficient*vy*rho;
-	  dU[iS3][n] -= dtFixed*GasDragCoefficient*vz*rho;
-	  dU[iEtot][n] -= dtFixed*rho*(GasDragCoefficient*vx*vx + 
-				       GasDragCoefficient*vy*vy + 
-				       GasDragCoefficient*vz*vz);
+        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+          igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+          rho = BaryonField[DensNum][igrid];
+          
+          vx = BaryonField[Vel1Num][igrid];
+          vy = BaryonField[Vel2Num][igrid];
+          vz = BaryonField[Vel3Num][igrid];
+          
+          dU[iS1][n] -= dtFixed*GasDragCoefficient*vx*rho;
+          dU[iS2][n] -= dtFixed*GasDragCoefficient*vy*rho;
+          dU[iS3][n] -= dtFixed*GasDragCoefficient*vz*rho;
+          dU[iEtot][n] -= dtFixed*rho*(GasDragCoefficient*vx*vx + 
+                    GasDragCoefficient*vy*vy + 
+                    GasDragCoefficient*vz*vz);
 
-	if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	  printf("StermStart4 old %"GSYM" \n", dU[iS2][n])  ;
-	}
+        if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
+          printf("StermStart4 old %"GSYM" \n", dU[iS2][n])  ;
+        }
       }
     }
   }
@@ -198,24 +198,24 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
     int n = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[DensNum][igrid];
-	  
-	  gx = AccelerationField[0][igrid];
-	  gy = (GridRank > 1) ? (AccelerationField[1][igrid]) : 0;
-	  gz = (GridRank > 2) ? (AccelerationField[2][igrid]) : 0;
+        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+          igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+          rho = BaryonField[DensNum][igrid];
+          
+          gx = AccelerationField[0][igrid];
+          gy = (GridRank > 1) ? (AccelerationField[1][igrid]) : 0;
+          gz = (GridRank > 2) ? (AccelerationField[2][igrid]) : 0;
 
-	  vx = BaryonField[Vel1Num][igrid];
-	  vy = BaryonField[Vel2Num][igrid];
-	  vz = BaryonField[Vel3Num][igrid];
-	  
-	  dU[iS1  ][n] += dtFixed*gx*rho;
-	  dU[iS2  ][n] += dtFixed*gy*rho;
-	  dU[iS3  ][n] += dtFixed*gz*rho;
-	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
-	
-	}
+          vx = BaryonField[Vel1Num][igrid];
+          vy = BaryonField[Vel2Num][igrid];
+          vz = BaryonField[Vel3Num][igrid];
+          
+          dU[iS1  ][n] += dtFixed*gx*rho;
+          dU[iS2  ][n] += dtFixed*gy*rho;
+          dU[iS3  ][n] += dtFixed*gz*rho;
+          dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
+        
+        }
       }
     }
   }
@@ -229,23 +229,23 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
     coef = -0.5*dadt/a;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  //	  rho = 0.5*(BaryonField[DensNum][igrid]+OldBaryonField[DensNum][igrid]);
-	  rho = BaryonField[DensNum][igrid];
-	  
-	  dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][igrid];
-	  dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][igrid];
-	  dU[iBz  ][n] += dtFixed*coef*BaryonField[B3Num][igrid];
+        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+          igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+          //	  rho = 0.5*(BaryonField[DensNum][igrid]+OldBaryonField[DensNum][igrid]);
+          rho = BaryonField[DensNum][igrid];
+          
+          dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][igrid];
+          dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][igrid];
+          dU[iBz  ][n] += dtFixed*coef*BaryonField[B3Num][igrid];
 
-	  dU[iEtot][n] -= dtFixed*coef*(BaryonField[B1Num][igrid]*BaryonField[B1Num][igrid]+
-					BaryonField[B2Num][igrid]*BaryonField[B2Num][igrid]+
-					BaryonField[B3Num][igrid]*BaryonField[B3Num][igrid]);
+          dU[iEtot][n] -= dtFixed*coef*(BaryonField[B1Num][igrid]*BaryonField[B1Num][igrid]+
+                BaryonField[B2Num][igrid]*BaryonField[B2Num][igrid]+
+                BaryonField[B3Num][igrid]*BaryonField[B3Num][igrid]);
 
-	  dU[iPhi][n] += 0.0; // Zero is the correct update, Phi is fully comoving.
+          dU[iPhi][n] += 0.0; // Zero is the correct update, Phi is fully comoving.
 
 
-	}
+        }
       }
     }
   }
@@ -266,25 +266,25 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
     
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+          igrid = i+(j+k*GridDimension[1])*GridDimension[0];
 
-	  rho    = BaryonField[DensNum     ][igrid];
-	  drivex = BaryonField[Drive1Num][igrid];
-	  drivey = BaryonField[Drive2Num][igrid];
-	  drivez = BaryonField[Drive3Num][igrid];
-	  vx     = BaryonField[Vel1Num      ][igrid];
-	  vy     = BaryonField[Vel2Num      ][igrid];
-	  vz     = BaryonField[Vel3Num      ][igrid];
+          rho    = BaryonField[DensNum     ][igrid];
+          drivex = BaryonField[Drive1Num][igrid];
+          drivey = BaryonField[Drive2Num][igrid];
+          drivez = BaryonField[Drive3Num][igrid];
+          vx     = BaryonField[Vel1Num      ][igrid];
+          vy     = BaryonField[Vel2Num      ][igrid];
+          vz     = BaryonField[Vel3Num      ][igrid];
 
-	  dU[iS1  ][n] += dtFixed*rho*drivex*DrivingEfficiency;
-	  dU[iS2  ][n] += dtFixed*rho*drivey*DrivingEfficiency;
-	  dU[iS3  ][n] += dtFixed*rho*drivez*DrivingEfficiency;
-	  dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz +
-        0.5 * dtFixed * (drivex * drivex + drivey * drivey + drivez * drivez)) * DrivingEfficiency;
+          dU[iS1  ][n] += dtFixed*rho*drivex*DrivingEfficiency;
+          dU[iS2  ][n] += dtFixed*rho*drivey*DrivingEfficiency;
+          dU[iS3  ][n] += dtFixed*rho*drivez*DrivingEfficiency;
+          dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz +
+              0.5 * dtFixed * (drivex * drivex + drivey * drivey + drivez * drivez)) * DrivingEfficiency;
 
 
-	}
+        }
       }
     }
   }
@@ -378,37 +378,37 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 
-	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[iden][igrid];
-	  xPos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i]-lengthx/2.0;
-	  xPos[1] = CellLeftEdge[1][i] + 0.5*CellWidth[1][i]-lengthy/2.0;
-	  if (GridRank==3) xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i]-lengthz/2.0;
-	  else xPos[2]=0;
-	  
-	  vels[0] = BaryonField[ivx][igrid];
-	  vels[1] = BaryonField[ivy][igrid];
-	  if (GridRank==3) vels[2] = BaryonField[ivz][igrid];
-	  else vels[2]=0;
+          igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+          rho = BaryonField[iden][igrid];
+          xPos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i]-lengthx/2.0;
+          xPos[1] = CellLeftEdge[1][i] + 0.5*CellWidth[1][i]-lengthy/2.0;
+          if (GridRank==3) xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i]-lengthz/2.0;
+          else xPos[2]=0;
+          
+          vels[0] = BaryonField[ivx][igrid];
+          vels[1] = BaryonField[ivy][igrid];
+          if (GridRank==3) vels[2] = BaryonField[ivz][igrid];
+          else vels[2]=0;
 
-	  //Omega cross V
+          //Omega cross V
 
-	  dU[indexNumbers[0]][n] -= dtFixed*2.0*rho*(A[1]*vels[2]-A[2]*vels[1]);
-	  dU[indexNumbers[1]][n] -= dtFixed*2.0*rho*(A[2]*vels[0]-A[0]*vels[2]);
-	  if (GridRank==3) dU[indexNumbers[2]][n] -= dtFixed*2.0*rho*(A[0]*vels[1]-A[1]*vels[0]);
-	
+          dU[indexNumbers[0]][n] -= dtFixed*2.0*rho*(A[1]*vels[2]-A[2]*vels[1]);
+          dU[indexNumbers[1]][n] -= dtFixed*2.0*rho*(A[2]*vels[0]-A[0]*vels[2]);
+          if (GridRank==3) dU[indexNumbers[2]][n] -= dtFixed*2.0*rho*(A[0]*vels[1]-A[1]*vels[0]);
+        
 
-	  dU[indexNumbers[ShearingBoundaryDirection]][n] += dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection];
-	  
-	  
-	  dU[iEtot][n] +=  dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection]*vels[ShearingBoundaryDirection];
-	
+          dU[indexNumbers[ShearingBoundaryDirection]][n] += dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection];
+          
+          
+          dU[iEtot][n] +=  dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection]*vels[ShearingBoundaryDirection];
+        
 
 
 
-	  
- 	}
+          
+        }
       }
     }
   }
@@ -448,35 +448,35 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
       center_k  = (int)((current_sn->getPosition()[2] - GridLeftEdge[2]) / CellWidth[2][0]);
 
       for(int k = center_k - num_sn_cells_z; k <= center_k + num_sn_cells_z; k++){
-	for(int j = center_j - num_sn_cells_y; j <= center_j + num_sn_cells_y; j++){
-	  for(int i = center_i - num_sn_cells_x; i <= center_i + num_sn_cells_x; i++){
-	    
-	    // only add magnetic feedback on the active grid cells
-	    if ((k >= GridStartIndex[2]) && (k <= GridEndIndex[2]) && 
-		(j >= GridStartIndex[1]) && (j <= GridEndIndex[1]) &&
-		(i >= GridStartIndex[0]) && (i <= GridEndIndex[0])){
-	      
-	      dx = CellWidth[0][0] * (float)(i-center_i); 
-	      dy = CellWidth[1][0] * (float)(j-center_j);
-	      dz = CellWidth[2][0] * (float)(k-center_k);
-	 
-	      dist_to_sn = sqrt(dx*dx + dy*dy + dz*dz);
-	      S = current_sn->getSourceTerms(dx, dy, dz, Time);
-	    
-	      // solving for index n
-	      // analogous to how igrid is calculated, but taking into acount Ghost Zones
-	      n = (i - GridStartIndex[0])+((j-GridStartIndex[1]) + (k-GridStartIndex[2])*active_y) * active_x;
-	      
-	      dU[iBx][n] += S.dbx*dtFixed;
-	      dU[iBy][n] += S.dby*dtFixed;
-	      dU[iBz][n] += S.dbz*dtFixed;
+        for(int j = center_j - num_sn_cells_y; j <= center_j + num_sn_cells_y; j++){
+          for(int i = center_i - num_sn_cells_x; i <= center_i + num_sn_cells_x; i++){
+            
+            // only add magnetic feedback on the active grid cells
+            if ((k >= GridStartIndex[2]) && (k <= GridEndIndex[2]) && 
+          (j >= GridStartIndex[1]) && (j <= GridEndIndex[1]) &&
+          (i >= GridStartIndex[0]) && (i <= GridEndIndex[0])){
+              
+              dx = CellWidth[0][0] * (float)(i-center_i); 
+              dy = CellWidth[1][0] * (float)(j-center_j);
+              dz = CellWidth[2][0] * (float)(k-center_k);
+        
+              dist_to_sn = sqrt(dx*dx + dy*dy + dz*dz);
+              S = current_sn->getSourceTerms(dx, dy, dz, Time);
+            
+              // solving for index n
+              // analogous to how igrid is calculated, but taking into acount Ghost Zones
+              n = (i - GridStartIndex[0])+((j-GridStartIndex[1]) + (k-GridStartIndex[2])*active_y) * active_x;
+              
+              dU[iBx][n] += S.dbx*dtFixed;
+              dU[iBy][n] += S.dby*dtFixed;
+              dU[iBz][n] += S.dbz*dtFixed;
 
-	      dU[iEtot][n] += S.dUtot * dtFixed;
-	      
-	    }
+              dU[iEtot][n] += S.dUtot * dtFixed;
+              
+            }
 
-	  } // End of k for-loop     
-	} // End of j for-loop    
+          } // End of k for-loop     
+        } // End of j for-loop    
       } // End of i for-loop  
     } // End of MagneticSupernovaList loop
   } // End of UseMagneticSupernovaFeedback scope                                                                                   
