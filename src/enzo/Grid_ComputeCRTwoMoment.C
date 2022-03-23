@@ -115,7 +115,7 @@ int grid::ComputeCRTwoMoment(){
 
   // Set up start and end indexes to cover all of grid except outermost cells.
   int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
-  // KEEP?
+  // KEEP? probably yes, because I need left and right cells to be defined
   for (int dim = 0; dim<GridRank; dim++ ) {
     GridStart[dim] = 1;
     GridEnd[dim] = GridDimension[dim]-1;
@@ -199,8 +199,8 @@ int grid::ComputeCRTwoMoment(){
 
         } else { // no streaming
           for (int dim=0; dim<3; ++dim){        
-            v_str[i] = 0;
-            sigma_str[i] = max_opacity;
+            v_str[dim] = 0;
+            sigma_str[dim] = max_opacity;
           }
         }
 
