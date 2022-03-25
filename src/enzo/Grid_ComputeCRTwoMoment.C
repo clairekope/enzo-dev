@@ -157,7 +157,8 @@ int grid::ComputeCRTwoMoment(){
           va_mag = 0;
           inv_sqrt_rho = 1.0 / sqrt(dens[id]);
 
-          /* 1a. Roughly calculate the streaming velocity & direction */
+          /* 1a. Calculate the streaming velocity & direction */
+          /* TODO: replace grad P with esitmate from reconstruction? */
           for (int dim=0; dim<GridRank; ++dim){ 
 
             // Get index of left and right cells for this dimension

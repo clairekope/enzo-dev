@@ -74,45 +74,53 @@ int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[],
 
       // copy the relevant part of U and Prim into U1 and Prim1
       for (j = 0; j < GridDimension[1]; j++) {
-	igrid = (i + GridStartIndex[0]) + j * GridDimension[0] +
-	  (k + GridStartIndex[2]) * GridDimension[1] * GridDimension[0];
-	
-	rho = Prim[iden][igrid]; // density
-	vx  = Prim[ivy ][igrid]; // vx = vy
-	vy  = Prim[ivz ][igrid]; // vy = vz
-	vz  = Prim[ivx ][igrid]; // vz = vx
-	Bx  = Prim[iBy ][igrid];
-	By  = Prim[iBz ][igrid];
-	Bz  = Prim[iBx ][igrid];
-	if (DualEnergyFormalism) {
-	  Prim1[1][j] = Prim[ieint][igrid];
-	} else {
-	  etot = Prim[ietot][igrid];
-	  v2 = vx*vx + vy*vy + vz*vz;
-	  B2 = Bx*Bx + By*By + Bz*Bz;
-	  Prim1[1][j] = etot - 0.5*v2 - 0.5*B2/rho;
-	}
+        igrid = (i + GridStartIndex[0]) + j * GridDimension[0] +
+          (k + GridStartIndex[2]) * GridDimension[1] * GridDimension[0];
+        
+        rho = Prim[iden][igrid]; // density
+        vx  = Prim[ivy ][igrid]; // vx = vy
+        vy  = Prim[ivz ][igrid]; // vy = vz
+        vz  = Prim[ivx ][igrid]; // vz = vx
+        Bx  = Prim[iBy ][igrid];
+        By  = Prim[iBz ][igrid];
+        Bz  = Prim[iBx ][igrid];
+        if (DualEnergyFormalism) {
+          Prim1[1][j] = Prim[ieint][igrid];
+        } else {
+          etot = Prim[ietot][igrid];
+          v2 = vx*vx + vy*vy + vz*vz;
+          B2 = Bx*Bx + By*By + Bz*Bz;
+          Prim1[1][j] = etot - 0.5*v2 - 0.5*B2/rho;
+        }
 
-	if (EOSType > 0) {
-	  float h, cs, dpdrho, dpde;
-	  EOS(p, Prim[iden][igrid], Prim1[1][j], h, cs, dpdrho, dpde, EOSType, 0);
-	  Prim1[1][j] = p;
-	} 
+        if (EOSType > 0) {
+          float h, cs, dpdrho, dpde;
+          EOS(p, Prim[iden][igrid], Prim1[1][j], h, cs, dpdrho, dpde, EOSType, 0);
+          Prim1[1][j] = p;
+        } 
 
-	Prim1[1][j] = max(Prim1[1][j], min_coeff*rho);
-	Prim1[0][j] = rho;
-	Prim1[2][j] = vx;
-	Prim1[3][j] = vy;
-	Prim1[4][j] = vz;
+        Prim1[1][j] = max(Prim1[1][j], min_coeff*rho);
+        Prim1[0][j] = rho;
+        Prim1[2][j] = vx;
+        Prim1[3][j] = vy;
+        Prim1[4][j] = vz;
         Prim1[5][j] = Bx;
         Prim1[6][j] = By;
         Prim1[7][j] = Bz;
         Prim1[8][j] = Prim[iPhi][igrid];
+        if (CRModel){
+          Prim1[9][i] = Prim[iCRE][igrid];
+          if (CRModel > 1) {
+            Prim1[10][i] = Prim[iCRF1][igrid];
+            Prim1[11][i] = Prim[iCRF2][igrid];
+            Prim1[12][i] = Prim[iCRF3][igrid];
+          }
+        }
       }
 
-      /* Copy species and color fields */
+/* Copy species and color fields */
 
-      for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
+for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
 	for (j = 0; j < GridDimension[1]; j++) {
 	  igrid = (i + GridStartIndex[0]) + j * GridDimension[0] +
 	    (k + GridStartIndex[2]) * GridDimension[1] * GridDimension[0];
@@ -142,6 +150,14 @@ int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[],
 	Flux3D[iBy ][iflux] = FluxLine[iBx ][j];
 	Flux3D[iBz ][iflux] = FluxLine[iBy ][j];
 	Flux3D[iPhi][iflux] = FluxLine[iPhi][j];
+  if (CRModel) {
+    Flux3D[iCRE][iflux] = FluxLine[iCRE][j];
+    if (CRModel > 1) {
+      Flux3D[iCRF1][iflux] = FluxLine[iCRF1][j];
+      Flux3D[iCRF2][iflux] = FluxLine[iCRF2][j];
+      Flux3D[iCRF3][iflux] = FluxLine[iCRF3][j];
+    }
+  }
 	for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
 	  Flux3D[field][iflux] = FluxLine[field][j];
 	}

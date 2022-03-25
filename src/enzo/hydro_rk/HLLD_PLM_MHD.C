@@ -37,12 +37,13 @@ int HLLD_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
 		char direc, int jj, int kk)
 {
+  int idual = (DualEnergyFormalism) ? 1 : 0;
 
   // compute priml and primr
   if (ConservativeReconstruction == 1)
-    cons_plm(prim, priml, primr, ActiveSize, 9, direc);
+    cons_plm(prim, priml, primr, ActiveSize, NEQ_MHD-idual, direc);
   else
-    plm(prim, priml, primr, ActiveSize, 9);
+    plm(prim, priml, primr, ActiveSize, NEQ_MHD-idual);
 
   // compute FluxLine
   if (hlld_mhd(FluxLine, priml, primr, prim, ActiveSize)==FAIL) {
@@ -50,7 +51,7 @@ int HLLD_PLM_MHD(float **prim, float **priml, float **primr,
   }
 
   if (NSpecies > 0) {
-    plm_species(prim, 9, species, FluxLine[iD], ActiveSize);
+    plm_species(prim, NEQ_MHD-idual, species, FluxLine[iD], ActiveSize);
     for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies; field++) {
       for (int i = 0; i < ActiveSize+1; i++) {
 	FluxLine[field][i] = FluxLine[iD][i]*species[field-NEQ_MHD][i];
@@ -59,7 +60,7 @@ int HLLD_PLM_MHD(float **prim, float **priml, float **primr,
   }
 
   if (NColor > 0) {
-    plm_color(prim, 9, colors, FluxLine[iD], ActiveSize);
+    plm_color(prim, NEQ_MHD-idual, colors, FluxLine[iD], ActiveSize);
     for (int field = NEQ_MHD+NSpecies; field < NEQ_MHD+NSpecies+NColor; field++) {
       for (int i = 0; i < ActiveSize+1; i++) {
 	FluxLine[field][i] = FluxLine[iD][i]*colors[field-NEQ_MHD-NSpecies][i];

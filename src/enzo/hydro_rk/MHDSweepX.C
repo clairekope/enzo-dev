@@ -114,6 +114,14 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
 	Prim1[6][i] = By;
 	Prim1[7][i] = Bz;
 	Prim1[8][i] = Prim[iPhi][igrid];
+  if (CRModel){
+    Prim1[9][i] = Prim[iCRE][igrid];
+    if (CRModel > 1) {
+      Prim1[10][i] = Prim[iCRF1][igrid];
+      Prim1[11][i] = Prim[iCRF2][igrid];
+      Prim1[12][i] = Prim[iCRF3][igrid];
+    }
+  }
 //	if (ConservativeReconstruction)  // add dx/dt for every cell
 //	  Prim1[9][i] = dtdx*CellWidth[0][0]/CellWidth[0][i];
       }
@@ -121,26 +129,26 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
       /* Copy species and color fields */
       
       for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
-	for (i = 0; i < GridDimension[0]; i++) {
-	  igrid = i + (j + GridStartIndex[1]
-		       + (k + GridStartIndex[2])*GridDimension[1]) * GridDimension[0];
-	  Prim1[field-idual][i] = Prim[field][igrid];
-	}
+        for (i = 0; i < GridDimension[0]; i++) {
+          igrid = i + (j + GridStartIndex[1]
+                + (k + GridStartIndex[2])*GridDimension[1]) * GridDimension[0];
+          Prim1[field-idual][i] = Prim[field][igrid];
+        }
       }
 
       // compute FluxLine from U1 and Prim1
       if (MHDLine(Prim1, priml, primr, species, colors, 
-		  FluxLine, Xactivesize, dtdx, 'x', j, k, fallback) == FAIL) {
-	printf("MHDSweepX: MHDLine failed.\n");
-	return FAIL;
+          FluxLine, Xactivesize, dtdx, 'x', j, k, fallback) == FAIL) {
+      printf("MHDSweepX: MHDLine failed.\n");
+      return FAIL;
       }
 
       // copy FluxLine to the corresponding part of Flux3D
       for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
-	for (i = 0; i < Xactivesize+1; i++) {
-	  iflux = i + (Xactivesize+1)*(j + k*(Yactivesize+1));
-	  Flux3D[field][iflux] = FluxLine[field][i];
-	}
+        for (i = 0; i < Xactivesize+1; i++) {
+          iflux = i + (Xactivesize+1)*(j + k*(Yactivesize+1));
+          Flux3D[field][iflux] = FluxLine[field][i];
+        }
       }
     }
   }

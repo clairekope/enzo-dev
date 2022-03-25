@@ -40,13 +40,15 @@ int LLF_PLM_MHD(float **prim, float **priml, float **primr,
 		char direc, int jj, int kk)
 {
 
+  int idual = (DualEnergyFormalism) ? 1 : 0;
+
   // compute priml and primr
 #ifdef ECUDA
   if (UseCUDA) {
-    cuda_plm(prim, priml, primr, ActiveSize, 9, Theta_Limiter);
+    cuda_plm(prim, priml, primr, ActiveSize, NEQ_MHD-idual, Theta_Limiter);
     } else   
 #endif
-  if (plm(prim, priml, primr, ActiveSize, 9) == FAIL) {
+  if (plm(prim, priml, primr, ActiveSize, NEQ_MHD-idual) == FAIL) {
     return FAIL;
   }
 
@@ -56,7 +58,7 @@ int LLF_PLM_MHD(float **prim, float **priml, float **primr,
   }
 
   if (NSpecies > 0) {
-    plm_species(prim, 9, species, FluxLine[iD], ActiveSize);
+    plm_species(prim, NEQ_MHD-idual, species, FluxLine[iD], ActiveSize);
     for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies; field++) {
       for (int i = 0; i < ActiveSize+1; i++) {
 	FluxLine[field][i] = FluxLine[iD][i]*species[field-NEQ_MHD][i];
@@ -65,7 +67,7 @@ int LLF_PLM_MHD(float **prim, float **priml, float **primr,
   }
 
   if (NColor > 0) {
-    plm_color(prim, 9, colors, FluxLine[iD], ActiveSize);
+    plm_color(prim, NEQ_MHD-idual, colors, FluxLine[iD], ActiveSize);
     for (int field = NEQ_MHD+NSpecies; field < NEQ_MHD+NSpecies+NColor; field++) {
       for (int i = 0; i < ActiveSize+1; i++) {
 	FluxLine[field][i] = FluxLine[iD][i]*colors[field-NEQ_MHD-NSpecies][i];
