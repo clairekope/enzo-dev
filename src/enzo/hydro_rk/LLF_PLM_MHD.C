@@ -37,7 +37,7 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
 
 int LLF_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
-		char direc, int jj, int kk, float *v_cr)
+		char direc, int jj, int kk, float *v_cr1)
 {
 
   int idual = (DualEnergyFormalism) ? 1 : 0;

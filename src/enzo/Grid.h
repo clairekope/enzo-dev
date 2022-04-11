@@ -452,7 +452,7 @@ public:
 
 /* Ditto but for the two-moment CR method (Jiang & Oh 2018) */
 
-   int ComputeCRTransportSpeed(float *v_cr, float *B_angles);
+   int ComputeCRTransportSpeed(float **v_cr, float *B_angles);
    int ComputeCRTwoMomentTimeStep(float &dt);
 
 /* Baryons: Copy current solution to Old solution (returns success/fail)

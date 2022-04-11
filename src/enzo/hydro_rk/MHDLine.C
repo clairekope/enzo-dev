@@ -21,31 +21,31 @@
 
 int HLL_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
-		char direc, int jj, int kk, float *v_cr);
+		char direc, int jj, int kk, float *v_cr1);
 int LLF_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
-		char direc, int jj, int kk, float *v_cr);
+		char direc, int jj, int kk, float *v_cr1);
 int HLL_PPM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
-		char direc, int jj, int kk, float *v_cr);
+		char direc, int jj, int kk, float *v_cr1);
 int HLLD_Zero_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
-		char direc, int jj, int kk, float *v_cr);
+		char direc, int jj, int kk, float *v_cr1);
 int HLLD_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
-		char direc, int jj, int kk, float *v_cr);
+		char direc, int jj, int kk, float *v_cr1);
 int LLF_Zero_MHD(float **prim, float **priml, float **primr,
                  float **species, float **colors,  float **FluxLine, int ActiveSize,
-                 char direc, int ij, int ik, float *v_cr);
+                 char direc, int ij, int ik, float *v_cr1);
 double ReturnWallTime();
 
 int MHDLine(float **Prim, float **priml, float **primr,
 	    float **species, float **colors, float **FluxLine, int ActiveSize,
-	    float dtdx, char direc, int jj, int kk, int fallback, float *v_cr)
+	    float dtdx, char direc, int jj, int kk, int fallback, float *v_cr1)
 {
 
   if (fallback > 0) {
-    if (LLF_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr) == FAIL) {
+    if (LLF_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr1) == FAIL) {
       printf("HydroLine: LLF_Zero failed\n");
       return FAIL;
     }
@@ -53,37 +53,37 @@ int MHDLine(float **Prim, float **priml, float **primr,
   }
 
   if (RiemannSolver == HLL && ReconstructionMethod == PLM) {
-    if (HLL_PLM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr) == FAIL) {
+    if (HLL_PLM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr1) == FAIL) {
       printf("HydroLineMHD: HLL_PLM failed\n");
       return FAIL;
     }
   }
   else if (RiemannSolver == LLF && ReconstructionMethod == PLM) {
-    if (LLF_PLM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr) == FAIL) {
+    if (LLF_PLM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr1) == FAIL) {
       printf("HydroLineMHD: HLL_PLM failed\n");
       return FAIL;
     }
   }
   else if (RiemannSolver == HLL && ReconstructionMethod == PPM) {
-    if (HLL_PPM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr) == FAIL) {
+    if (HLL_PPM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr1) == FAIL) {
       printf("HydroLineMHD: HLL_PPM failed\n");
       return FAIL;
     }
   }
   else if (RiemannSolver == HLLD && ReconstructionMethod == ZERO) {
-    if (HLLD_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr) == FAIL) {
+    if (HLLD_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr1) == FAIL) {
       printf("HydroLineMHD: HLLD_Zero failed\n");
       return FAIL;
     }
   }
   else if (RiemannSolver == HLLD && ReconstructionMethod == PLM) {
-    if (HLLD_PLM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr) == FAIL) {
+    if (HLLD_PLM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr1) == FAIL) {
       printf("HydroLineMHD: HLLD_PLM failed\n");
       return FAIL;
     }
   }
   else if (RiemannSolver == LLF && ReconstructionMethod == ZERO) {
-    if (LLF_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr) == FAIL) {
+    if (LLF_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk, v_cr1) == FAIL) {
       printf("HydroLine: LLF_Zero failed\n");
       return FAIL;
     }

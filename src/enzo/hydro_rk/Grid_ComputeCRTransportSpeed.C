@@ -41,7 +41,7 @@ void InvRotateVec(const float sint, const float cost,
                   float &v1, float &v2, float &v3);
 
 
-int grid::ComputeCRTransportSpeed(float *v_cr, float *B_angles){
+int grid::ComputeCRTransportSpeed(float **v_cr, float *B_angles){
 
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
@@ -50,7 +50,7 @@ int grid::ComputeCRTransportSpeed(float *v_cr, float *B_angles){
     return SUCCESS;
 
   // Indices and field pointers
-  int size=1, id, id3[3], id4[4], idl, idr, i,j,k; 
+  int size=1, id, id4[4], idl, idr, i,j,k; 
   float *dens, *E_cr, *F1_cr, *F2_cr, *F3_cr, *B[3];
 
   float *dx = new float[GridRank];
@@ -95,18 +95,13 @@ int grid::ComputeCRTransportSpeed(float *v_cr, float *B_angles){
 
   // Local cell variables
   float sigma_str[3], sigma_diff[3], sigma_tot[3], tau[3];
-  // float *v_cr = new float[size*GridRank];
 
   // for frame transformation:
   float B_mag, Bxy_mag;
-  // float *B_angles = new float[size*4];
 
   // for streaming:
   float dP, B_dot_grad_P, inv_sqrt_rho;
   int stream_sign, va_mag; //va[3];
-  // float *v_str;
-  // if (TRUE) // check streaming
-  //   v_str = new float[size*GridRank];
 
   // Placeholder values
   float max_opacity = 1/tiny_number;
@@ -125,15 +120,8 @@ int grid::ComputeCRTransportSpeed(float *v_cr, float *B_angles){
     for (j = GridStart[1]; j <= GridEnd[1]; j++)
       for (i = GridStart[0]; i <= GridEnd[0]; i++) {
         
-        // Location in grid arrays
-        id = ELT(i,j,k);
-
         // Indicies for local arrays; e.g., v_cr and B_angles
-        id3[0] = id*3;       // x face
-        if (GridRank > 1)
-          id3[1] = id3[0]+1; // y face
-        if (GridRank > 2)
-          id3[2] = id3[0]+2; // z face
+        id = ELT(i,j,k);
 
         id4[0] = id*4;       // b*sin(theta)
         id4[1] = id4[0]+1;   // b*cos(theta)
@@ -186,7 +174,7 @@ int grid::ComputeCRTransportSpeed(float *v_cr, float *B_angles){
           /* 1b. Set the streaming velocity & sigma_str from the Alfven speed 
                  in the B-field frame (B vector is x-axis)*/
           // for (int dim=0; dim<GridRank; ++dim){
-          //   v_str[id3[dim]] = stream_sign * va[dim];
+          //   v_str[dim][id] = stream_sign * va[dim];
           // }
 
           if (va_mag < tiny_number) {
@@ -222,9 +210,9 @@ int grid::ComputeCRTransportSpeed(float *v_cr, float *B_angles){
 
           /* 2b. Set the transport velocity from the optical depth */
           if (tau[dim] < 1e-3)
-            v_cr[id3[dim]] = sqrt(1.0 - 0.5*tau[dim]);
+            v_cr[dim][id] = sqrt(1.0 - 0.5*tau[dim]);
           else
-            v_cr[id3[dim]] = sqrt((1.0 - exp(-tau[dim])) / tau[dim]);
+            v_cr[dim][id] = sqrt((1.0 - exp(-tau[dim])) / tau[dim]);
         
         } // End loop over dimensions
 
@@ -247,21 +235,16 @@ int grid::ComputeCRTransportSpeed(float *v_cr, float *B_angles){
 
         /* 2d. Rotate v_cr to the simulation frame & finalize */
         InvRotateVec(B_angles[id4[0]], B_angles[id4[1]], B_angles[id4[2]], B_angles[id4[3]], 
-                      v_cr[id3[0]], v_cr[id3[1]], v_cr[id3[2]]);
+                      v_cr[0][id], v_cr[1][id], v_cr[2][id]);
 
         for (int dim=0; dim<GridRank; ++dim) {
-          v_cr[id3[dim]] = fabs(v_cr[id3[dim]]); // each dim is speed across face; no direction needed
+          v_cr[dim][id] = fabs(v_cr[dim][id]); // each dim is speed across face; no direction needed
 
           // Add CR sound speed for stability, if specified
-          v_cr[id3[dim]] += cr_sound_flag * sqrt( (4.0/3.0) * E_cr[id]/3.0 / dens[id] );
+          v_cr[dim][id] += cr_sound_flag * sqrt( (4.0/3.0) * E_cr[id]/3.0 / dens[id] );
         }
 
 	} // triple for loop
-
-  // delete [] B_angles;
-  // delete [] v_cr;
-  // if (TRUE) // check streaming
-  //   delete [] v_str;
 
   return SUCCESS;  
 }

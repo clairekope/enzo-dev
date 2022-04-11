@@ -26,10 +26,10 @@
 
 int MHDLine(float **Prim, float **priml, float **primr,
 	    float **species, float **colors, float **FluxLine, int ActiveSize,
-	    float dtdx, char direc, int jj, int kk, int fallback, float *v_cr);
+	    float dtdx, char direc, int jj, int kk, int fallback, float *v_cr1);
 
 int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float *v_cr)
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float **v_cr)
   /*
     Input: U[NEQ_MHD][GridDimension^3].
            Prim[NEQ_MHD+1][GridDimension^3].
@@ -41,6 +41,7 @@ int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[],
   int idual = (DualEnergyFormalism) ? 1 : 0;
   float *FluxLine[NEQ_MHD+NSpecies+NColor];
   float *Prim1[NEQ_MHD+NSpecies+NColor-idual];
+  float *v_cr1;
   float *priml[NEQ_MHD-idual], *primr[NEQ_MHD-idual], *species[NSpecies], *colors[NColor];
   
   int Xactivesize = GridDimension[0]-2*NumberOfGhostZones;
@@ -53,6 +54,9 @@ int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[],
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor-idual; field++) {
     Prim1[field] = new float[GridDimension[1]];
   }
+
+  if (CRModel > 1)
+    v_cr1 = new float[GridDimension[1]];
 
   int extra = (ReconstructionMethod == PPM);
   for (int field = 0; field < NEQ_MHD-idual; field++) {
@@ -118,21 +122,29 @@ int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[],
         }
       }
 
-/* Copy species and color fields */
+      /* Copy species and color fields */
 
-for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
-	for (j = 0; j < GridDimension[1]; j++) {
-	  igrid = (i + GridStartIndex[0]) + j * GridDimension[0] +
-	    (k + GridStartIndex[2]) * GridDimension[1] * GridDimension[0];
-	  Prim1[field-idual][j] = Prim[field][igrid];
-	}
+      for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
+        for (j = 0; j < GridDimension[1]; j++) {
+          igrid = (i + GridStartIndex[0]) + j * GridDimension[0] +
+            (k + GridStartIndex[2]) * GridDimension[1] * GridDimension[0];
+          Prim1[field-idual][j] = Prim[field][igrid];
+        }
+      }
+
+      if (CRModel > 1) {
+        for (j = 0; j < GridDimension[1]; j++) {
+          igrid = (i + GridStartIndex[0]) + j * GridDimension[0] +
+            (k + GridStartIndex[2]) * GridDimension[1] * GridDimension[0];
+          v_cr1[j] = v_cr[1][igrid];
+        }
       }
 	    
       // compute FluxLine from U1 and Prim1
       if (MHDLine(Prim1, priml, primr, species, colors, 
-		  FluxLine, Yactivesize, dtdx, 'y', i, k, fallback, v_cr) == FAIL) {
-	printf("MHDLine failed.\n");
-	return FAIL;
+		      FluxLine, Yactivesize, dtdx, 'y', i, k, fallback, v_cr1) == FAIL) {
+        printf("MHDLine failed.\n");
+        return FAIL;
       }
       
       // copy FluxLine to the corresponding part of Flux3D
@@ -172,6 +184,10 @@ for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor-idual; field++) {
     delete [] Prim1[field];
   }
+
+  if (CRModel > 1)
+    delete [] v_cr1;
+
   for (int field = 0; field < NEQ_MHD-idual; field++) {
     delete [] priml[field];
     delete [] primr[field];

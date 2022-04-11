@@ -24,11 +24,11 @@
 #include "Grid.h"
 
 int MHDSweepX(float **Prim,  float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float *v_cr);
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float **v_cr);
 int MHDSweepY(float **Prim,  float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float *v_cr);
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float **v_cr);
 int MHDSweepZ(float **Prim,  float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float *v_cr);
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float **v_cr);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int grid::MHD3D(float **Prim, float **dU, float dt,
@@ -93,9 +93,12 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     }
   }
 
-  float *v_cr, *B_angles;
+  float *v_cr[GridRank], *B_angles;
   if (CRModel > 1) {
-    v_cr = new float[size*GridRank];
+    
+    for (int dim=0; dim<GridRank; ++dim)
+      v_cr[dim] = new float[size];
+
     B_angles = new float[size*4];
 
     this->ComputeCRTransportSpeed(v_cr, B_angles);
@@ -250,7 +253,9 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
   // Will need angles from before
 
   if (CRModel > 1) {
-    delete [] v_cr;
+    for (int dim=0; dim<GridRank; ++dim)
+      delete [] v_cr[dim];
+      
     delete [] B_angles;
   }
 
