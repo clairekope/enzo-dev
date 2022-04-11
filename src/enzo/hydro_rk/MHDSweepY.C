@@ -26,10 +26,10 @@
 
 int MHDLine(float **Prim, float **priml, float **primr,
 	    float **species, float **colors, float **FluxLine, int ActiveSize,
-	    float dtdx, char direc, int jj, int kk, int fallback);
+	    float dtdx, char direc, int jj, int kk, int fallback, float *v_cr);
 
 int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback)
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float *v_cr)
   /*
     Input: U[NEQ_MHD][GridDimension^3].
            Prim[NEQ_MHD+1][GridDimension^3].
@@ -130,7 +130,7 @@ for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
 	    
       // compute FluxLine from U1 and Prim1
       if (MHDLine(Prim1, priml, primr, species, colors, 
-		  FluxLine, Yactivesize, dtdx, 'y', i, k, fallback) == FAIL) {
+		  FluxLine, Yactivesize, dtdx, 'y', i, k, fallback, v_cr) == FAIL) {
 	printf("MHDLine failed.\n");
 	return FAIL;
       }

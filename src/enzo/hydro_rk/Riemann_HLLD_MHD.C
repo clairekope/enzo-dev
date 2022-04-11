@@ -22,7 +22,13 @@
 
 int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int ActiveSize)
 {
-  float Ul[NEQ_MHD], Ur[NEQ_MHD], Fl[NEQ_MHD], Fr[NEQ_MHD], Us[NEQ_MHD], Uss[NEQ_MHD];
+  int neq = NEQ_MHD;
+  if (CRModel > 1){
+    // Two-moment CR solver uses it's own Riemann solver
+    neq -= 4; // CR energy & 3 flux fields
+  }
+  
+  float Ul[neq], Ur[neq], Fl[neq], Fr[neq], Us[neq], Uss[neq];
   float etot_l,etot_r, eint_l, eint_r, h, dpdrho, dpde, rho_l, rho_r, vx_l, vy_l, vz_l, vx_r, vy_r, vz_r, Bx_l, Bx_r,Bx, By_l, Bz_l, By_r, Bz_r, Phi_l, Phi_r, v2, B2, Bv_l, Bv_r, p_l, p_r, cs_l, cs_r, pt_l, pt_r;
   float rho_ls, rho_rs, vy_ls, vy_rs, vz_ls, vz_rs, vv_ls, vv_rs, By_ls, By_rs, Bz_ls, Bz_rs, Bv_ls, Bv_rs, bb_ls, bb_rs, eint_ls, eint_rs, etot_ls, etot_rs, pt_s;
   float vy_ss, vz_ss, By_ss, Bz_ss, Bv_ss, eint_lss, eint_rss, etot_lss, etot_rss, rho_savg;
@@ -130,7 +136,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     S_r = max(vx_l, vx_r) + max(cf_l, cf_r);
 
     if (S_l > 0) {
-      for (int field = 0; field < NEQ_MHD - 1; field++) {
+      for (int field = 0; field < neq - 1; field++) {
 	FluxLine[field][n] = Fl[field];
       }
       FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
@@ -140,7 +146,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       continue;
     } 
     if (S_r < 0) {
-      for (int field = 0; field < NEQ_MHD - 1; field++) {
+      for (int field = 0; field < neq - 1; field++) {
 	FluxLine[field][n] = Fr[field];
       }
       FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
@@ -225,7 +231,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Us[iBz  ] = Bz_ls;
       Us[iPhi ] = Phi_l;
 
-      for (int field = 0; field < NEQ_MHD - 1; field++) {
+      for (int field = 0; field < neq - 1; field++) {
 	FluxLine[field][n] = Fl[field] + S_l*(Us[field] - Ul[field]);
       }
       FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
@@ -248,7 +254,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Us[iBz  ] = Bz_rs;
       Us[iPhi ] = Phi_r;
 
-      for (int field = 0; field < NEQ_MHD - 1; field++) {
+      for (int field = 0; field < neq - 1; field++) {
 	FluxLine[field][n] = Fr[field] + S_r*(Us[field] - Ur[field]);
       }
       FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
@@ -294,7 +300,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Uss[iBz  ] = Bz_ss;
       Uss[iPhi ] = Phi_l;
       
-      for (int field = 0; field < NEQ_MHD - 1; field++) {
+      for (int field = 0; field < neq - 1; field++) {
 	FluxLine[field][n] = Fl[field] + S_ls*Uss[field] - (S_ls - S_l)*Us[field] - S_l*Ul[field];
       }
       FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
@@ -328,7 +334,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Uss[iBz  ] = Bz_ss;
       Uss[iPhi ] = Phi_r;
       
-      for (int field = 0; field < NEQ_MHD - 1; field++) {
+      for (int field = 0; field < neq - 1; field++) {
 	FluxLine[field][n] = Fr[field] + S_rs*Uss[field] - (S_rs - S_r)*Us[field] - S_r*Ur[field];
       }
       FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);

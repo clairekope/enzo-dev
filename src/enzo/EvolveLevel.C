@@ -717,14 +717,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         } // end ComputeCRDiffusion if
       }// end CRDiffusion if
 
-      /* Update Two-Moment Cosmic Rays */
-      if (CRModel == 2){
-        if (Grids[grid1]->GridData->ComputeCRTwoMoment() == FAIL){
-          fprintf(stderr, "Error in grid->ComputeCRTwoMoment.\n");
-          return FAIL;
-        }
-      }
-
       /* Gravity: clean up AccelerationField. */
 
 #ifndef SAB

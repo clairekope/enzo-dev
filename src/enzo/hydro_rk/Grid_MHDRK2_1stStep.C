@@ -135,7 +135,7 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
   }
 
   /* Add source terms */
-
+  // TODO: PUT COSMIC RAY STUFF HERE?
   this->MHDSourceTerms(dU, MinimumSupportEnergyCoefficient);
 
   /* Update primitive variables */
@@ -147,7 +147,7 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     for (int ns = NEQ_MHD; ns < NEQ_MHD+NSpecies+NColor; ns++) {
       // change species from density to mass fraction
       for (int n = 0; n < size; n++) {
-	Prim[ns][n] /= Prim[iden][n];
+	      Prim[ns][n] /= Prim[iden][n];
       }
     }
     this->ZeroFluxes(SubgridFluxes, NumberOfSubgrids);

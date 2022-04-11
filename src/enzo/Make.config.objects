@@ -410,7 +410,6 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeCoolingTime.o \
         Grid_ComputeCRDiffusion.o \
         Grid_ComputeCRDiffusionTimeStep.o \
-        Grid_ComputeCRTwoMoment.o \
         Grid_ComputeCRTwoMomentTimeStep.o \
         Grid_ComputeDomainBoundaryMassFlux.o \
 	Grid_ComputeDustTemperatureField.o \
@@ -1146,6 +1145,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/Grid_AGNDiskInitializeGrid.o \
         hydro_rk/Grid_Collapse1DInitializeGrid.o \
         hydro_rk/Grid_Collapse3DInitializeGrid.o \
+        hydro_rk/Grid_ComputeCRTransportSpeed.o \
         hydro_rk/Grid_CopyOldBaryonFieldToBaryonField.o \
         hydro_rk/Grid_GalaxyDiskInitializeGrid.o \
         hydro_rk/Grid_Hydro3D.o \

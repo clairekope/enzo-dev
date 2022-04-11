@@ -24,11 +24,11 @@
 #include "Grid.h"
 
 int MHDSweepX(float **Prim,  float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback);
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float *v_cr);
 int MHDSweepY(float **Prim,  float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback);
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float *v_cr);
 int MHDSweepZ(float **Prim,  float **Flux3D, int GridDimension[], 
-	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback);
+	      int GridStartIndex[], FLOAT **CellWidth, float dtdx, float min_coeff, int fallback, float *v_cr);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int grid::MHD3D(float **Prim, float **dU, float dt,
@@ -93,11 +93,19 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     }
   }
 
+  float *v_cr, *B_angles;
+  if (CRModel > 1) {
+    v_cr = new float[size*GridRank];
+    B_angles = new float[size*4];
+
+    this->ComputeCRTransportSpeed(v_cr, B_angles);
+  }
+
   const int offset[3] = {1, Xactivesize+1, (Xactivesize+1)*(Yactivesize+1)};
 
   // compute flux at cell faces in x direction
   FLOAT dtdx = dt/(a*CellWidth[0][0]);
-  if (MHDSweepX(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback) 
+  if (MHDSweepX(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback, v_cr) 
       == FAIL) {
     return FAIL;
   }
@@ -108,13 +116,13 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     for (int field = 0; field < NEQ_MHD + NSpecies + NColor; field++) {
       n = 0;
       for (int k = 0; k < Zactivesize; k++) {
-	for (int j = 0; j < Yactivesize; j++) {
-	  iflux = (Xactivesize+1) * (j + k*(Yactivesize+1));
-	  for (int i = 0; i < Xactivesize; i++, n++, iflux++) {
-	    ifluxp1 = iflux + offset[0];
-	    dU[field][n] = -(Flux3D[field][ifluxp1] - Flux3D[field][iflux]) * dtdx;
-	  }
-	}
+        for (int j = 0; j < Yactivesize; j++) {
+          iflux = (Xactivesize+1) * (j + k*(Yactivesize+1));
+          for (int i = 0; i < Xactivesize; i++, n++, iflux++) {
+            ifluxp1 = iflux + offset[0];
+            dU[field][n] = -(Flux3D[field][ifluxp1] - Flux3D[field][iflux]) * dtdx;
+          }
+        }
       }
     }
 
@@ -127,17 +135,16 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     int n = 0, i1;
     for (int k = 0; k < Zactivesize; k++) {
       for (int j = 0; j < Yactivesize; j++) {
-	for (int i = 0; i < Xactivesize; i++, n++) {
-	  iflux = i + (Xactivesize+1) * (j + k*(Yactivesize+1));
-	  i1 = i + GridStartIndex[0];
-	  xl = CellLeftEdge[0][i1];
-	  xc = xl + 0.5*CellWidth[0][i1];
-	  xr = xl + CellWidth[0][i1];
-	  geofacr = xr/xc;
-	  geofacl = xl/xc;
-	  for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
-            dU[field][n] = 
-	      -(geofacr * Flux3D[field][iflux+1] - geofacl * Flux3D[field][iflux]) * dtdx;
+        for (int i = 0; i < Xactivesize; i++, n++) {
+          iflux = i + (Xactivesize+1) * (j + k*(Yactivesize+1));
+          i1 = i + GridStartIndex[0];
+          xl = CellLeftEdge[0][i1];
+          xc = xl + 0.5*CellWidth[0][i1];
+          xr = xl + CellWidth[0][i1];
+          geofacr = xr/xc;
+          geofacl = xl/xc;
+          for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
+            dU[field][n] = -(geofacr * Flux3D[field][iflux+1] - geofacl * Flux3D[field][iflux]) * dtdx;
           }
         }
       }
@@ -157,7 +164,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
   if (GridRank > 1) {
     dtdx = dt/(a*CellWidth[1][0]);
     // compute flux in y direction
-    if (MHDSweepY(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback) 
+    if (MHDSweepY(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback, v_cr) 
 	== FAIL)
       return FAIL;
 
@@ -165,24 +172,23 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     int n;
     if (Coordinate == Cartesian || Coordinate == Cylindrical) {
       for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
-	n = 0;
-	for (int k = 0; k < Zactivesize; k++) {
-	  for (int j = 0; j < Yactivesize; j++) {
-	    iflux = (Xactivesize + 1) * (j+k*(Yactivesize + 1));
-	    for (int i = 0; i < Xactivesize; i++, n++, iflux++) {
-	      ifluxp1 = iflux + offset[1];
-	      dU[field][n] -= (Flux3D[field][ifluxp1]-Flux3D[field][iflux])*dtdx;
-	    }
-	  }
-	}
+        n = 0;
+        for (int k = 0; k < Zactivesize; k++) {
+          for (int j = 0; j < Yactivesize; j++) {
+            iflux = (Xactivesize + 1) * (j+k*(Yactivesize + 1));
+            for (int i = 0; i < Xactivesize; i++, n++, iflux++) {
+              ifluxp1 = iflux + offset[1];
+              dU[field][n] -= (Flux3D[field][ifluxp1]-Flux3D[field][iflux])*dtdx;
+            }
+          }
+        }
       }
 
-    
       if (FluxCorrection) {
-	if (this->SaveMHDSubgridFluxes(SubgridFluxes, NumberOfSubgrids,
-				       Flux3D, 1, fluxcoef, dt) == FAIL) {
-	  return FAIL;
-	}
+        if (this->SaveMHDSubgridFluxes(SubgridFluxes, NumberOfSubgrids,
+                    Flux3D, 1, fluxcoef, dt) == FAIL) {
+          return FAIL;
+        }
       }
     }
   }  // ENDIF GridRank > 1
@@ -192,7 +198,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
   if (GridRank > 2) {
     dtdx = dt/(a*CellWidth[2][0]);
     // compute flux in z direction
-    if (MHDSweepZ(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback) 
+    if (MHDSweepZ(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, min_coeff, fallback, v_cr) 
 	== FAIL)
       return FAIL;
 
@@ -200,31 +206,30 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     if (Coordinate == Cartesian) {
       int n;
       for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
-	n = 0;
-	for (int k = 0; k < Zactivesize; k++) {
-	  for (int j = 0; j < Yactivesize; j++) { 
-	    iflux = (Xactivesize+1) * (j + k*(Yactivesize+1));
-	    for (int i = 0; i < Xactivesize; i++, n++, iflux++) { 
-	      ifluxp1 = iflux + offset[2];
-	      dU[field][n] -= (Flux3D[field][ifluxp1]-Flux3D[field][iflux])*dtdx;
-	    }
-	  }
-	}
+        n = 0;
+        for (int k = 0; k < Zactivesize; k++) {
+          for (int j = 0; j < Yactivesize; j++) { 
+            iflux = (Xactivesize+1) * (j + k*(Yactivesize+1));
+            for (int i = 0; i < Xactivesize; i++, n++, iflux++) { 
+              ifluxp1 = iflux + offset[2];
+              dU[field][n] -= (Flux3D[field][ifluxp1]-Flux3D[field][iflux])*dtdx;
+            }
+          }
+        }
       }
-
     }
 
     if (Coordinate == Cylindrical) {
       FLOAT xc;
       int n = 0, i1;
       for (int k = 0; k < Zactivesize; k++) {
-	for (int j = 0; j < Yactivesize; j++) {
-	  for (int i = 0; i < Xactivesize; i++, n++) {
-	    iflux = i + (Xactivesize+1) * (j + k*(Yactivesize+1));
-	    ifluxp1 = i + (Xactivesize + 1)*(j+(k + 1)*(Yactivesize + 1));
-	    i1 = i + GridStartIndex[0];
-	    xc = CellLeftEdge[0][i1] + 0.5*CellWidth[0][i1];
-	    for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+        for (int j = 0; j < Yactivesize; j++) {
+          for (int i = 0; i < Xactivesize; i++, n++) {
+            iflux = i + (Xactivesize+1) * (j + k*(Yactivesize+1));
+            ifluxp1 = i + (Xactivesize + 1)*(j+(k + 1)*(Yactivesize + 1));
+            i1 = i + GridStartIndex[0];
+            xc = CellLeftEdge[0][i1] + 0.5*CellWidth[0][i1];
+            for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
               dU[field][n] -= (Flux3D[field][ifluxp1] - Flux3D[field][iflux])*dtdx/xc;
             }
           }
@@ -235,9 +240,18 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     if (FluxCorrection) {
       if (this->SaveMHDSubgridFluxes(SubgridFluxes, NumberOfSubgrids,
 				     Flux3D, 2, fluxcoef, dt) == FAIL) {
-	return FAIL;
+        return FAIL;
       }
     }
+  }
+
+  // Before Flux3D is deleted, calculate CR source term
+  // The flux-flux will give us a better estimate of grad P_c
+  // Will need angles from before
+
+  if (CRModel > 1) {
+    delete [] v_cr;
+    delete [] B_angles;
   }
 
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {

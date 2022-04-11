@@ -28,7 +28,7 @@
 int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int ActiveSize);
 int HLLD_Zero_MHD(float **prim, float **priml, float **primr,
 	    float **species, float **colors,  float **FluxLine, int ActiveSize,
-	    char direc, int ij, int ik)
+	    char direc, int ij, int ik, float *v_cr)
 {
 
   // compute priml and primr                                                                                

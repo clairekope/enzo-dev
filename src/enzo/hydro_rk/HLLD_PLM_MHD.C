@@ -35,7 +35,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
 
 int HLLD_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
-		char direc, int jj, int kk)
+		char direc, int jj, int kk, float *v_cr)
 {
   int idual = (DualEnergyFormalism) ? 1 : 0;
 
@@ -50,11 +50,18 @@ int HLLD_PLM_MHD(float **prim, float **priml, float **primr,
     return FAIL;
   }
 
+  // compute CR flux, if applicable, with it's dedicated Riemann solver
+  // if (CRModel > 1) {
+  //   if (hllc_cr()==FAIL) {
+  //     return FAIL;
+  //   }
+  // }
+
   if (NSpecies > 0) {
     plm_species(prim, NEQ_MHD-idual, species, FluxLine[iD], ActiveSize);
     for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies; field++) {
       for (int i = 0; i < ActiveSize+1; i++) {
-	FluxLine[field][i] = FluxLine[iD][i]*species[field-NEQ_MHD][i];
+	      FluxLine[field][i] = FluxLine[iD][i]*species[field-NEQ_MHD][i];
       }
     }
   }
@@ -63,7 +70,7 @@ int HLLD_PLM_MHD(float **prim, float **priml, float **primr,
     plm_color(prim, NEQ_MHD-idual, colors, FluxLine[iD], ActiveSize);
     for (int field = NEQ_MHD+NSpecies; field < NEQ_MHD+NSpecies+NColor; field++) {
       for (int i = 0; i < ActiveSize+1; i++) {
-	FluxLine[field][i] = FluxLine[iD][i]*colors[field-NEQ_MHD-NSpecies][i];
+      	FluxLine[field][i] = FluxLine[iD][i]*colors[field-NEQ_MHD-NSpecies][i];
       }
     }
   }

@@ -22,7 +22,13 @@
 
 int hll_mhd(float **FluxLine, float **priml, float **primr, float **prim, int ActiveSize)
 {
-  float Ul[NEQ_MHD], Ur[NEQ_MHD], Fl[NEQ_MHD], Fr[NEQ_MHD];
+  int neq = NEQ_MHD;
+  if (CRModel > 1){
+    // Two-moment CR solver uses it's own Riemann solver
+    neq -= 4; // CR energy & 3 flux fields
+  }
+
+  float Ul[neq], Ur[neq], Fl[neq], Fr[neq];
   float etot, eint, h, dpdrho, dpde, W, W2, ap, am, cs, cs2, ca2, ca, cf, cf2, v_yz, v_yz2, v2,
     vx, vx2, vy, vz, rho, p, lm_l, lp_l, lm_r, lp_r, v, Bx, By, Bz, Phi, B2, Bv; 
   float Zero = 0.0;
@@ -150,7 +156,7 @@ int hll_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     ap = Max(Zero, lp_l, lp_r);
     am = Max(Zero, -lm_l, -lm_r);
 
-    for (int field = 0; field < NEQ_MHD-1; field++) {
+    for (int field = 0; field < neq-1; field++) {
       FluxLine[field][n] = 
 	(ap * Fl[field] + am * Fr[field] - ap * am * (Ur[field] - Ul[field])) / (ap + am);
     }

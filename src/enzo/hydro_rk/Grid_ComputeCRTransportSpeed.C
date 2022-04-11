@@ -41,7 +41,7 @@ void InvRotateVec(const float sint, const float cost,
                   float &v1, float &v2, float &v3);
 
 
-int grid::ComputeCRTwoMoment(){
+int grid::ComputeCRTransportSpeed(float *v_cr, float *B_angles){
 
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
@@ -95,18 +95,18 @@ int grid::ComputeCRTwoMoment(){
 
   // Local cell variables
   float sigma_str[3], sigma_diff[3], sigma_tot[3], tau[3];
-  float *v_cr = new float[size*GridRank];
+  // float *v_cr = new float[size*GridRank];
 
   // for frame transformation:
   float B_mag, Bxy_mag;
-  float *B_angles = new float[size*GridRank];
+  // float *B_angles = new float[size*4];
 
   // for streaming:
-  float dP, B_dot_grad_P, inv_sqrt_rho, va[3], va_mag;
-  int stream_sign;
-  float *v_str;
-  if (TRUE) // check streaming
-    v_str = new float[size*GridRank];
+  float dP, B_dot_grad_P, inv_sqrt_rho;
+  int stream_sign, va_mag; //va[3];
+  // float *v_str;
+  // if (TRUE) // check streaming
+  //   v_str = new float[size*GridRank];
 
   // Placeholder values
   float max_opacity = 1/tiny_number;
@@ -158,7 +158,6 @@ int grid::ComputeCRTwoMoment(){
           inv_sqrt_rho = 1.0 / sqrt(dens[id]);
 
           /* 1a. Calculate the streaming velocity & direction */
-          /* TODO: replace grad P with esitmate from reconstruction? */
           for (int dim=0; dim<GridRank; ++dim){ 
 
             // Get index of left and right cells for this dimension
@@ -176,18 +175,19 @@ int grid::ComputeCRTwoMoment(){
             dP = (E_cr[idr] - E_cr[idl])/3.0;
             B_dot_grad_P += B[dim][id] * dP/dx[dim];
 
-            va[dim] = B[dim][id] / inv_sqrt_rho;
-            va_mag += va[dim] * va[dim];
+            // va[dim] = B[dim][id] / inv_sqrt_rho;
+            // va_mag += va[dim] * va[dim];
+            va_mag += B[dim][id] / inv_sqrt_rho;
           }
 
           va_mag = sqrt(va_mag);
-          stream_sign = -1.0 * sign(B_dot_grad_P);
+          // stream_sign = -1.0 * sign(B_dot_grad_P);
 
           /* 1b. Set the streaming velocity & sigma_str from the Alfven speed 
                  in the B-field frame (B vector is x-axis)*/
-          for (int dim=0; dim<GridRank; ++dim){
-            v_str[id3[dim]] = stream_sign * va[dim];
-          }
+          // for (int dim=0; dim<GridRank; ++dim){
+          //   v_str[id3[dim]] = stream_sign * va[dim];
+          // }
 
           if (va_mag < tiny_number) {
             sigma_str[0] = max_opacity;
@@ -200,7 +200,7 @@ int grid::ComputeCRTwoMoment(){
 
         } else { // no streaming
           for (int dim=0; dim<3; ++dim){        
-            v_str[dim] = 0;
+            // v_str[dim] = 0;
             sigma_str[dim] = max_opacity;
           }
         }
@@ -256,15 +256,12 @@ int grid::ComputeCRTwoMoment(){
           v_cr[id3[dim]] += cr_sound_flag * sqrt( (4.0/3.0) * E_cr[id]/3.0 / dens[id] );
         }
 
-        /* 3. Reconstruct cell faces? */
-
-
 	} // triple for loop
 
-  delete [] B_angles;
-  delete [] v_cr;
-  if (TRUE) // check streaming
-    delete [] v_str;
+  // delete [] B_angles;
+  // delete [] v_cr;
+  // if (TRUE) // check streaming
+  //   delete [] v_str;
 
   return SUCCESS;  
 }
