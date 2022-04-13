@@ -27,6 +27,8 @@
 #include "ReconstructionRoutines.h"
 
 int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int ActiveSize);
+int hlle_cr(float **FluxLine, float **priml, float **primr, int ActiveSize, float *v_cr1);
+
 int LLF_Zero_MHD(float **prim, float **priml, float **primr,
 	    float **species, float **colors,  float **FluxLine, int ActiveSize,
 	    char direc, int ij, int ik, float *v_cr1)
@@ -45,6 +47,13 @@ int LLF_Zero_MHD(float **prim, float **priml, float **primr,
   // compute FluxLine
   if (llf_mhd(FluxLine, priml, primr, prim, ActiveSize)==FAIL) {
     return FAIL;
+  }
+
+  // compute CR flux, if applicable, with it's dedicated Riemann solver
+  if (CRModel > 1) {
+    if (hlle_cr(FluxLine, priml, primr, ActiveSize, v_cr1)==FAIL) {
+      return FAIL;
+    }
   }
 
   float sum;

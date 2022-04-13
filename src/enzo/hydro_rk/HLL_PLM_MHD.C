@@ -32,6 +32,7 @@ inline void plm_point(float &vm1, float &v, float &vp1, float &vl_plm);
 int plm_species(float **prim, int is, float **species, float *flux0, int ActiveSize);
 int plm_color(float **prim, int is, float **color, float *flux0, int ActiveSize);
 int hll_mhd(float **FluxLine, float **priml, float **primr, float **prim, int ActiveSize);
+int hlle_cr(float **FluxLine, float **priml, float **primr, int ActiveSize, float *v_cr1);
 
 int HLL_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
@@ -49,6 +50,13 @@ int HLL_PLM_MHD(float **prim, float **priml, float **primr,
   // compute FluxLine
   if (hll_mhd(FluxLine, priml, primr, prim, ActiveSize)==FAIL) {
     return FAIL;
+  }
+
+  // compute CR flux, if applicable, with it's dedicated Riemann solver
+  if (CRModel > 1) {
+    if (hlle_cr(FluxLine, priml, primr, ActiveSize, v_cr1)==FAIL) {
+      return FAIL;
+    }
   }
 
   if (NSpecies > 0) {
