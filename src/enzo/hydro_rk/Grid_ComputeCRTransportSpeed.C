@@ -171,11 +171,8 @@ int grid::ComputeCRTransportSpeed(float **v_cr, float *B_angles){
           va_mag = sqrt(va_mag);
           // stream_sign = -1.0 * sign(B_dot_grad_P);
 
-          /* 1b. Set the streaming velocity & sigma_str from the Alfven speed 
+          /* 1b. Set the streaming cross section from the Alfven speed 
                  in the B-field frame (B vector is x-axis)*/
-          // for (int dim=0; dim<GridRank; ++dim){
-          //   v_str[dim][id] = stream_sign * va[dim];
-          // }
 
           if (va_mag < tiny_number) {
             sigma_str[0] = max_opacity;
@@ -208,11 +205,13 @@ int grid::ComputeCRTransportSpeed(float **v_cr, float *B_angles){
           tau[dim] = sigma_tot[dim] * dx[dim];
           tau[dim] = tau[dim] * tau[dim]; // /(2*P_xx) ?
 
-          /* 2b. Set the transport velocity from the optical depth */
+          /* 2b. Reduce the streaming velocity using the optical depth */
           if (tau[dim] < 1e-3)
             v_cr[dim][id] = sqrt(1.0 - 0.5*tau[dim]);
           else
             v_cr[dim][id] = sqrt((1.0 - exp(-tau[dim])) / tau[dim]);
+
+          v_cr[dim][id] *= CRMaxVelocity / sqrt(3.0);
         
         } // End loop over dimensions
 
@@ -240,8 +239,6 @@ int grid::ComputeCRTransportSpeed(float **v_cr, float *B_angles){
         for (int dim=0; dim<GridRank; ++dim) {
           v_cr[dim][id] = fabs(v_cr[dim][id]); // each dim is speed across face; no direction needed
 
-          // Add CR sound speed for stability, if specified
-          v_cr[dim][id] += cr_sound_flag * sqrt( (4.0/3.0) * E_cr[id]/3.0 / dens[id] );
         }
 
 	} // triple for loop
