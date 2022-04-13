@@ -115,9 +115,9 @@ int MHDSweepZ(float **Prim, float **Flux3D, int GridDimension[],
         if (CRModel){
           Prim1[9][i] = Prim[iCRE][igrid];
           if (CRModel > 1) {
-            Prim1[10][i] = Prim[iCRF1][igrid];
-            Prim1[11][i] = Prim[iCRF2][igrid];
-            Prim1[12][i] = Prim[iCRF3][igrid];
+            Prim1[10][i] = Prim[iCRFz][igrid];
+            Prim1[11][i] = Prim[iCRFx][igrid];
+            Prim1[12][i] = Prim[iCRFy][igrid];
           }
         }
       }
@@ -165,9 +165,9 @@ int MHDSweepZ(float **Prim, float **Flux3D, int GridDimension[],
   if (CRModel) {
     Flux3D[iCRE][iflux] = FluxLine[iCRE][j];
     if (CRModel > 1) {
-      Flux3D[iCRF1][iflux] = FluxLine[iCRF1][j];
-      Flux3D[iCRF2][iflux] = FluxLine[iCRF2][j];
-      Flux3D[iCRF3][iflux] = FluxLine[iCRF3][j];
+      Flux3D[iCRFx][iflux] = FluxLine[iCRFx][j];
+      Flux3D[iCRFy][iflux] = FluxLine[iCRFy][j];
+      Flux3D[iCRFz][iflux] = FluxLine[iCRFz][j];
     }
   }
 	for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {

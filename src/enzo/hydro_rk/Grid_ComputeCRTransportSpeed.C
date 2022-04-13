@@ -105,7 +105,7 @@ int grid::ComputeCRTransportSpeed(float **v_cr, float *B_angles){
 
   // Placeholder values
   float max_opacity = 1/tiny_number;
-  float inv_vmax = 1.0/100.0;
+  float inv_vmax = 1.0/CRMaxVelocity;
   int cr_sound_flag = 1;
 
   // Set up start and end indexes to cover all of grid except outermost cells.

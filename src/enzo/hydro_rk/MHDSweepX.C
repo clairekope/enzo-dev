@@ -121,9 +121,9 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
   if (CRModel){
     Prim1[9][i] = Prim[iCRE][igrid];
     if (CRModel > 1) {
-      Prim1[10][i] = Prim[iCRF1][igrid];
-      Prim1[11][i] = Prim[iCRF2][igrid];
-      Prim1[12][i] = Prim[iCRF3][igrid];
+      Prim1[10][i] = Prim[iCRFx][igrid];
+      Prim1[11][i] = Prim[iCRFy][igrid];
+      Prim1[12][i] = Prim[iCRFz][igrid];
     }
   }
 //	if (ConservativeReconstruction)  // add dx/dt for every cell

@@ -17,6 +17,7 @@
 //   based on it.
 
 #include "preincludes.h" 
+#include <cstdio>
 #include <time.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -560,6 +561,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "CRFeedback                     = %"FSYM"\n", CRFeedback);
   fprintf(fptr, "CRdensFloor                    = %"FSYM"\n", CRdensFloor);
   fprintf(fptr, "CRmaxSoundSpeed                = %"FSYM"\n", CRmaxSoundSpeed);
+  fprintf(fptr, "CRMaxVelocity                  = %"FSYM"\n", CRMaxVelocity);
   fprintf(fptr, "CRgamma                        = %"FSYM"\n", CRgamma);
   fprintf(fptr, "CosmologySimulationUniformCR   = %"FSYM"\n", CosmologySimulationUniformCR); // FIXME
   fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);

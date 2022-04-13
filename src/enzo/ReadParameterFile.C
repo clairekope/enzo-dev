@@ -21,6 +21,7 @@
 //   based on it.
 
 #include "preincludes.h"
+#include <cstdio>
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
@@ -624,6 +625,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CRFeedback = %"FSYM, &CRFeedback);
     ret += sscanf(line, "CRdensFloor = %"FSYM, &CRdensFloor);
     ret += sscanf(line, "CRmaxSoundSpeed = %"FSYM, &CRmaxSoundSpeed);
+    ret += sscanf(line, "CRMaxVelocity = %"FSYM, &CRMaxVelocity);
     ret += sscanf(line, "CRgamma = %"FSYM, &CRgamma);
     ret += sscanf(line, "CosmologySimulationUniformCR = %"FSYM, &CosmologySimulationUniformCR); // FIXME
 
@@ -1856,13 +1858,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (CRModel > 1){
       NEQ_MHD += 3;
       if (DualEnergyFormalism){
-        iCRF1 = 11;
-        iCRF2 = 12;
-        iCRF3 = 13;
+        iCRFx = 11;
+        iCRFy = 12;
+        iCRFz = 13;
       } else {
-        iCRF1 = 10;
-        iCRF2 = 11;
-        iCRF3 = 12;
+        iCRFx = 10;
+        iCRFy = 11;
+        iCRFz = 12;
       }
     }
   }

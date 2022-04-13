@@ -439,6 +439,7 @@ EXTERN float CRkappa;
 EXTERN float CRCourantSafetyNumber;
 EXTERN float CRdensFloor;
 EXTERN float CRmaxSoundSpeed;
+EXTERN float CRMaxVelocity;
 EXTERN float CRgamma;
 EXTERN float CosmologySimulationUniformCR; // FIXME
 
@@ -837,9 +838,9 @@ EXTERN int iS2;
 EXTERN int iS3;
 EXTERN int iEint;
 EXTERN int iCRE;
-EXTERN int iCRF1;
-EXTERN int iCRF2;
-EXTERN int iCRF3;
+EXTERN int iCRFx;
+EXTERN int iCRFy;
+EXTERN int iCRFz;
 EXTERN float SmallRho;
 EXTERN float SmallP;
 EXTERN float SmallEint;

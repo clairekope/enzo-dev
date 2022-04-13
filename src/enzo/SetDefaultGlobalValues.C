@@ -476,7 +476,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CRCourantSafetyNumber       = 0.5;
   CRFeedback                  = 0.0;               // no stellar feedback into CRs
   CRdensFloor                 = 0.0;               // off
-  CRmaxSoundSpeed             = 0.0;               // off 
+  CRmaxSoundSpeed             = 0.0;               // off
+  CRMaxVelocity               = 1.0;
   CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
   CosmologySimulationUniformCR= 1e-20;             // FIXME
   ShockMethod                 = 0;                 // off
@@ -823,9 +824,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   iEtot = 4;
   iEint = 0;
   iCRE = 0;
-  iCRF1 = 0;
-  iCRF2 = 0;
-  iCRF3 = 0;
+  iCRFx = 0;
+  iCRFy = 0;
+  iCRFz = 0;
 
   UsePoissonDivergenceCleaning		   = 0;
   PoissonDivergenceCleaningBoundaryBuffer = 0;

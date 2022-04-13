@@ -72,9 +72,9 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   if (CRModel){
     Prim[iCRE] = BaryonField[CRENum];
     if (CRModel > 1){
-      Prim[iCRF1] = BaryonField[CRF1Num];
-      Prim[iCRF2] = BaryonField[CRF2Num];
-      Prim[iCRF3] = BaryonField[CRF3Num];
+      Prim[iCRFx] = BaryonField[CRF1Num];
+      Prim[iCRFy] = BaryonField[CRF2Num];
+      Prim[iCRFz] = BaryonField[CRF3Num];
     }
   }
 
