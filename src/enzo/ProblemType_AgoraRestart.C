@@ -443,13 +443,13 @@ public:
     }
 
     /* Identify physical quantities */
-    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num, MetalNum;
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num, PhiNum, MetalNum;
 
     int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
     if (thisgrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-					     Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num) == FAIL) {
+					     Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
       ENZO_FAIL("");
     }

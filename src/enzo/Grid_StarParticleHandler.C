@@ -539,7 +539,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* initialize */
  
   int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num, PhiNum;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   int CRENum, CRF1Num, CRF2Num, CRF3Num;
 
   /* Find Multi-species fields. */
@@ -573,7 +573,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   this->DebugCheck("StarParticleHandler");
   if (CRModel) {
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-  				       Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, 
+  				       Vel3Num, TENum, B1Num, B2Num, B3Num, 
                      CRENum, CRF1Num, CRF2Num, CRF3Num) == FAIL)
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   } else {

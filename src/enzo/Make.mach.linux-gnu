@@ -2,33 +2,18 @@
 #
 # FILE:        Make.mach.linux-gnu
 #
-# DESCRIPTION: Makefile settings for a linux machine
+# DESCRIPTION: Makefile settings for a machine running Ubuntu
 #
 # AUTHOR:      Rick Wagner (rick@ucsd.edu)
 #
-# DATE:        2008-09-16 (updated 2019-09-11)
+# DATE:        2008-09-16
 #
-# Depending on your linux distribution several packages need to be installed
-# to satisfy the minimum Enzo requirements (GNU compiler suite with
-# gfortran/gcc/g++, an MPI library for parallel runs, and HDF5 for data outputs).
-#
-# Sample environments
-#
-# Ubuntu/Debian (see also Make.mach.ubuntu): 
-# $ apt-get install build-essentials gfortran libhdf5-10 libopenmpi-dev openmpi-bin
-#
-# Fedora/Redhat:
-# $ yum install make automake gcc gcc-c++ gcc-gfortran kernel-devel openmpi openmpi-devel
-#
-# Arch Linux:
-# $ pacman -S base-devel gcc-fortran openmpi hdf5
+# This configuration assumes that build-essentials, gfortran, 
+# OpenMPI and HDF5 have been installed using apt-get.
 #
 #=======================================================================
 
-MACH_TEXT  = Generic GNU/Linux machine file. Requires gfortran/gcc/g++, OpenMPI, and a \
-serial HDF5 library. Make sure to set the correct LOCAL_HDF5_INSTALL path in the \
-machine file (e.g., /usr for a system-wide installation or a custom path for local \
-installations).
+MACH_TEXT  = Use apt-get to install csh libhdf5-serial-dev gfortran openmpi-bin libopenmpi-dev
 MACH_VALID = 1
 MACH_FILE  = Make.mach.linux-gnu
 

@@ -198,7 +198,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
   for (i = 0; i < size; i++) {
     BaryonField[0][i] = UniformDensity;
     BaryonField[1][i] = UniformTotalEnergy;
-    if ( CRModel ) BaryonField[CRENum][i] = UniformCR;
+    if ( CRModel == 1) BaryonField[CRENum][i] = UniformCR;
     // TODO consider if we need to intialize a uniform flux
   }
  

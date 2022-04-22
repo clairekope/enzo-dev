@@ -189,7 +189,7 @@ int grid::TurbulenceSimulationInitializeGrid(
           CRENum=-1, CRF1Num=-1, CRF2Num=-1, CRF3Num=-1;
       IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, 
                            Vel2Num, Vel3Num, TENum,
-                           B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
+                           B1Num, B2Num, B3Num, PhiNum);
 
  
   /* Determine the size of the fields. */

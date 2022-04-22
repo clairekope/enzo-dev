@@ -67,11 +67,12 @@ int grid::ComputePressure(FLOAT time, float *pressure,
     size *= GridDimension[dim];
  
   /* Find fields: density, total energy, velocity1-3. */
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, 
-    CRENum, CRF1Num, CRF2Num, CRF3Num;
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, 
+      B1Num, B2Num, B3Num,
+      CRENum, CRF1Num, CRF2Num, CRF3Num;
   if(CRModel) {
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-              Vel3Num, TENum, CRENum, CRF1Num, CRF2Num, CRF3Num) == FAIL) {
+              Vel3Num, TENum, B1Num, B2Num, B3Num, CRENum, CRF1Num, CRF2Num, CRF3Num) == FAIL) {
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
   } else {

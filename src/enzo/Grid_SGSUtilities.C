@@ -48,9 +48,9 @@ int grid::SGSUtil_FilterFields() {
     }
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-        B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
+        B1Num, B2Num, B3Num, PhiNum;
     this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
-            TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
+            TENum, B1Num, B2Num, B3Num, PhiNum);
 
     int size = 1;
     int StartIndex[MAX_DIMENSION];
@@ -217,9 +217,9 @@ int grid::SGSUtil_ComputeMixedFilteredQuantities() {
     }
     
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-        B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
+        B1Num, B2Num, B3Num, PhiNum;
     this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
-            TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
+            TENum, B1Num, B2Num, B3Num, PhiNum);
 
     int size = 1;
     int StartIndex[MAX_DIMENSION];

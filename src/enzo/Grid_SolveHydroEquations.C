@@ -261,9 +261,9 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Add Cosmic Ray Energy Density as a colour variable. */
     if(CRModel){
-      int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRENum, CRF1Num, CRF2Num, CRF3Num;
+      int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRENum;
       if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-                       Vel3Num, TENum, CRENum, CRF1Num, CRF2Num, CRF3Num ) == FAIL )
+                       Vel3Num, TENum, CRENum ) == FAIL )
         ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
       colnum[NumberOfColours++] = CRENum;
     } // end CR if

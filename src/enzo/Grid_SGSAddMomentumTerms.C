@@ -44,9 +44,9 @@ void grid::SGS_AddMom_nonlinear_kinetic(float **Tau) {
     printf("[%"ISYM"] grid::SGS_AddMom_nonlinear_kinetic start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
+  int B1Num, B2Num, B3Num, PhiNum;
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num,
-      TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
+      TENum, B1Num, B2Num, B3Num, PhiNum);
 
   float* rho;
   // if an explicit filter should be used
@@ -112,9 +112,9 @@ void grid::SGS_AddMom_nonlinear_kinetic_scaled(float **Tau) {
     printf("[%"ISYM"] grid::SGS_AddMom_nonlinear_kinetic_scaled start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
+  int B1Num, B2Num, B3Num, PhiNum;
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num,
-      TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
+      TENum, B1Num, B2Num, B3Num, PhiNum);
 
   float* rho;
   // if an explicit filter should be used
@@ -267,9 +267,9 @@ void grid::SGS_AddMom_eddy_viscosity_scaled(float **Tau) {
     printf("[%"ISYM"] grid::SGS_AddMom_eddy_viscosity_scaled start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
+  int B1Num, B2Num, B3Num, PhiNum;
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num,
-      TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
+      TENum, B1Num, B2Num, B3Num, PhiNum);
 
   float* rho;
   if (SGSFilterWidth > 1.) {
@@ -461,9 +461,9 @@ int grid::SGS_AddMomentumTerms(float **dU) {
     printf("[%"ISYM"] grid::SGS_AddMomentumTerms start\n",MyProcessorNumber);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
+  int B1Num, B2Num, B3Num, PhiNum;
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num,
-      TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num);
+      TENum, B1Num, B2Num, B3Num, PhiNum);
 
   float* rho;
   // if an explicit filter should be used

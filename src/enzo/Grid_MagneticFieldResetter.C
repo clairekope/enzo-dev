@@ -53,7 +53,7 @@ int grid::MagneticFieldResetter(int level)
  
   int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num;
+  int B1Num, B2Num, B3Num, PhiNum;
 
   /* Compute size (in floats) of the current grid. */
  
@@ -64,7 +64,7 @@ int grid::MagneticFieldResetter(int level)
   /* Find fields: density, total energy, velocity1-3. */
  
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRENum, CRF1Num, CRF2Num, CRF3Num) == FAIL) {
+				       Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
         ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
  
