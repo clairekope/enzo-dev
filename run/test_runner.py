@@ -23,6 +23,7 @@ known_categories = [
     "GravitySolver",
     "Hydro",
     "MHD",
+    "CosmicRays",
     "RadiationTransport",
     "RadiationTransportFLD",
 ]
@@ -70,6 +71,7 @@ varspec = dict(
     cosmology_simulation = (bool, False),
     chemistry = (bool, False),
     cooling = (bool, False),
+    cosmic_rays = (bool, False),
     AMR = (bool, False),
     dimensionality = (int, 1),
     author = (str, ''),

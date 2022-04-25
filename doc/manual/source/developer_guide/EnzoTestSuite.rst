@@ -379,6 +379,9 @@ to include in a particular run of the testing suite.
 ``--cooling=bool`` default: False
     Test problems which include cooling
 
+``--cosmic_rays=bool`` default: False
+    Test problems which include cosmic rays
+
 ``--cosmology=bool`` default: False   
     Test problems which include cosmology
 

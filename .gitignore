@@ -28,6 +28,7 @@ temp.show-*
 Make.config.machine
 Make.config.override
 *.mod
+*__test_standard.py
 
 src/mpgrafic/degraf/Makefile
 src/mpgrafic/degraf/config.h
@@ -56,3 +57,4 @@ doc/manual/build
 doc/manual/source/_build
 
 run/results.js
+run/nosetests.xml
