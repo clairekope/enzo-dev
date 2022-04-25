@@ -1,4 +1,4 @@
-name = 'CRSodShockTube_ZEUSIsotropicDiffusion'
+name = 'CRSodShockTube_ZEUS'
 answer_testing_script = None
 nprocs = 1
 runtime = 'short'

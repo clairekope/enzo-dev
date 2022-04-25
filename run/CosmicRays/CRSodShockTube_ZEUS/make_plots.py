@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 
 ### define problem name
-problem_name = 'CRSodShockTube_ZEUSIsotropicDiffusion_'
+problem_name = 'CRSodShockTube_ZEUS_'
 
 
 ### define simulation output directory and filename base
