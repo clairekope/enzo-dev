@@ -140,23 +140,25 @@ int grid::ComovingExpansionTerms()
        the expansion term over the entire grid because we can and
        its faster. */
 
-    if (HydroMethod == Zeus_Hydro) {
+      if (CRModel) {
+        double cr_coeff = (2.0-Coefficient)/(2.0+Coefficient);
+        for( i = 0 ; i != size; ++i )
+          BaryonField[CRNum][i] *= cr_coeff;
+      }
 
+    if (HydroMethod == Zeus_Hydro) {
       if( CRModel ){
-	double gas_coeff = (1.0-Coefficient)/(1.0+Coefficient);
+	      double gas_coeff = (1.0-Coefficient)/(1.0+Coefficient);
       	for (i = 0; i < size; i++)
-	  BaryonField[TENum][i] *= gas_coeff;
-	double cr_coeff = (2.0-Coefficient)/(2.0+Coefficient);
-	for( i = 0 ; i != size; ++i )
-	  BaryonField[CRENum][i] *= cr_coeff;
-      } // end CR model if
+	        BaryonField[TENum][i] *= gas_coeff;
+      } // end ZEUS CR model if
       else {
-	for (i = 0; i < size; i++) {
-	  BaryonField[TENum][i] -= min(Coefficient*6.0*Pressure[i]/
+	      for (i = 0; i < size; i++) {
+	        BaryonField[TENum][i] -= min(Coefficient*6.0*Pressure[i]/
 				       (BaryonField[DensNum][i] + OldBaryonField[DensNum][i]),
 				       0.5*BaryonField[TENum][i]);
-	} // end for 
-      } // end CR if/else
+	      } // end for 
+      } // end ZEUS CR if/else
 
     } else {
 

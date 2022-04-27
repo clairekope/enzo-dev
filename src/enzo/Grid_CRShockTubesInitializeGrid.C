@@ -22,7 +22,10 @@ int grid::CRShockTubesInitializeGrid(   float x0,
 					float vyl,  float vyr,
 					float vzl,  float vzr,
 					float pl,   float pr,
-					float crl,  float crr
+					float crl,  float crr,
+					float bxl,  float bxr, 
+					float byl,  float byr, 
+					float bzl,  float bzr
 					)
 {  
 
@@ -32,13 +35,20 @@ int grid::CRShockTubesInitializeGrid(   float x0,
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
+  if (DualEnergyFormalism) 
+    FieldType[NumberOfBaryonFields++] = InternalEnergy;
+
+  if (HydroMethod == MHD_RK){
+    FieldType[NumberOfBaryonFields++] = Bfield1;
+    FieldType[NumberOfBaryonFields++] = Bfield1;
+    FieldType[NumberOfBaryonFields++] = Bfield3;
+    FieldType[NumberOfBaryonFields++] = PhiField;
+  }
   FieldType[NumberOfBaryonFields++] = CRDensity;
+
   
   int CRENum = FindField(CRDensity, FieldType, NumberOfBaryonFields);
 
-  if (DualEnergyFormalism) {
-    FieldType[NumberOfBaryonFields++] = InternalEnergy;
-  }
   
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
@@ -55,7 +65,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,
   
   /* transform pressure to total energy */
 
-  float etotl, etotr, v2;
+  float etotl, etotr, v2, B2;
   v2 = vxl * vxl + vyl * vyl + vzl * vzl;
   etotl = pl / ((Gamma-1.0)*rhol) + 0.5*v2;
 
@@ -76,7 +86,15 @@ int grid::CRShockTubesInitializeGrid(   float x0,
       BaryonField[ietot][i] = etotl;
       BaryonField[CRENum ][i] = crl;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
+	      BaryonField[ieint][i] = pl / ((Gamma-1.0)*rhol);
+      }
+      if (HydroMethod == MHD_RK) {
+        B2 = bxl*bxl + byl*byl + bzl*bzl; 
+        BaryonField[ietot][i] += 0.5*B2/rhol;
+        BaryonField[iBx][i] = bxl;
+        BaryonField[iBy][i] = byl;
+        BaryonField[iBz][i] = bzl;
+        BaryonField[iPhi][i] = 0.0; 
       }
     } else {
       BaryonField[iden ][i] = rhor;
@@ -86,7 +104,15 @@ int grid::CRShockTubesInitializeGrid(   float x0,
       BaryonField[ietot][i] = etotr;
       BaryonField[CRENum ][i] = crr;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
+	      BaryonField[ieint][i] = pr / ((Gamma-1.0)*rhor);
+      }
+      if (HydroMethod == MHD_RK) {
+        B2 = bxr*bxr + byr*byr + bzr*bzr;
+        BaryonField[ietot][i] += 0.5*B2/rhor;
+        BaryonField[iBx][i] = bxr;
+        BaryonField[iBy][i] = byr;
+        BaryonField[iBz][i] = bzr;
+        BaryonField[iPhi][i] = 0.0; 
       }
     }
   }
@@ -102,7 +128,10 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
 					float vyl,  float vyr,  float vyc,
 					float vzl,  float vzr,  float vzc,
 					float pl,   float pr,   float pc,
-					float crl,  float crr,  float crc 
+					float crl,  float crr,  float crc, 
+					float bxl,  float bxr,  float bxc, 
+					float byl,  float byr,  float byc, 
+					float bzl,  float bzr,  float bzc
 					)
 {  
 
@@ -112,10 +141,17 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
-  FieldType[NumberOfBaryonFields++] = CRDensity;
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
+  if (HydroMethod == MHD_RK){
+    FieldType[NumberOfBaryonFields++] = Bfield1;
+    FieldType[NumberOfBaryonFields++] = Bfield2;
+    FieldType[NumberOfBaryonFields++] = Bfield3;
+    FieldType[NumberOfBaryonFields++] = PhiField;
+  }
+  FieldType[NumberOfBaryonFields++] = CRDensity;
+  
 
   int CRENum = FindField( CRDensity , FieldType, NumberOfBaryonFields);
 
@@ -130,11 +166,14 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
   for (dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
-  this->AllocateGrids();
+  int field;
+  for (field = 0; field < NumberOfBaryonFields; field++)
+    if (BaryonField[field] == NULL)
+      BaryonField[field] = new float[size];
 
   /* transform pressure to total energy */
 
-  float etotl, etotr, etotc, v2;
+  float etotl, etotr, etotc, v2, B2;
   v2 = vxl * vxl + vyl * vyl + vzl * vzl;
   etotl = pl / ((Gamma-1.0)*rhol) + 0.5*v2;
 
@@ -143,6 +182,8 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
 
   v2 = vxc * vxc + vyc * vyc + vzc * vzc;
   etotc = pc / ((Gamma-1.0)*rhoc) + 0.5*v2;
+
+  
 
   FLOAT x;
   int i;
@@ -158,7 +199,15 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       BaryonField[ietot][i] = etotl;
       BaryonField[CRENum ][i] = crl;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
+	BaryonField[ieint][i] = pl / ((Gamma-1.0)*rhol);
+      }
+      if (HydroMethod == MHD_RK) {
+	B2 = bxl*bxl + byl*byl + bzl*bzl;
+        BaryonField[ietot][i] += 0.5*B2/rhol;
+        BaryonField[iBx][i] = bxl;
+        BaryonField[iBy][i] = byl;
+        BaryonField[iBz][i] = bzl;
+        BaryonField[iPhi][i] = 0.0;
       }
     } else if (x <= x1) {
       BaryonField[iden ][i] = rhoc;
@@ -168,7 +217,15 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       BaryonField[ietot][i] = etotc;
       BaryonField[CRENum ][i] = crc;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotc - 0.5*(vxc*vxc+vyc*vyc+vzc*vzc);
+	BaryonField[ieint][i] = pc / ((Gamma-1.0)*rhoc);
+      }
+      if (HydroMethod == MHD_RK) {
+	B2 = bxc*bxc + byc*byc + bzc*bzc;
+        BaryonField[ietot][i] += 0.5*B2/rhoc;
+        BaryonField[iBx][i] = bxc;
+        BaryonField[iBy][i] = byc;
+        BaryonField[iBz][i] = bzc;
+        BaryonField[iPhi][i] = 0.0;
       }
     }
     else {
@@ -179,12 +236,19 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       BaryonField[ietot][i] = etotr;
       BaryonField[CRENum ][i] = crr;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
+	BaryonField[ieint][i] = pr / ((Gamma-1.0)*rhor);
+      }
+      if (HydroMethod == MHD_RK) {
+	B2 = bxr*bxr + byr*byr + bzr*bzr;
+        BaryonField[ietot][i] += 0.5*B2/rhor;
+        BaryonField[iBx][i] = bxr;
+        BaryonField[iBy][i] = byr;
+        BaryonField[iBz][i] = bzr;
+        BaryonField[iPhi][i] = 0.0;
       }
     }
-
     if (debug)
-      printf("%"FSYM"\t%"FSYM"\n", x , BaryonField[ietot][i] );
+      printf("%"FSYM"\t%"FSYM"\t%"FSYM"\n", x , BaryonField[ieint][i], BaryonField[iCRE][i] );
   }
 
   // --------------- FOR DIFFUSION PROBLEM --

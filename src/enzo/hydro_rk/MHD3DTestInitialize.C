@@ -63,7 +63,10 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *ByName = "By";
   const char *BzName = "Bz";
   const char *PhiName = "Phi";
-
+  const char *CREName = "CREnergyDensity";
+  const char *CRF1Name = "CREnergyFlux-x";
+  const char *CRF2Name = "CREnergyFlux-y";
+  const char *CRF3Name = "CREnergyFlux-z";
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
@@ -228,6 +231,14 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[count++] = (char*) PhiName;
   }
 
+if (CRModel){
+    DataLabel[count++] = (char*) CREName;
+    if (CRModel > 1){
+      DataLabel[i++] = (char*) CRF1Name;
+      DataLabel[i++] = (char*) CRF2Name;
+      DataLabel[i++] = (char*) CRF3Name;
+    }
+}
   if (MultiSpecies) {
     DataLabel[count++] = (char*) ElectronName;
     DataLabel[count++] = (char*) HIName;

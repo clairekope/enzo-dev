@@ -30,10 +30,10 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
 
   float Ul[neq], Ur[neq], Fl[neq], Fr[neq];
   float etot, eint, h, dpdrho, dpde, W, W2, ap, am, cs, cs2, ca2, ca, cf, cf2, v_yz, v_yz2, v2,
-    vx, vx2, vy, vz, rho, p, lm_l, lp_l, lm_r, lp_r, v, Bx, By, Bz, Phi, B2, Bv; 
+    vx, vx2, vy, vz, rho, p, lm_l, lp_l, lm_r, lp_r, v, Bx, By, Bz, Phi, B2, Bv, Ecr, Pcr;
   float Zero = 0.0;
   float temp1;
-
+  
   for (int n = 0; n < ActiveSize+1; n++) {
     // First, compute Fl and Ul
     rho   = priml[0][n];
@@ -45,6 +45,12 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     By    = priml[6][n];
     Bz    = priml[7][n];
     Phi   = priml[8][n];
+    if (CRModel==1) {
+      // CR energy density, pressure density
+      // priml[9] already in units of rho*energy as opposed to eint and etot
+      Ecr = priml[9][n];
+      Pcr = Ecr * (CRgamma - 1.0);
+    }
     
     B2 = Bx*Bx + By*By + Bz*Bz;
     Bv = Bx*vx + By*vy + Bz*vz;
@@ -53,10 +59,12 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     etot = eint + 0.5*v2 + 0.5*B2/rho;
 
     EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);    
+
     if (EOSType > 0) {
       p = priml[1][n];
       cs = sqrt(p/rho);
     }
+ 
     float pl = p;
     cs2 = cs*cs;
 
@@ -72,21 +80,31 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     Ul[iBy ] = By;
     Ul[iBz ] = Bz;
     Ul[iPhi] = Phi;
+    if (CRModel==1){
+      Ul[iCRE]  = Ecr;
+    }
 
     Fl[iD   ] = rho * vx;
     Fl[iS1  ] = Ul[iS1] * vx + p + 0.5*B2 - Bx*Bx;
     Fl[iS2  ] = Ul[iS2] * vx - Bx*By;
     Fl[iS3  ] = Ul[iS3] * vx - Bx*Bz;
     Fl[iEtot] = rho * (0.5*v2 + h) *vx + B2*vx - Bx*Bv;
+   
     if (DualEnergyFormalism) {
       Fl[iEint] = Ul[iEint] * vx;
     }
     Fl[iBx] = 0.0;
     Fl[iBy] = vx*By - vy*Bx;
     Fl[iBz] = -vz*Bx + vx*Bz;
-    //Fl[iPhi] = C_h*C_h*Bx;
+    if (CRModel==1){
+      Fl[iS1] += Pcr;
+      Fl[iEtot] += Pcr*vx;
+      Fl[iCRE] = (Ecr + Pcr)*vx;
+    }
 
     // largest and smallest eigenvectors
+    if (CRModel==1)
+      cs2 += CRgamma * Pcr/rho;
     ca2 = Bx*Bx/rho;
     temp1 = cs2 + B2/rho;
     cf2 = 0.5 * (temp1 + sqrt(fabs(temp1*temp1 - 4.0*cs2*ca2)));
@@ -105,6 +123,11 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     By    = primr[6][n];
     Bz    = primr[7][n];
     Phi   = primr[8][n];
+    if (CRModel==1) {
+      // CR energy density, pressure density
+      Ecr = primr[9][n];
+      Pcr = Ecr * (CRgamma - 1.0);
+    }
 
     B2 = Bx*Bx + By*By + Bz*Bz;
     Bv = Bx*vx + By*vy + Bz*vz;
@@ -116,6 +139,7 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
       p = primr[1][n];
       cs = sqrt(p/rho);
     }
+  
     float pr=p;
     cs2 = cs*cs;
 
@@ -132,6 +156,10 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     Ur[iBz ] = Bz;
     Ur[iPhi] = Phi;
 
+    if (CRModel==1){
+      Ur[iCRE] = Ecr;
+    }
+
     Fr[iD   ] = rho * vx;
     Fr[iS1  ] = Ur[iS1] * vx + p + 0.5*B2 - Bx*Bx;
     Fr[iS2  ] = Ur[iS2] * vx - Bx*By;
@@ -143,9 +171,15 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     Fr[iBx ] = 0.0;
     Fr[iBy ] = vx*By - vy*Bx;
     Fr[iBz ] = -vz*Bx + vx*Bz;
-    //Fr[iPhi] = C_h*C_h*Bx;
+    if (CRModel==1){
+      Fr[iS1] += Pcr; 
+      Fr[iEtot] += Pcr*vx;
+      Fr[iCRE] = (Ecr + Pcr) * vx;
+    }
 
     // largest and smallest eigenvectors
+    if (CRModel==1)
+      cs2 += CRgamma * Pcr/rho;
     ca2 = Bx*Bx/rho;
     temp1 = cs2 + B2/rho;
     cf2 = 0.5 * (temp1 + sqrt(fabs(temp1*temp1 - 4.0*cs2*ca2)));
@@ -154,10 +188,9 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     lp_r = vx + cf;
     lm_r = vx - cf;
 
+
     ap = Max(Zero, lp_l, lp_r);
     am = Max(Zero, -lm_l, -lm_r);
-    //ap = max(Zero, lp_r);
-    //am = max(Zero, -lm_l);
 
     float a0 = max(ap, am);
 
@@ -183,10 +216,6 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
       return FAIL;
       }*/
   }
-
-  /*for (int n = 0; n < ActiveSize+1; n++) {
-    FluxLine[iBx][n] = 0.0;
-    }*/
 
   return SUCCESS;
 }

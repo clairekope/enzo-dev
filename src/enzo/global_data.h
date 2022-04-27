@@ -425,16 +425,24 @@ EXTERN int MultiMetals;
  * 2: On, two-moment two-fluid model (Jiang & Oh 2018)
  */
 EXTERN int CRModel;
+
 /* Cosmic Ray Diffusion
  * 0: Off - default
  * 1: On, CRkappa is constant across grid
+ * 2: On, anisotropic diffusion with constant CRkappa
  */
 EXTERN int CRDiffusion;
+
 /* Cosmic Ray Feedback
  *    0.0 -- No CR feedback
  *    1.0 -- All feedback into CR field
  */
 EXTERN float CRFeedback;
+
+EXTERN int CRHeating; // 0 is off, 1 is on
+EXTERN int CRStreaming; // 0 is off, 1 is on 
+EXTERN float CRStreamVelocityFactor;
+EXTERN float CRStreamStabilityFactor;
 EXTERN float CRkappa;
 EXTERN float CRCourantSafetyNumber;
 EXTERN float CRdensFloor;
