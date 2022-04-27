@@ -9,7 +9,8 @@
 #  See Pfrommer et al 2006 for information on the analytic sol'tn
 #
 #  Uses CR implementation from Bustky & Quinn 2018, which requires
-#  the LLF Riemann solver. It is not implemented for other solvers.
+#  the LLF Riemann solver & Dedner MHD, even though no magnetic
+#  fields are initialized
 
 #
 #  define problem
@@ -41,8 +42,8 @@ RightFaceBoundaryCondition   = 1 1 1
 
 #  set hydro parameters
 #
-Gamma                  = 1.6666  #1.4
-CRgamma		       = 1.3333
+Gamma                  = 1.6666
+CRgamma		           = 1.3333
 CourantSafetyNumber    = 0.4
 
 #
