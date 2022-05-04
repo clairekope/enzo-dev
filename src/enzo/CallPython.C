@@ -46,12 +46,13 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
       if (!(PythonTopGridSkip) ||
 	  (NumberOfPythonTopGridCalls % PythonTopGridSkip) != 0) return SUCCESS;
     }
-    else {
-      if (LevelArray[level+1] != NULL) return SUCCESS;
-      NumberOfPythonSubcycleCalls++;
-      if (!(PythonSubcycleSkip) ||
-	  (NumberOfPythonSubcycleCalls % PythonSubcycleSkip) != 0) return SUCCESS;
-    }
+    if (!from_topgrid) return SUCCESS;
+    // else {
+    //   if (LevelArray[level+1] != NULL) return SUCCESS;
+    //   NumberOfPythonSubcycleCalls++;
+    //   if (!(PythonSubcycleSkip) ||
+	//   (NumberOfPythonSubcycleCalls % PythonSubcycleSkip) != 0) return SUCCESS;
+    // }
 
     FLOAT CurrentTime, OldTime;
     float dtFixed;
