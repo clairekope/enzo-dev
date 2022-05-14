@@ -168,37 +168,37 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
             if (xp < CellLeftEdge[0][0] + borderDx)
             {
-                printf("Shifting particle X %e -> %e\n", xp, xp + borderDx+0.5*dx);
+                if (debug) printf("Shifting particle X %e -> %e\n", xp, xp + borderDx+0.5*dx);
                 xp = CellLeftEdge[0][0] + borderDx + 0.5 * dx;
                 shifted++;
             }
             if (xp > CellLeftEdge[0][0] + gridDx - borderDx)
             {
-                printf("Shifting particle X %e -> %e\n", xp, xp - borderDx - 0.5*dx);
+                if (debug) printf("Shifting particle X %e -> %e\n", xp, xp - borderDx - 0.5*dx);
                 xp = CellLeftEdge[0][0] + gridDx - borderDx - 0.5*dx;
                 shifted = 1;
             }
             if (yp < CellLeftEdge[1][0] + borderDx)
             {
-                printf("Shifting particle Y %e -> %e\n", yp, yp + borderDx+0.5*dx);
+                if (debug) printf("Shifting particle Y %e -> %e\n", yp, yp + borderDx+0.5*dx);
                 yp = CellLeftEdge[1][0] + borderDx + 0.5 * dx;
                 shifted = 1;
             }
             if (yp > CellLeftEdge[1][0] + gridDy - borderDx)
             {
-                printf("Shifting particleY %e -> %e\n", yp, yp - borderDx - 0.5*dx);
+                if (debug) printf("Shifting particleY %e -> %e\n", yp, yp - borderDx - 0.5*dx);
                 yp = CellLeftEdge[1][0] + gridDy - borderDx - 0.5 * dx;
                 shifted = 1;
             }
             if (zp < CellLeftEdge[2][0] + borderDx)
             {
-                printf("Shifting particle Z %e -> %e\n", zp, zp + borderDx+0.5*dx);
+                if (debug) printf("Shifting particle Z %e -> %e\n", zp, zp + borderDx+0.5*dx);
                 zp = CellLeftEdge[2][0] + borderDx + 0.5 * dx;
                 shifted = 1;
             }
             if (zp > CellLeftEdge[2][0] + gridDz - borderDx)
             {
-                printf("Shifting particle Z %e -> %e\n", zp, zp - borderDx-0.5*dx);
+                if (debug) printf("Shifting particle Z %e -> %e\n", zp, zp - borderDx-0.5*dx);
                 zp = CellLeftEdge[2][0] + gridDz - borderDx - 0.5 * dx;
                 shifted = 1;
             }

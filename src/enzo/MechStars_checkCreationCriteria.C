@@ -129,7 +129,7 @@ int checkCreationCriteria(float* Density, float* Metals,
     float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
 
     if (MechStarsUseVirialParameter){
-        if (alpha < 20) 
+        if (alpha < 20 && debug) 
             fprintf(stdout, "STARSS_CR: Compare alphas: F3 = %f; Energy method = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
                                 alpha, AltAlpha, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
         if (AltAlpha > 1.0) status = FAIL;

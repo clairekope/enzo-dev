@@ -50,8 +50,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     //printf("STARSS_FB: In Feedback deposition\n");
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
-    bool debug = true;
-    bool criticalDebug = true;
+    bool debug = false;
+    bool criticalDebug = false;
     float min_winds = 1.0;
     bool printout = debug & !winds;
     int index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
@@ -344,11 +344,11 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         // coupledMomenta = p_free * min(sqrt(1+ (nCouple * dmean * pow(cellwidth * pc_cm, 3) / SolarMass)/(ejectaMass)), pTerminal/p_free/pow(1+dxeff));
         if (cw_eff < r_free){
             coupledMomenta = min(p_free * pow(cw_eff/r_free, 3.0), p_sedov);
-            printf("STARSS_FB: modifying free phase: p = %e\n", coupledMomenta);
+            if (printout) printf("STARSS_FB: modifying free phase: p = %e\n", coupledMomenta);
         }
         if (r_free < cw_eff && dxeff <= 1){
                 coupledMomenta = min(p_sedov, pTerminal*dxeff);
-                printf("STARSS_FB: Coupling Sedov-Terminal phase: p = %e (ps = %e, pt = %e, dxe = %e)\n", coupledMomenta, p_sedov, pTerminal, dxeff);
+                if (printout) printf("STARSS_FB: Coupling Sedov-Terminal phase: p = %e (ps = %e, pt = %e, dxe = %e)\n", coupledMomenta, p_sedov, pTerminal, dxeff);
         }
         if (dxeff > 1){   
                 coupledMomenta = pTerminal/ sqrt(min(1.5, dxeff));
@@ -372,7 +372,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         }
             
         if (T > 1e6 && coupledMomenta > 1e5){
-            printf("STARSS_FB: Coupling high momenta to very hot gas!! (p= %e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
+            fprintf(stdout, "STARSS_FB: Coupling high momenta to very hot gas!! (p= %e, T= %e, n_c = %e)\n", coupledMomenta, T, nCritical);
         }
     }
 
@@ -478,7 +478,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 eKinetic, dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass);
         ENZO_FAIL("winds Ekinetic > reasonability!\n");
     }
-    if (eKinetic > 1e60 && !winds)
+    if (eKinetic > 1e54 && !winds)
     {
         fprintf(stdout, "STARSS_FB: Ekinetic = %e Mass = %e\n",
                 eKinetic, dmean * pow(LengthUnits * CellWidth[0][0], 3) / SolarMass);
@@ -583,7 +583,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                     float zpre = BaryonField[MetalNum][flat];
                                     float pre_z_frac = zpre / dpre;
                                     if (printout)
-                                    fprintf(stdout, "STARSS: Baryon Prior: %e, window = %f; mc = %e, ms = %e; m_z = %e , z = %e\n", BaryonField[DensNum][flat] * MassUnits, window, centralMass, shellMass, shellMetals, pre_z_frac);
+                                        fprintf(stdout, "STARSS: Baryon Prior: %e, window = %f; mc = %e, ms = %e; m_z = %e , z = %e\n", BaryonField[DensNum][flat] * MassUnits, window, centralMass, shellMass, shellMetals, pre_z_frac);
                                     BaryonField[DensNum][flat] = max(dpre - remainMass/27., (1.0-maxEvacFraction)* dpre);
                                     minusRho += dpre - BaryonField[DensNum][flat];
                                     msubtracted += dpre - BaryonField[DensNum][flat];
