@@ -311,8 +311,8 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         pTerminal = 8.3619e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25);
 
     /* fading radius of a supernova, using gas energy of the host cell and ideal gas approximations */
-    float T = BaryonField[GENum][index] / BaryonField[DensNum][index] * TemperatureUnits;
-    float cSound = sqrt(kboltz * T / mh) / 1e5; // [km/s] 
+    float T = BaryonField[GENum][index] * (Gamma-1) * muField[index] * TemperatureUnits;
+    float cSound = sqrt(Gamma * kboltz * T / (mh*mu_mean)) / 1e5; // [km/s] 
     float r_fade = max(66.0*pow(ejectaEnergy/1e51, 0.32)*pow(nmean, -0.37)*pow(cSound/10, -2.0/5.0), CoolingRadius * 1.5);
     float fadeRatio = cellwidth/r_fade;
     if (printout) fprintf(stdout, "STARSS_FB: Fading: T = %e; Cs = %e; R_f = %e; fadeR = %f\n", T, cSound, r_fade, fadeRatio);
