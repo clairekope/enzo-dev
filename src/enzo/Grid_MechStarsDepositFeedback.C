@@ -310,7 +310,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         pTerminal = 8.3619e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25);
 
     /* fading radius of a supernova, using gas energy of the host cell and ideal gas approximations */
-    float T = max(100, BaryonField[GENum][index] * (Gamma-1) * muField[index] * TemperatureUnits);
+    float T = max(1, BaryonField[GENum][index] * (Gamma-1) * muField[index] * TemperatureUnits);
     if ( BaryonField[GENum][index] * (Gamma-1) * muField[index] * TemperatureUnits < 0 ){
         fprintf(stdout, "Error: Negative temperature encountered. GE = %f; Gamma = %f; mu = %f", 
             BaryonField[GENum][index], Gamma, muField[index]);
