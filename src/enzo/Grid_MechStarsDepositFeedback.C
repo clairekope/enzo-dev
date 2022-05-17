@@ -310,7 +310,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
         pTerminal = 8.3619e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25);
 
     /* fading radius of a supernova, using gas energy of the host cell and ideal gas approximations */
-    float T = max(1, BaryonField[GENum][index] * (Gamma-1) * muField[index] * TemperatureUnits);
+    float T = max(0.1, BaryonField[GENum][index] * (Gamma-1) * muField[index] * TemperatureUnits);
     if ( BaryonField[GENum][index] * (Gamma-1) * muField[index] * TemperatureUnits < 0 ){
         fprintf(stdout, "Error: Negative temperature encountered. GE = %f; Gamma = %f; mu = %f", 
             BaryonField[GENum][index], Gamma, muField[index]);
@@ -358,8 +358,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 coupledMomenta = pTerminal/ sqrt(min(1.5, dxeff));
                if (printout) printf("STARSS_FB: Coupling Terminal phase: p = %e; dxeff = %e\n", coupledMomenta, dxeff);
             }
-        if (fader > 1 && useFading){ // high coupling during the fading regime leads to SNRs on the root-grid in 6-level AMR simulations!
-            coupledMomenta = pTerminal * (1.0 - tanh(pow(fader * merger, 2.5)));
+
+        if (dxeff > 1 && useFading){ // high coupling during the fading regime leads to SNRs on the root-grid in 6-level AMR simulations!
+            coupledMomenta = coupledMomenta * (1.0 - tanh(pow(1.25*fader, 2)));
            if (printout) printf("STARSS_FB: Coupling Fading phase: p = %e\n", coupledMomenta);
         }
         // critical density to skip snowplough (remnant combines with ISM before radiative phase); eq 4.9 cioffi 1988
