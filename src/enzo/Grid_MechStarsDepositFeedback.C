@@ -238,7 +238,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     /* Use averaged quantities across multiple cells so that deposition is stable.
         vmean is used to determine whether the supernova shell calculation should proceed:
             M_shell > 0 iff v_shell > v_gas */
-    float zmean = 0, dmean = 0, nmean = 0, mu_mean = 0;
+    float zmean = 0, dmean = 0, nmean = 0, mu_mean = 0, dtot = 0, nmax = 0, nmin = huge_number, host=0.0;
     for (int idi = ip-1; idi < ip+2; idi++)
         for (int idj = jp-1;idj < jp+2; idj++)
             for (int idk = kp-1; idk < kp+2; idk++)
@@ -249,19 +249,25 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                     tz  = metals[ind];
                     if (SNColourNum > 0)
                         tz += BaryonField[SNColour][ind];
-                    zmean += tz/BaryonField[DensNum][ind];
-                    mu_mean += muField[ind];
-                    dmean += BaryonField[DensNum][ind];
+                    zmean += tz;
+                    mu_mean += muField[ind] * BaryonField[DensNum][ind];
+                    dmean += BaryonField[DensNum][ind]* BaryonField[DensNum][ind];
+                    dtot += BaryonField[DensNum][ind];
+                    float rho = BaryonField[DensNum][ind];
+                    if (rho > nmax) nmax = rho;
+                    if (rho < nmin) nmin = rho;
                 }
-    zmean = zmean / SolarMetalFractionByMass / (27.0);
-    mu_mean /= 27.0;
-    dmean = dmean * DensityUnits / (27.);
+    zmean = zmean / SolarMetalFractionByMass / dtot;
+    mu_mean /= dtot;
+    mu_mean = max(0.2, mu_mean);
+    dmean = dmean/dtot * DensityUnits;
     // zmean = zmean * DensityUnits / dmean;
-    nmean = dmean / (mh/mu_mean);
+    nmean = dmean / (mh*mu_mean);
     // nmean = BaryonField[DensNum][index]*DensityUnits / (mh/muField[index]);
     //nmean = max(nmean, 1e-1);
     if (printout) printf ("STARSS_FB: Zmean = %e Dmean = %e (%e) mu_mean = %e ", zmean, dmean, dmean / DensityUnits, mu_mean);
-    if (printout) printf ("Nmean = %f\n", nmean);
+    if (printout) printf ("Nmean = %f Nmax = %f Nmin = %f Nhost = %f ijk= %d %d %d\n", nmean, nmax*DensityUnits/mh/mu_mean, 
+                                                nmin*DensityUnits/mh/mu_mean, BaryonField[DensNum][index]*DensityUnits/mh/mu_mean, ip, jp, kp);
     float zZsun = zmean;
     float fz = min(2.0, pow(max(zZsun, 0.01), -0.14));
 
