@@ -254,6 +254,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     DiskGravityAngularMomentum[dim] = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
     GalaxySimulationPreWindVelocity[dim] = 0.0;
+    GalaxySimulationInflowCenter[dim] = 0.0;
     StellarWindCenterPosition[dim] = 0.5;
   }
   if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
@@ -409,13 +410,21 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GalaxySimulationRPSWind = 0;
   GalaxySimulationRPSWindShockSpeed = 0.0;
   GalaxySimulationRPSWindDelay = 0.0;
-
   GalaxySimulationRPSWindDensity = 1.0;
   GalaxySimulationRPSWindTotalEnergy = 1.0;
   GalaxySimulationRPSWindPressure = 1.0;
 
   GalaxySimulationPreWindDensity = 1.0;
   GalaxySimulationPreWindTotalEnergy = 1.0;
+
+  GalaxySimulationInflow = 0;
+  GalaxySimulationInflowFace = 0;
+  GalaxySimulationInflowOn = FALSE; // off
+  GalaxySimulationInflowTimeOn = 100; // Myr
+  GalaxySimulationInflowTimeOff = 50; // Myr
+  GalaxySimulationInflowRadius = 5; // kpc
+  GalaxySimulationInflowTemperature = 1e4; // K
+  GalaxySimulationInflowDensity = 1e-24; // g/cc
 
   DualEnergyFormalism         = FALSE;             // off
   DualEnergyFormalismEta1     = 0.001;             // typical 0.001
