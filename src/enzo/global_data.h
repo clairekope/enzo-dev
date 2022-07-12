@@ -1202,15 +1202,38 @@ EXTERN int GalaxySimulationRPSWind;
  */
 EXTERN float GalaxySimulationRPSWindShockSpeed;
 EXTERN float GalaxySimulationRPSWindDelay;
-
 EXTERN float GalaxySimulationRPSWindDensity;
 EXTERN float GalaxySimulationRPSWindTotalEnergy;
 EXTERN float GalaxySimulationRPSWindVelocity[MAX_DIMENSION];
 EXTERN float GalaxySimulationRPSWindPressure;
 
+/* Used internally with RPS Wind */
 EXTERN float GalaxySimulationPreWindDensity;
 EXTERN float GalaxySimulationPreWindTotalEnergy; 
 EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
+
+EXTERN int GalaxySimulationInflow;
+/* GalaxySimulationInflow:
+ *   0 - OFF
+ *   1 - cylindrical "filament"
+ *   2 - time varying; "blobby"
+ */
+EXTERN int GalaxySimulationInflowFace;
+/* GalaxySimulationInflowFace:
+ *   0 - left x edge
+ *   1 - left y edge
+ *   2 - left z edge
+ *   3 - right x edge
+ *   4 - right y edge
+ *   5 - right z edge
+ */
+EXTERN bool  GalaxySimulationInflowOn; // internal tracking of state
+EXTERN float GalaxySimulationInflowTimeOn;
+EXTERN float GalaxySimulationInflowTimeOff;
+EXTERN float GalaxySimulationInflowCenter[MAX_DIMENSION];
+EXTERN float GalaxySimulationInflowRadius;
+EXTERN float GalaxySimulationInflowTemperature;
+EXTERN float GalaxySimulationInflowDensity;
 
 /* Supernova magnetic seed field */
 EXTERN int UseMagneticSupernovaFeedback;
