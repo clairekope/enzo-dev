@@ -85,39 +85,11 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
   return SUCCESS;
 }
 
-int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
-             int &Vel1Num, int &Vel2Num, int &Vel3Num, int &TENum, 
-             int &CRENum, int &CRF1Num, int &CRF2Num, int &CRF3Num)
-{
-
-  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
-
-  CRENum = 0;
-  CRF1Num = 0;
-  CRF2Num = 0;
-  CRF3Num = 0;
-  if(CRModel) {
-    if ((CRENum = FindField(CRDensity, BoundaryFieldType, NumberOfBaryonFields)) < 0) {
-      ENZO_FAIL("Cannot Find Cosmic Rays");
-    }
-    if (CRModel > 1) {
-      if((CRF1Num = FindField(CRFlux1, BoundaryFieldType, NumberOfBaryonFields)) < 0)
-        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
-      if((CRF2Num = FindField(CRFlux2, BoundaryFieldType, NumberOfBaryonFields)) < 0)
-        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
-      if((CRF3Num = FindField(CRFlux3, BoundaryFieldType, NumberOfBaryonFields)) < 0)
-        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
-    }
-  }
-
-  return SUCCESS;
-}
 
 
 int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
 						 int &Vel2Num, int &Vel3Num, int &TENum,
-						 int &B1Num, int &B2Num, int &B3Num, int &PhiNum,
-             int &CRENum, int &CRF1Num, int &CRF2Num, int &CRF3Num)
+						 int &B1Num, int &B2Num, int &B3Num, int &PhiNum)
 {
 
   DensNum = GENum = Vel1Num = Vel2Num = Vel3Num = TENum = B1Num = B2Num = B3Num = PhiNum = 0;
@@ -189,23 +161,6 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &
       }
   }
 
-  CRENum = 0;
-  CRF1Num = 0;
-  CRF2Num = 0;
-  CRF3Num = 0;
-  if(CRModel) {
-    if ((CRENum = FindField(CRDensity, BoundaryFieldType, NumberOfBaryonFields)) < 0) {
-      ENZO_FAIL("Cannot Find Cosmic Rays");
-    }
-    if (CRModel > 1) {
-      if((CRF1Num = FindField(CRFlux1, BoundaryFieldType, NumberOfBaryonFields)) < 0)
-        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
-      if((CRF2Num = FindField(CRFlux2, BoundaryFieldType, NumberOfBaryonFields)) < 0)
-        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
-      if((CRF3Num = FindField(CRFlux3, BoundaryFieldType, NumberOfBaryonFields)) < 0)
-        ENZO_FAIL("Cannot Find Cosmic Ray Energy Flux");
-    }
-  }
 
   return SUCCESS;
 }

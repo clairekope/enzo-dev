@@ -106,13 +106,9 @@ class ExternalBoundary
 //
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
                                  int &Vel2Num, int &Vel3Num, int &TENum);
-  int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
-                                 int &Vel2Num, int &Vel3Num, int &TENum, 
-                                 int &CRENum, int &CRF1Num, int &CRF2Num, int &CRF3Num);
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
                                  int &Vel2Num, int &Vel3Num, int &TENum,
-				                         int &B1Num, int&B2Num, int &B3Num, int &PhiNum,
-                                 int &CRENum, int &CRF1Num, int &CRF2Num, int &CRF3Num);
+				                         int &B1Num, int&B2Num, int &B3Num, int &PhiNum);
 
 //
 /************************************************************************/
