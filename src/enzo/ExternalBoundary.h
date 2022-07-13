@@ -133,7 +133,7 @@ class ExternalBoundary
 //   Sets up the inflow boundary conditions to model an 
 //   ICM wind bombarding a galaxy from an arbitrary angle
 //   or a blobby "filament" of IGM gas at the domain edge
-  int SetGalaxySimulationBoundary(FLOAT time);
+  int SetGalaxySimulationBoundary(FLOAT time, class grid *Grid);
 
 //
 // DoubleMach problem:

@@ -51,7 +51,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
   /* For Galaxy Sim w/ ICM Wind or IGM inflow, compute the new inflow boundary conditions. */
 
   if (ProblemType == 31)
-    if (Exterior->SetGalaxySimulationBoundary(Time) == FAIL) {
+    if (Exterior->SetGalaxySimulationBoundary(Time, this) == FAIL) {
       ENZO_FAIL("Error in exterior->SetGalaxySimulationBoundary.\n");
     }
  
