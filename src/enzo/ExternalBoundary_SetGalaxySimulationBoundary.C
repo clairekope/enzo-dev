@@ -398,7 +398,7 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time, class grid *Grid)
 
   // update metallicity field
   if( UseMetallicityField )
-    BoundaryValue[MetalNum][dim][0][index] = 1.0e-10; // TODO: switch to ambient density, GalaxySimulationGasHaloMetallicity
+    BoundaryValue[MetalNum][dim][0][index] = GalaxySimulationGasHaloMetallicity;
 
   if( BoundaryValue[DensNum][dim][0][index] < 0.0 ) 
     ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Density");
