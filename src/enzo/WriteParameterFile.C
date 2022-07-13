@@ -17,6 +17,7 @@
 //   based on it.
 
 #include "preincludes.h" 
+#include <cstdio>
 #include <time.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -513,6 +514,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "GalaxySimulationPreWindTotalEnergy = %"GSYM"\n",GalaxySimulationPreWindTotalEnergy);
   fprintf(fptr, "GalaxySimulationPreWindVelocity    = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, GalaxySimulationPreWindVelocity);
+  fprintf(fptr, "GalaxySimulationInflow             = %"ISYM"\n",GalaxySimulationInflow);
+  fprintf(fptr, "GalaxySimulationInflowOn           = %"ISYM"\n",GalaxySimulationInflowOn);
+  fprintf(fptr, "GalaxySimulationInflowFace         = %"ISYM"\n",GalaxySimulationInflowFace);
+  fprintf(fptr, "GalaxySimulationInflowTimeOn       = %"FSYM"\n",GalaxySimulationInflowTimeOn);
+  fprintf(fptr, "GalaxySimulationInflowTimeOff      = %"FSYM"\n",GalaxySimulationInflowTimeOff);
+  fprintf(fptr, "GalaxySimulationInflowCenter       = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, GalaxySimulationInflowCenter);
+  fprintf(fptr, "GalaxySimulationInflowRadius       = %"FSYM"\n",GalaxySimulationInflowRadius);
+  fprintf(fptr, "GalaxySimulationInflowTemperature  = %"FSYM"\n",GalaxySimulationInflowTemperature);
+  fprintf(fptr, "GalaxySimulationInflowDensity      = %"FSYM"\n",GalaxySimulationInflowDensity);
  
   fprintf(fptr, "DualEnergyFormalism         = %"ISYM"\n", DualEnergyFormalism);
   fprintf(fptr, "DualEnergyFormalismEta1     = %e\n", DualEnergyFormalismEta1);
