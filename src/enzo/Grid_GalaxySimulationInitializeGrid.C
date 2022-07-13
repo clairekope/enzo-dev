@@ -169,9 +169,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
            double DiskMetallicityEnhancementFactor,
            double AngularMomentum[MAX_DIMENSION],
            double UniformVelocity[MAX_DIMENSION], 
-           int UseMetallicityField, 
-           FLOAT GalaxySimulationInflowTime,
-           double GalaxySimulationInflowDensity,
+           int UseMetallicityField,
            int level,
            double GalaxySimulationCR
           )
@@ -299,13 +297,6 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
     if( debug && MyProcessorNumber == ROOT_PROCESSOR ) 
       fprintf(stdout,"Converting GalaxySimulationUniformDensity = %"GSYM" from CGS to code units\n",UniformDensity);
   } // end uniform density if
-
-  /* Set up inflow */
-  if (GalaxySimulationInflowTime > 0.0){
-    TimeActionType[0] = 2;
-    TimeActionParameter[0] = GalaxySimulationInflowDensity*DensityUnits;
-    TimeActionTime[0] = GalaxySimulationInflowTime*1e9/TimeUnits;
-  }
 
   /* Scale gas halo rotation quantities to code units.
    * gas halo rotation variable are NOT global */
