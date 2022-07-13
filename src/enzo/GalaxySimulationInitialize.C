@@ -109,9 +109,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 
   FLOAT GalaxySimulationInitialTemperature,
-        GalaxySimulationDarkMatterConcentrationParameter,
-        GalaxySimulationInflowTime,
-        GalaxySimulationInflowDensity;
+        GalaxySimulationDarkMatterConcentrationParameter;
 
   int GalaxySimulationGasHalo;
   FLOAT GalaxySimulationGasHaloScaleRadius,
@@ -169,8 +167,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationGasHaloRotationScaleRadius   = 10.0; // kpc
   GalaxySimulationGasHaloRotationIndex         = 0.0; // unitless
   GalaxySimulationDiskMetallicityEnhancementFactor = 3.0; // w.r.t to halo metallicity
-  GalaxySimulationInflowTime         = -1;
-  GalaxySimulationInflowDensity      = 0;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     GalaxySimulationDiskPosition[dim] = 0.5*(DomainLeftEdge[dim] +
 					     DomainRightEdge[dim]);
@@ -259,10 +255,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationGasHaloRotationIndex);
     ret += sscanf(line, "GalaxySimulationDiskMetallicityEnhancementFactor = %"FSYM,
 		  &GalaxySimulationDiskMetallicityEnhancementFactor);
-    ret += sscanf(line, "GalaxySimulationInflowTime = %"FSYM,
-		  &GalaxySimulationInflowTime);
-    ret += sscanf(line, "GalaxySimulationInflowDensity = %"FSYM,
-		  &GalaxySimulationInflowDensity);
     ret += sscanf(line, "GalaxySimulationAngularMomentum = %"FSYM" %"FSYM" %"FSYM,
 		  &GalaxySimulationAngularMomentum[0],
 		  &GalaxySimulationAngularMomentum[1],
@@ -344,9 +336,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationDiskMetallicityEnhancementFactor,
     GalaxySimulationAngularMomentum,
     GalaxySimulationUniformVelocity,
-    GalaxySimulationUseMetallicityField,
-    GalaxySimulationInflowTime,
-    GalaxySimulationInflowDensity,0,
+    GalaxySimulationUseMetallicityField,0,
     GalaxySimulationCR
     ) == FAIL) {
       ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
@@ -421,9 +411,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
           GalaxySimulationDiskMetallicityEnhancementFactor,
           GalaxySimulationAngularMomentum,
           GalaxySimulationUniformVelocity,
-          GalaxySimulationUseMetallicityField,
-          GalaxySimulationInflowTime,
-          GalaxySimulationInflowDensity,level,
+          GalaxySimulationUseMetallicityField,level,
           GalaxySimulationCR
           ) == FAIL) {
 	          ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
@@ -614,10 +602,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      GalaxySimulationGasHaloCoreEntropy);
    fprintf(Outfptr, "GalaxySimulationDiskMetallicityEnhancementFactor = %"GOUTSYM"\n",
      GalaxySimulationDiskMetallicityEnhancementFactor);
-   fprintf(Outfptr, "GalaxySimulationInflowTime = %"GOUTSYM"\n",
-	   GalaxySimulationInflowTime);
-   fprintf(Outfptr, "GalaxySimulationInflowDensity = %"GOUTSYM"\n",
-	   GalaxySimulationInflowDensity);
    fprintf(Outfptr, "GalaxySimulationDiskPosition = ");
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationDiskPosition);
    fprintf(Outfptr, "GalaxySimulationAngularMomentum = ");

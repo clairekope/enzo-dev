@@ -2350,9 +2350,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     FLOAT DiskMetallicityEnhancementFactor,
 				     FLOAT AngularMomentum[MAX_DIMENSION],
 				     FLOAT UniformVelocity[MAX_DIMENSION], 
-				     int UseMetallicityField, 
-				     FLOAT GalaxySimulationInflowTime,
-				     FLOAT GalaxySimulationInflowDensity,
+				     int UseMetallicityField,
 				     int level,
 				     FLOAT GalaxySimulationCR = 0.0
                  );
