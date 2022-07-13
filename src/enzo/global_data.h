@@ -1193,6 +1193,8 @@ EXTERN float SmartStarSMSLifetime;
 /* For EnzoTiming Behavior */
 EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
 
+EXTERN float GalaxySimulationGasHaloMetallicity;
+
 /* For the galaxy simulation boundary method */
 EXTERN int GalaxySimulationRPSWind;
 /* GalaxySimulationRPSWind

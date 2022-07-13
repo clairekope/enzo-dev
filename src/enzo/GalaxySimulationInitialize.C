@@ -126,7 +126,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
         GalaxySimulationGasHaloZeta2,
         GalaxySimulationGasHaloCoreEntropy,
         GalaxySimulationGasHaloRatio,
-        GalaxySimulationGasHaloMetallicity,
         GalaxySimulationDiskMetallicityEnhancementFactor;
   char GalaxySimulationEquilibriumFile[MAX_LINE_LENGTH] = "equilibrium_table_50_027-Zsun.h5"; 
 
@@ -168,7 +167,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationGasHaloZeta2       = 0;
   GalaxySimulationGasHaloCoreEntropy = 5.0;  // keV cm^2
   GalaxySimulationGasHaloRatio       = 10; // ratio of cooling time to freefall time
-  GalaxySimulationGasHaloMetallicity = 0.1; // Zsun
   GalaxySimulationGasHaloRotation    = 0; // off
   GalaxySimulationGasHaloRotationScaleVelocity = 180.0; // km/s
   GalaxySimulationGasHaloRotationScaleRadius   = 10.0; // kpc
@@ -254,8 +252,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationGasHaloCoreEntropy);
     ret += sscanf(line, "GalaxySimulationGasHaloRatio = %"FSYM,
 		  &GalaxySimulationGasHaloRatio);
-    ret += sscanf(line, "GalaxySimulationGasHaloMetallicity = %"FSYM,
-		  &GalaxySimulationGasHaloMetallicity);
     ret += sscanf(line, "GalaxySimulationGasHaloRotation = %"ISYM,
 		  &GalaxySimulationGasHaloRotation);
     ret += sscanf(line, "GalaxySimulationGasHaloRotationScaleVelocity = %"FSYM,
@@ -278,7 +274,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     /* if the line is suspicious, issue a warning */
     if (ret == 0 && strstr(line, "=") && line[0] != '#' 
         && strstr(line, "GalaxySimulation") && !strstr(line, "DiskGravityDarkMatter")
-        && !strstr(line,"RPSWind") && !strstr(line,"PreWind") 
+        && !strstr(line,"RPSWind") && !strstr(line,"PreWind") && !strstr(line, "GalaxySimulationGasHaloMetallicity")
         )
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
 
@@ -344,7 +340,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationGasHaloZeta2,
     GalaxySimulationGasHaloCoreEntropy,
     GalaxySimulationGasHaloRatio,
-    GalaxySimulationGasHaloMetallicity,
     GalaxySimulationGasHaloRotation,
     GalaxySimulationGasHaloRotationScaleVelocity,
     GalaxySimulationGasHaloRotationScaleRadius,
@@ -422,7 +417,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
           GalaxySimulationGasHaloZeta2,
           GalaxySimulationGasHaloCoreEntropy,
           GalaxySimulationGasHaloRatio,
-          GalaxySimulationGasHaloMetallicity,
           GalaxySimulationGasHaloRotation,
           GalaxySimulationGasHaloRotationScaleVelocity,
           GalaxySimulationGasHaloRotationScaleRadius,
@@ -458,7 +452,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   } // end: if (GalaxySimulationRefineAtStart)
 
   /* If Galaxy is Subject to ICM Wind, Initialize the exterior */
-
+  // TODO modify to add IGM inflow
   if ( GalaxySimulationRPSWind > 0 ) {
     Exterior.Prepare(TopGrid.GridData);
 	
@@ -475,7 +469,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     InflowValue[3] = GalaxySimulationRPSWindVelocity[1];
     InflowValue[4] = GalaxySimulationRPSWindVelocity[2];
     if (GalaxySimulationUseMetallicityField)
-      InflowValue[5] = 1.0e-10;
+      InflowValue[5] = GalaxySimulationGasHaloMetallicity;
   
     if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 						Dummy) == FAIL) {
@@ -621,8 +615,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      GalaxySimulationGasHaloZeta2);
    fprintf(Outfptr, "GalaxySimulationGasHaloCoreEntropy = %"GOUTSYM"\n",
      GalaxySimulationGasHaloCoreEntropy);
-   fprintf(Outfptr, "GalaxySimulationGasHaloMetallicity = %"GOUTSYM"\n",
-     GalaxySimulationGasHaloMetallicity);
    fprintf(Outfptr, "GalaxySimulationDiskMetallicityEnhancementFactor = %"GOUTSYM"\n",
      GalaxySimulationDiskMetallicityEnhancementFactor);
    fprintf(Outfptr, "GalaxySimulationInflowTime = %"GOUTSYM"\n",

@@ -407,6 +407,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   WritePotential              = FALSE;
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
 
+  GalaxySimulationGasHaloMetallicity = 0.1; // Zsun
+
   GalaxySimulationRPSWind = 0;
   GalaxySimulationRPSWindShockSpeed = 0.0;
   GalaxySimulationRPSWindDelay = 0.0;

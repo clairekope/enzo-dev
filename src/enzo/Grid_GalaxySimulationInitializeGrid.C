@@ -118,7 +118,6 @@ double GalaxySimulationGasHaloScaleRadius,
   GalaxySimulationGasHaloZeta, GalaxySimulationGasHaloZeta2,
   GalaxySimulationGasHaloCoreEntropy, 
   GalaxySimulationGalaxyMass, GalaxySimulationDMConcentration,
-  GalaxySimulationGasHaloMetallicity,
   GalaxySimulationDiskMetallicityEnhancementFactor,
   GalaxySimulationGasHaloRatio;
 
@@ -213,7 +212,6 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
   GalaxySimulationGasHaloRatio = GasHaloRatio; // ratio of cooling time to freefall time
   GalaxySimulationGalaxyMass = GalaxyMass;
   GalaxySimulationDMConcentration = DMConcentration;
-  GalaxySimulationGasHaloMetallicity = GasHaloMetallicity; // Zsun
   GalaxySimulationDiskMetallicityEnhancementFactor = DiskMetallicityEnhancementFactor; // w.r.t to halo
  
   /* create fields */
