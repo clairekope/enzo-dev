@@ -933,20 +933,21 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	fprintf(stderr, "Warning: Incorrect version number.\n");
     }
 
-    /* Read Galaxy Simulation Wind Boundary Variabels */
-
-     ret += sscanf(line, "GalaxySimulationRPSWind = %"ISYM,&GalaxySimulationRPSWind);
-     ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %"FSYM,&GalaxySimulationRPSWindShockSpeed);
-     ret += sscanf(line, "GalaxySimulationRPSWindDelay = %"FSYM,&GalaxySimulationRPSWindDelay);
-     ret += sscanf(line, "GalaxySimulationRPSWindDensity = %"FSYM,&GalaxySimulationRPSWindDensity);
-     ret += sscanf(line, "GalaxySimulationRPSWindTotalEnergy = %"FSYM,&GalaxySimulationRPSWindTotalEnergy);
-     ret += sscanf(line, "GalaxySimulationRPSWindPressure = %"FSYM,&GalaxySimulationRPSWindPressure);
-     ret += sscanf(line, "GalaxySimulationRPSWindVelocity = %"PSYM" %"PSYM" %"PSYM,
-      GalaxySimulationRPSWindVelocity, GalaxySimulationRPSWindVelocity+1, GalaxySimulationRPSWindVelocity+2);
-     ret += sscanf(line, "GalaxySimulationPreWindDensity = %"FSYM,&GalaxySimulationPreWindDensity);
-     ret += sscanf(line, "GalaxySimulationPreWindTotalEnergy = %"FSYM,&GalaxySimulationPreWindTotalEnergy);
-     ret += sscanf(line, "GalaxySimulationPreWindVelocity = %"PSYM" %"PSYM" %"PSYM,
-         GalaxySimulationPreWindVelocity,GalaxySimulationPreWindVelocity+1,GalaxySimulationPreWindVelocity+2);
+    /* Read Galaxy Simulation Inflow Boundary Variables */
+     
+    ret += sscanf(line, "GalaxySimulationGasHaloMetallicity = %"FSYM,&GalaxySimulationGasHaloMetallicity);
+    ret += sscanf(line, "GalaxySimulationRPSWind = %"ISYM,&GalaxySimulationRPSWind);
+    ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %"FSYM,&GalaxySimulationRPSWindShockSpeed);
+    ret += sscanf(line, "GalaxySimulationRPSWindDelay = %"FSYM,&GalaxySimulationRPSWindDelay);
+    ret += sscanf(line, "GalaxySimulationRPSWindDensity = %"FSYM,&GalaxySimulationRPSWindDensity);
+    ret += sscanf(line, "GalaxySimulationRPSWindTotalEnergy = %"FSYM,&GalaxySimulationRPSWindTotalEnergy);
+    ret += sscanf(line, "GalaxySimulationRPSWindPressure = %"FSYM,&GalaxySimulationRPSWindPressure);
+    ret += sscanf(line, "GalaxySimulationRPSWindVelocity = %"PSYM" %"PSYM" %"PSYM,
+    GalaxySimulationRPSWindVelocity, GalaxySimulationRPSWindVelocity+1, GalaxySimulationRPSWindVelocity+2);
+    ret += sscanf(line, "GalaxySimulationPreWindDensity = %"FSYM,&GalaxySimulationPreWindDensity);
+    ret += sscanf(line, "GalaxySimulationPreWindTotalEnergy = %"FSYM,&GalaxySimulationPreWindTotalEnergy);
+    ret += sscanf(line, "GalaxySimulationPreWindVelocity = %"PSYM" %"PSYM" %"PSYM,
+        GalaxySimulationPreWindVelocity,GalaxySimulationPreWindVelocity+1,GalaxySimulationPreWindVelocity+2);
 
     /* Read star particle parameters. */
 

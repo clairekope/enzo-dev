@@ -500,6 +500,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "HaloFinderLastTime             = %"PSYM"\n\n", 
 	  HaloFinderLastTime);
 
+  fprintf(fptr, "GalaxySimulationGasHaloMetallicity = %"ISYM"\n",GalaxySimulationGasHaloMetallicity);
   fprintf(fptr, "GalaxySimulationRPSWind            = %"ISYM"\n",GalaxySimulationRPSWind);
   fprintf(fptr, "GalaxySimulationRPSWindShockSpeed  = %"GSYM"\n",GalaxySimulationRPSWindShockSpeed);
   fprintf(fptr, "GalaxySimulationRPSWindDelay       = %"GSYM"\n",GalaxySimulationRPSWindDelay);

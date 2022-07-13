@@ -118,7 +118,6 @@ double GalaxySimulationGasHaloScaleRadius,
   GalaxySimulationGasHaloZeta, GalaxySimulationGasHaloZeta2,
   GalaxySimulationGasHaloCoreEntropy, 
   GalaxySimulationGalaxyMass, GalaxySimulationDMConcentration,
-  GalaxySimulationGasHaloMetallicity,
   GalaxySimulationDiskMetallicityEnhancementFactor,
   GalaxySimulationGasHaloRatio;
 
@@ -162,7 +161,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
            FLOAT GasHaloZeta2,
            FLOAT GasHaloCoreEntropy,
 	   FLOAT GasHaloRatio,
-           FLOAT GasHaloMetallicity,
            int   UseHaloRotation,
            FLOAT RotationScaleVelocity,
            FLOAT RotationScaleRadius,
@@ -213,7 +211,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   GalaxySimulationGasHaloRatio = GasHaloRatio; // ratio of cooling time to freefall time
   GalaxySimulationGalaxyMass = GalaxyMass;
   GalaxySimulationDMConcentration = DMConcentration;
-  GalaxySimulationGasHaloMetallicity = GasHaloMetallicity; // Zsun
   GalaxySimulationDiskMetallicityEnhancementFactor = DiskMetallicityEnhancementFactor; // w.r.t to halo
  
   /* create fields */
