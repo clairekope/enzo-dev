@@ -948,6 +948,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "GalaxySimulationPreWindTotalEnergy = %"FSYM,&GalaxySimulationPreWindTotalEnergy);
     ret += sscanf(line, "GalaxySimulationPreWindVelocity = %"PSYM" %"PSYM" %"PSYM,
         GalaxySimulationPreWindVelocity,GalaxySimulationPreWindVelocity+1,GalaxySimulationPreWindVelocity+2);
+    ret += sscanf(line, "GalaxySimulationInflow = %"ISYM, &GalaxySimulationInflow);
+    ret += sscanf(line, "GalaxySimulationInflowOn = %"ISYM, &GalaxySimulationInflowOn);
+    ret += sscanf(line, "GalaxySimulationInflowFace = %"ISYM, &GalaxySimulationInflowFace);
+    ret += sscanf(line, "GalaxySimulationInflowTimeOn = %"FSYM, &GalaxySimulationInflowTimeOn);
+    ret += sscanf(line, "GalaxySimulationInflowTimeOff = %"FSYM, &GalaxySimulationInflowTimeOff);
+    ret += sscanf(line, "GalaxySimulationInflowCenter = %"PSYM" %"PSYM" %"PSYM,
+      GalaxySimulationInflowCenter, GalaxySimulationInflowCenter+1, GalaxySimulationInflowCenter+2);
+    ret += sscanf(line, "GalaxySimulationInflowRadius = %"FSYM, &GalaxySimulationInflowRadius);
+    ret += sscanf(line, "GalaxySimulationInflowDensity = %"FSYM, &GalaxySimulationInflowDensity);
+    ret += sscanf(line, "GalaxySimulationInflowTemperature = %"FSYM, &GalaxySimulationInflowTemperature);
 
     /* Read star particle parameters. */
 
