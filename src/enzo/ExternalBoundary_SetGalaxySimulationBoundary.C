@@ -37,7 +37,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 // Set the Left BoundaryValue of the chosen wave direction (set by
 // GalaxySimulationRPSWindSpeed) to the appropriate inflow boundary condition.
  
-int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
+int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time, class grid *Grid)
 {
   if( GalaxySimulationRPSWind == 0 && GalaxySimulationInflow == 0) return SUCCESS;
 
@@ -276,15 +276,29 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
   if (GalaxySimulationInflow > 0) {
 
     /* Find units */
-    FLOAT DensityUnits,LengthUnits,TemperatureUnits,TimeUnits,VelocityUnits,MassUnits;
+    float DensityUnits,LengthUnits,TemperatureUnits,TimeUnits,VelocityUnits,MassUnits;
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-            &TimeUnits, &VelocityUnits, &MassUnits, time);
+             &TimeUnits, &VelocityUnits, &MassUnits, time);
 
     int target_dim = GalaxySimulationInflowFace%3;
     int target_face = GalaxySimulationInflowFace/3;
 
+    /* Grab info from the abutting grid */
+    int grid_ysize, grid_zsize, cell_hwidth;
+    float *grid_dens, *grid_tote, *grid_gase, *grid_vel1, *grid_vel2, *grid_vel3;
+    grid_ysize = Grid->GetGridDimension(1);
+    grid_zsize = Grid->GetGridDimension(2);
+    cell_hwidth = 0.5*Grid->GetCellWidth(0, 0); // they're all the same
+    grid_dens = Grid->AccessDensity();
+    grid_tote = Grid->AccessTotalEnergy();
+    grid_gase = Grid->AccessGasEnergy();
+    grid_vel1 = Grid->AccessVelocity1();
+    grid_vel2 = Grid->AccessVelocity2();
+    grid_vel3 = Grid->AccessVelocity3();
+    // TODO will need to check for CRs probably
+
     if (GalaxySimulationInflow == 2) {
-      /* Check if inflow is on; update timer state */
+      /* TODO Check if inflow is on; update timer state */
     }
 
     /* Check validity of desired face */
@@ -300,16 +314,23 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
           BoundaryValue[field][target_dim][target_face] = new float[size/BoundaryDimension[target_dim]];
 
       /* Compute quantities needed for boundary face loop (below). */
+      /* Note that we will be computing position differently than with RPS wind */
 
       int dim1, dim2;
+      int grid_index, face_index;
+
       dim1 = (target_dim == 0) ? 1 : 0;
       dim2 = dim1 + 1;
       dim2 = (dim2 == target_dim) ? dim2+1 : dim2;
       for (i = 0; i < 3; i++) {
         NumberOfZones[i] = max(BoundaryDimension[i] - 2*NumberOfGhostZones,1);
-        Offset[i]        = min(NumberOfGhostZones, BoundaryDimension[i]) - 1;
+        Offset[i]        = min(NumberOfGhostZones, BoundaryDimension[i]);
       }
-      pos[target_dim] = target_face == 0 ? DomainLeftEdge[target_dim] : DomainRightEdge[target_dim];
+
+      pos[target_dim] = (target_face == 0) ? DomainLeftEdge[target_dim]+cell_hwidth : DomainRightEdge[target_dim]-cell_hwidth;
+      face_index = (target_face == 0) ? Offset[target_dim] : Grid->GetGridEndIndex(target_dim); // the abutting edge of nearby active grid
+
+      assert(Offset[target_dim] == Grid->GetGridStartIndex(target_dim));
 
       /* Loop over the boundary face */
 
@@ -319,6 +340,15 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
           /* Compute the index into the boundary value. */
       
           index = j*BoundaryDimension[dim1] + i;
+          
+          /* what grid cell abuts this boundary cell? (x*ylength+y)*zlength+z */
+          
+          grid_index = (dim1 == 0) ? i*grid_ysize : face_index*grid_ysize;
+          grid_index += (dim == 0) ? i : 0;
+          grid_index += (dim == 1) ? face_index : 0;
+          grid_index += (dim == 2) ? j : 0;
+          grid_index *= grid_zsize;
+          grid_index += (dim2 == 2) ? j : face_index;
 
           // update bndry type (needed for restart runs)
           for( int field = 0 ; field < NumberOfBaryonFields; ++field ){
@@ -328,10 +358,10 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 
           /* Find current position in box coordinates */
         
-          pos[dim1] = DomainLeftEdge[dim1]
+          pos[dim1] = DomainLeftEdge[dim1] + cell_hwidth
                     + (float(i-Offset[dim1]))/float(NumberOfZones[dim1]) 
                     * (DomainRightEdge[dim1]-DomainLeftEdge[dim1]);
-          pos[dim2] = DomainLeftEdge[dim2]
+          pos[dim2] = DomainLeftEdge[dim2] + cell_hwidth
                     + (float(i-Offset[dim2]))/float(NumberOfZones[dim2]) 
                     * (DomainRightEdge[dim2]-DomainLeftEdge[dim2]);
 
@@ -340,12 +370,26 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
             + POW(pos[dim2] - GalaxySimulationInflowCenter[dim2], 2)
             < POW(GalaxySimulationInflowRadius*kpc_cm/LengthUnits, 2)) {
               
-              BoundaryValue[DensNum][target_dim][target_face][index] = GalaxySimulationInflowDensity/DensityUnits;
-              /* Convert temperature into energy fields */
-          } else {
-            /* Adopt periodic conditions? */
-          }
+            BoundaryValue[DensNum][target_dim][target_face][index] = GalaxySimulationInflowDensity/DensityUnits;
+            BoundaryValue[TENum][target_dim][target_face][index]   = GalaxySimulationInflowTemperature/TemperatureUnits 
+                                                                   / ((Gamma - 1.0)*0.6);
+            if (DualEnergyFormalism)
+              BoundaryValue[GENum][target_dim][target_face][index] = GalaxySimulationInflowTemperature/TemperatureUnits 
+                                                                   / ((Gamma - 1.0)*0.6);
+            BoundaryValue[Vel1Num][target_dim][target_face][index] = 0.0;
+            BoundaryValue[Vel2Num][target_dim][target_face][index] = 0.0;
+            BoundaryValue[Vel3Num][target_dim][target_face][index] = 0.0;
 
+          } else {
+            /* Duplicate outer face of active grid zone */
+            BoundaryValue[DensNum][target_dim][target_face][index] = grid_dens[grid_index];
+            BoundaryValue[TENum][target_dim][target_face][index] = grid_tote[grid_index];
+            if (DualEnergyFormalism)
+              BoundaryValue[GENum][target_dim][target_face][index] = grid_gase[grid_index];
+            BoundaryValue[Vel1Num][target_dim][target_face][index] = grid_vel1[grid_index];
+            BoundaryValue[Vel2Num][target_dim][target_face][index] = grid_vel2[grid_index];
+            BoundaryValue[Vel3Num][target_dim][target_face][index] = grid_vel3[grid_index];
+          }
         }
     } else {
       ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: desired inflow face has size 1")
@@ -354,7 +398,7 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 
   // update metallicity field
   if( UseMetallicityField )
-    BoundaryValue[MetalNum][dim][0][index] = 1.0e-10; // FIXME: switch to ambient density, GalaxySimulationGasHaloMetallicity
+    BoundaryValue[MetalNum][dim][0][index] = 1.0e-10; // TODO: switch to ambient density, GalaxySimulationGasHaloMetallicity
 
   if( BoundaryValue[DensNum][dim][0][index] < 0.0 ) 
     ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Density");
@@ -369,4 +413,4 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 
   return SUCCESS;
  
-}
+}  
