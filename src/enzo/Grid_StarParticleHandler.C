@@ -1278,10 +1278,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
     }
 
-    if (STARMAKE_METHOD(EMF_FEEDBACK)) {
-      ENZO_FAIL("Error in Grid_StarParticleHandler: EMF Feedback has no associated star formation routine\n");
-    }
-
     /* This creates sink particles which suck up mass off the grid. */
 
     //    if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
@@ -1989,8 +1985,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   }
 
-  if (STARFEED_METHOD(EMF_FEEDBACK)) {
-    
+  if (StarFeedbackPreSNe) {
+   // call FORTRAN
   }
 
   if (StarMakerTypeIaSNe == 1 || StarMakerPlanetaryNebulae == 1) {

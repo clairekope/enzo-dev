@@ -12,6 +12,7 @@
 #ifndef STAR_PARTICLE_DATA_DEFINED__
 #define STAR_PARTICLE_DATA_DEFINED__
 
+#include "global_data.h"
 #ifdef DEFINE_STORAGE
 # define SPEXTERN
 #else /* DEFINE_STORAGE */
@@ -65,6 +66,10 @@ SPEXTERN int StarFeedbackDistRadius;
 SPEXTERN int StarFeedbackDistCellStep;
 SPEXTERN int StarFeedbackDistTotalCells;
 SPEXTERN float StarFeedbackKineticFraction;
+SPEXTERN int StarFeedbackPreSN;
+SPEXTERN float StarFeedbackPreSNMomenum;
+SPEXTERN float StarFeedbackPreSNTimescale;
+SPEXTERN float StarFeedbackPreSNAlpha;
 SPEXTERN float StarMakerExplosionDelayTime;
 SPEXTERN int   StarMakerUseJeansMass;
 SPEXTERN int   StarMakerVelDivCrit;
