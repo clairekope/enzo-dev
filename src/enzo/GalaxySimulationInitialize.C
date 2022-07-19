@@ -438,8 +438,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     }
   } // end: if (GalaxySimulationRefineAtStart)
 
-  /* If Galaxy is Subject to ICM Wind, Initialize the exterior */
-  // TODO modify to add IGM inflow
+  /* If Galaxy is Subject to ICM Wind or IGM inflow, Initialize the exterior */
   if ( GalaxySimulationRPSWind > 0 ) {
     Exterior.Prepare(TopGrid.GridData);
 	
@@ -479,6 +478,48 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationPreWindVelocity[0] = 0.0;
     GalaxySimulationPreWindVelocity[1] = 0.0;
     GalaxySimulationPreWindVelocity[2] = 0.0;
+    
+  } else if (GalaxySimulationInflow > 0) {
+    Exterior.Prepare(TopGrid.GridData);
+	
+    const int MAX_BNDRY_VARS = 6; // dens, total E, gas E, vel
+    float InflowValue[MAX_BNDRY_VARS], Dummy[MAX_BNDRY_VARS];
+
+    /* Use garbage values to initialize */
+    InflowValue[0] = GalaxySimulationUniformDensity;
+    InflowValue[1] = GalaxySimulationInitialTemperature/TemperatureUnits/((Gamma-1.0)*0.6);
+    InflowValue[2] = 0.0;
+    InflowValue[3] = 0.0;
+    InflowValue[4] = 0.0;
+    if (GalaxySimulationUseMetallicityField)
+      InflowValue[5] = GalaxySimulationGasHaloMetallicity;
+
+    int target_dim = GalaxySimulationInflowFace%3;
+    int target_face = GalaxySimulationInflowFace/3;
+
+    if (target_dim > MetaData.TopGridRank) {
+      fprintf(stderr, "Error in GalaxySimulationInitialize: GalaxySimulationInflowFace invalid for sim dimensionality\n");
+    }
+    
+    int left_bndry = (target_face == 0) ? inflow : outflow;
+    int rght_bndry = (target_face == 0) ? outflow : inflow;
+
+    if (Exterior.InitializeExternalBoundaryFace(target_dim, left_bndry, rght_bndry,
+                                                InflowValue, Dummy) == FAIL) {
+      fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
+      return FAIL;
+    }
+
+    for (dim=0; dim < MetaData.TopGridRank; dim++) {
+      if (dim != target_dim)
+        Exterior.InitializeExternalBoundaryFace(dim, periodic, periodic, Dummy, Dummy);
+    }
+
+    /* Now set actually desired (non-uniform) values */
+    Exterior.SetGalaxySimulationBoundary(MetaData.Time, TopGrid.GridData);
+
+    // Set timer state
+	
   }
 
   // If we used the Equilibrium Table, delete it
