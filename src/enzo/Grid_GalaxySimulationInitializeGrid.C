@@ -326,7 +326,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 
   struct CGMdata CGM_data(8192);
   halo_init(CGM_data, this, largest_rad);
-  if (debug) printf("Made halo profile\n");
+  if (debug) printf("Grid_GalaxySimulationInitialize: Made halo profile\n");
 
   // for (int i=0; i<CGM_data.nbins; ++i)
   //   printf("%g %g %g %g\n", CGM_data.rad[i], CGM_data.n_rad[i], CGM_data.T_rad[i], CGM_data.press[i]);

@@ -265,7 +265,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     /* if the line is suspicious, issue a warning */
     if (ret == 0 && strstr(line, "=") && line[0] != '#' 
         && strstr(line, "GalaxySimulation") && !strstr(line, "DiskGravityDarkMatter")
-        && !strstr(line,"RPSWind") && !strstr(line,"PreWind") && !strstr(line, "GalaxySimulationGasHaloMetallicity")
+        && !strstr(line,"RPSWind") && !strstr(line,"PreWind") && !strstr(line,"Inflow")
+        && !strstr(line, "GalaxySimulationGasHaloMetallicity")
         )
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
 

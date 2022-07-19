@@ -271,9 +271,22 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time, class grid *Grid)
             }
           } // end loop over boundary slice
       } // end loop over boundary directions
-  } // end RPS Wind
-  
-  if (GalaxySimulationInflow > 0) {
+
+        // update metallicity field
+    if( UseMetallicityField )
+      BoundaryValue[MetalNum][dim][0][index] = GalaxySimulationGasHaloMetallicity;
+
+    if( BoundaryValue[DensNum][dim][0][index] < 0.0 ) 
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Density");
+    if( BoundaryValue[TENum][dim][0][index] < 0.0 ) 
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Total Energy");
+
+    if( BoundaryValue[DensNum][dim][0][index] != BoundaryValue[DensNum][dim][0][index] )  
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Density NaN");
+    if( BoundaryValue[TENum][dim][0][index] != BoundaryValue[TENum][dim][0][index] )  
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Total Energy NaN");
+      
+  } else if (GalaxySimulationInflow > 0) {
 
     /* Find units */
     float DensityUnits,LengthUnits,TemperatureUnits,TimeUnits,VelocityUnits,MassUnits;
@@ -394,22 +407,22 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time, class grid *Grid)
     } else {
       ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: desired inflow face has size 1")
     }
+
+    // update metallicity field
+    if( UseMetallicityField )
+      BoundaryValue[MetalNum][target_dim][target_face][index] = GalaxySimulationGasHaloMetallicity;
+
+    if( BoundaryValue[DensNum][target_dim][target_face][index] < 0.0 ) 
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Density");
+    if( BoundaryValue[TENum][target_dim][target_face][index] < 0.0 ) 
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Total Energy");
+
+    if( BoundaryValue[DensNum][target_dim][target_face][index] != BoundaryValue[DensNum][target_dim][target_face][index] )  
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Density NaN");
+    if( BoundaryValue[TENum][target_dim][target_face][index] != BoundaryValue[TENum][target_dim][target_face][index] )  
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Total Energy NaN");
+
   } // end inflow blob
-
-  // update metallicity field
-  if( UseMetallicityField )
-    BoundaryValue[MetalNum][dim][0][index] = GalaxySimulationGasHaloMetallicity;
-
-  if( BoundaryValue[DensNum][dim][0][index] < 0.0 ) 
-    ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Density");
-  if( BoundaryValue[TENum][dim][0][index] < 0.0 ) 
-    ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Total Energy");
-
-  if( BoundaryValue[DensNum][dim][0][index] != BoundaryValue[DensNum][dim][0][index] )  
-    ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Density NaN");
-  if( BoundaryValue[TENum][dim][0][index] != BoundaryValue[TENum][dim][0][index] )  
-    ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Total Energy NaN");
-
 
   return SUCCESS;
  
