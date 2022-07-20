@@ -44,8 +44,9 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time, class grid *Grid)
   /* declarations */
 
   int i, j, dim, index;
+  int dim1, dim2;
   int NumberOfZones[MAX_DIMENSION], Offset[MAX_DIMENSION];
-  float deltime, distance, pos[MAX_DIMENSION];
+  FLOAT deltime, distance, pos[MAX_DIMENSION];
   const float TwoPi = 6.283185;
  
   /* Compute size of entire mesh. */
@@ -81,7 +82,6 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time, class grid *Grid)
   
         /* Compute quantities needed for boundary face loop (below). */
   
-        int dim1, dim2;
         dim1 = (dim == 0) ? 1 : 0;
         dim2 = dim1 + 1;
         dim2 = (dim2 == dim) ? dim2+1 : dim2;
@@ -112,7 +112,7 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time, class grid *Grid)
                       + (float(i-Offset[dim1]))/float(NumberOfZones[dim1]) 
                       * (DomainRightEdge[dim1]-DomainLeftEdge[dim1]);
             pos[dim2] = DomainLeftEdge[dim2]
-                      + (float(i-Offset[dim2]))/float(NumberOfZones[dim2]) 
+                      + (float(j-Offset[dim2]))/float(NumberOfZones[dim2]) 
                       * (DomainRightEdge[dim2]-DomainLeftEdge[dim2]);
         
             /* Compute the distance along the wave propogation vector
@@ -329,7 +329,6 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time, class grid *Grid)
       /* Compute quantities needed for boundary face loop (below). */
       /* Note that we will be computing position differently than with RPS wind */
 
-      int dim1, dim2;
       int grid_index, face_index;
 
       dim1 = (target_dim == 0) ? 1 : 0;
@@ -375,13 +374,13 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time, class grid *Grid)
                     + (float(i-Offset[dim1]))/float(NumberOfZones[dim1]) 
                     * (DomainRightEdge[dim1]-DomainLeftEdge[dim1]);
           pos[dim2] = DomainLeftEdge[dim2] + cell_hwidth
-                    + (float(i-Offset[dim2]))/float(NumberOfZones[dim2]) 
+                    + (float(j-Offset[dim2]))/float(NumberOfZones[dim2]) 
                     * (DomainRightEdge[dim2]-DomainLeftEdge[dim2]);
 
           /* Determine if current cell is within desired circle */
-          if (POW(pos[dim1] - GalaxySimulationInflowCenter[dim1], 2) 
-            + POW(pos[dim2] - GalaxySimulationInflowCenter[dim2], 2)
-            < POW(GalaxySimulationInflowRadius*kpc_cm/LengthUnits, 2)) {
+          if (POW((pos[dim1] - GalaxySimulationInflowCenter[dim1])*LengthUnits/kpc_cm, 2.0) 
+            + POW((pos[dim2] - GalaxySimulationInflowCenter[dim2])*LengthUnits/kpc_cm, 2.0)
+            < POW(GalaxySimulationInflowRadius, 2.0)) {
               
             BoundaryValue[DensNum][target_dim][target_face][index] = GalaxySimulationInflowDensity/DensityUnits;
             BoundaryValue[TENum][target_dim][target_face][index]   = GalaxySimulationInflowTemperature/TemperatureUnits 

@@ -1230,10 +1230,10 @@ EXTERN int GalaxySimulationInflowFace;
  *   5 - right z edge
  */
 EXTERN int   GalaxySimulationInflowOn; // internal tracking of state
-EXTERN float GalaxySimulationInflowTimeOn;
-EXTERN float GalaxySimulationInflowTimeOff;
-EXTERN float GalaxySimulationInflowCenter[MAX_DIMENSION];
-EXTERN float GalaxySimulationInflowRadius;
+EXTERN FLOAT GalaxySimulationInflowTimeOn;
+EXTERN FLOAT GalaxySimulationInflowTimeOff;
+EXTERN FLOAT GalaxySimulationInflowCenter[MAX_DIMENSION];
+EXTERN FLOAT GalaxySimulationInflowRadius;
 EXTERN float GalaxySimulationInflowTemperature;
 EXTERN float GalaxySimulationInflowDensity;
 
