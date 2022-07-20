@@ -114,9 +114,9 @@ int grid::FDMCollapseInitializeGrid(int UseParticles, float ParticleMeanDensity)
  double afloat = double(a);
  double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits/afloat,2)/FDMMass;
 
-if(FDMCollapseAbsorbingBoundary){
-// Read Density, use it as the absorption coefficient on the boundary
-  if (READFILE("GridDensity", GridRank, GridDimension,
+//if(QuantumPressure){
+// Read Density
+/*  if (READFILE("GridDensity.new", GridRank, GridDimension,
          GridStartIndex, GridEndIndex, Offset, BaryonField[0],
          &tempbuffer, 0, 1) == FAIL) {
     ENZO_FAIL("Error reading density.\n");}
@@ -228,12 +228,12 @@ if(FDMCollapseAbsorbingBoundary){
 		        ParticleNumber[npart] = CollapseTestParticleCount++;
 		        ParticleType[npart] = PARTICLE_TYPE_DARK_MATTER;
 
-		  // Set random position within cell.
+		  /* Set random position within cell. */
       		    ParticlePosition[0][npart] = x + CellWidth[0][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
 		        ParticlePosition[1][npart] = y + CellWidth[1][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
 		        ParticlePosition[2][npart] = z + CellWidth[2][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
 
-		  // Set bulk velocity.
+		  /* Set bulk velocity. */
           // vx
             vx = (BaryonField[RePsiNum][ind]*(BaryonField[ImPsiNum][indxp]-BaryonField[ImPsiNum][indxn])
                   - BaryonField[ImPsiNum][ind]*(BaryonField[RePsiNum][indxp]-BaryonField[RePsiNum][indxn]))
