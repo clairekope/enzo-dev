@@ -95,8 +95,9 @@ struct CGMdata {
 };
 
 /* Internal Routines for CGM setup */
-double HaloGasDensity(FLOAT R, struct CGMdata&);
-double HaloGasTemperature(FLOAT R, struct CGMdata&);
+double HaloGasDensity(FLOAT R, struct CGMdata*);
+double HaloGasTemperature(FLOAT R, struct CGMdata*);
+int read_cgm_data(struct CGMdata* CGMdata_ptr, char* fname);
 
 /* Internal Routines for DiskGravity Setup */
 double DiskGravityCircularVelocity(FLOAT rsph, FLOAT rcyl, FLOAT z);
@@ -135,7 +136,7 @@ double sigmoid_halo_dP_dr(FLOAT r, double P, double log_r0,
 double halo_g_of_r(FLOAT r);
 double halo_mod_g_of_r(FLOAT r);
 double halo_mod_DMmass_at_r(FLOAT r);
-void halo_init(struct CGMdata& CGM_data, grid* Grid, FLOAT Rstop=-1, int GasHalo_override=0);
+void halo_init(struct CGMdata* CGM_data, grid* Grid, FLOAT Rstop=-1, int GasHalo_override=0);
 
 
 int grid::GalaxySimulationInitializeGrid(double DiskRadius,
@@ -151,7 +152,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
            double InitialTemperature,
            double UniformDensity,
            int   EquilChem,
-	   int   GasHalo,
+           int   GasHalo,
            double GasHaloScaleRadius,
            double GasHaloDensity,
            double GasHaloDensity2,
@@ -161,7 +162,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
            double GasHaloZeta2,
            double GasHaloCoreEntropy,
 	         double GasHaloRatio,
-           double GasHaloMetallicity,
+           char   *GasHaloFile,
            int   UseHaloRotation,
            double RotationScaleVelocity,
            double RotationScaleRadius,
@@ -324,12 +325,19 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 
   largest_rad = sqrt(3) * (far_right - far_left) / 2.0 * LengthUnits;
 
-  struct CGMdata CGM_data(8192);
-  halo_init(CGM_data, this, largest_rad);
+  struct CGMdata *CGM_data;
+
+  if (GalaxySimulationGasHalo != 7) {
+    struct CGMdata temp(8192);
+    CGM_data = &temp;
+    halo_init(CGM_data, this, largest_rad);
+  } else { // will be different length
+    read_cgm_data(CGM_data, GasHaloFile);
+  }
   if (debug) printf("Grid_GalaxySimulationInitialize: Made halo profile\n");
 
-  // for (int i=0; i<CGM_data.nbins; ++i)
-  //   printf("%g %g %g %g\n", CGM_data.rad[i], CGM_data.n_rad[i], CGM_data.T_rad[i], CGM_data.press[i]);
+  // for (int i=0; i<CGM_data->nbins; ++i)
+  //   printf("%g %g %g %g\n", CGM_data->rad[i], CGM_data->n_rad[i], CGM_data->T_rad[i], CGM_data->press[i]);
   
   /* compute size of fields */
   size = 1;
@@ -1136,7 +1144,7 @@ double bilinear_interp(double x, double y,
    GalaxySimulationGasHalo = 5  -- as #4, but the entropy distribution has a floor value, so S = S_f + S_0 (r/r_0)^alpha
    GalaxySimulationGasHalo = 6  -- as #4, but the entropy distribution follows that for a precipitation-regulated NFW halo
                                    in Voit 2019 (ApJ)
-   GalaxySimulationGasHalo = 7  -- previously reserved
+   GalaxySimulationGasHalo = 7  -- take density and temperature from an HDF5 file
    GalaxySimulationGasHalo = 8  -- a density and temperature profile fit to the entropy profiles in Voit 2019 (ApJ)     
 
    Inputs:  R - spherical radius, code units
@@ -1153,7 +1161,7 @@ double bilinear_interp(double x, double y,
    GalaxySimulationGasHaloCoreEntropy, units of keV cm^2
    GalaxySimulationGasHaloMetallicity, units of Zsun
 */
-double HaloGasDensity(FLOAT R, struct CGMdata& CGM_data){
+double HaloGasDensity(FLOAT R, struct CGMdata* CGM_data){
 
   if(GalaxySimulationGasHalo < 1){
     /* "zero CGM" - sets a very low density */
@@ -1218,7 +1226,7 @@ double HaloGasDensity(FLOAT R, struct CGMdata& CGM_data){
 
     return this_number_density*mu*mh;  // return physical density
     
-  } else if(GalaxySimulationGasHalo >= 4 && GalaxySimulationGasHalo <= 7){
+  } else if(GalaxySimulationGasHalo >= 4 && GalaxySimulationGasHalo <= 6){
     /* assumes entropy is a power-law function of radius OR a cored power-law function
        of radius and gas is in hydrostatic equilibrium w/the NFW halo.  */
 
@@ -1226,10 +1234,13 @@ double HaloGasDensity(FLOAT R, struct CGMdata& CGM_data){
     int index;
 
     this_radius_cgs = R*LengthUnits;  // radius in CGS
-    index = int((this_radius_cgs-CGM_data.R_inner)/CGM_data.dr + 1.0e-3);  // index in array of CGM values
+    index = int((this_radius_cgs-CGM_data->R_inner)/CGM_data->dr + 1.0e-3);  // index in array of CGM values
     if(index<0) index=0;  // check our indices
-    if(index>=CGM_data.nbins) index=CGM_data.nbins-1;
-    return CGM_data.n_rad[index]*mu*mh;  // return physical density
+    if(index>=CGM_data->nbins) index=CGM_data->nbins-1;
+    return CGM_data->n_rad[index]*mu*mh;  // return physical density
+
+  } else if(GalaxySimulationGasHalo == 7){
+
 
   } else if(GalaxySimulationGasHalo == 8){
     /* Eqn 24 in the Appendix of Voit 2019; a fit to the theoretical density profile of a precipitation-regulated NFW halo.
@@ -1260,7 +1271,7 @@ double HaloGasDensity(FLOAT R, struct CGMdata& CGM_data){
    Returns:  Temperature, Kelvin
 */
 
-double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
+double HaloGasTemperature(FLOAT R, struct CGMdata* CGM_data){
 
   if(GalaxySimulationGasHalo < 1){
     /* "zero CGM" - sets a very low temperature */
@@ -1283,16 +1294,19 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
 
     return GalaxySimulationGasHaloTemperature;
 
-  } else if(GalaxySimulationGasHalo >= 4 && GalaxySimulationGasHalo <= 7){
+  } else if(GalaxySimulationGasHalo >= 4 && GalaxySimulationGasHalo <= 6){
     /* assumes entropy is a power-law function of radius and gas is in hydrostatic equilibrium */
 
     double this_radius_cgs;
     int index;
     this_radius_cgs = R*LengthUnits;  // radius in CGS
-    index = int((this_radius_cgs-CGM_data.R_inner)/CGM_data.dr+1.0e-3);  // index in array of CGM values
+    index = int((this_radius_cgs-CGM_data->R_inner)/CGM_data->dr+1.0e-3);  // index in array of CGM values
     if(index<0) index=0;  // check our indices
-    if(index>=CGM_data.nbins) index=CGM_data.nbins-1;
-    return CGM_data.T_rad[index];  // return temperature in Kelvin
+    if(index>=CGM_data->nbins) index=CGM_data->nbins-1;
+    return CGM_data->T_rad[index];  // return temperature in Kelvin
+  
+  } else if(GalaxySimulationGasHalo == 7){
+
 
   } else if(GalaxySimulationGasHalo == 8){
     /* Theoretical temperature profile of a precipitation-regulated NFW halo, using fits to n(r) and S(r) */
@@ -1319,13 +1333,13 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
    with arrays of size nbins for convenience (global within this file, at least).
    Rstop is the outer boundary of the integrtation in CGS; if negative, |Rstop|*R200 is used. 
    nbins defaults to 8192. */
- void halo_init(struct CGMdata& CGM_data, grid* Grid, FLOAT Rstop, int GasHalo_override){
+ void halo_init(struct CGMdata* CGM_data, grid* Grid, FLOAT Rstop, int GasHalo_override){
 
   int halo_type=GalaxySimulationGasHalo;
   if (GasHalo_override) // not 0
     halo_type = GasHalo_override;
   
-  if(halo_type < 4 || halo_type > 7) return;
+  if(halo_type < 4 || halo_type > 6) return;
 
   double k1, k2, k3, k4;
   double M, R200, rho_crit = 1.8788e-29*0.49;
@@ -1339,13 +1353,13 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
   
   if (Rstop < 0)
     Rstop = fabs(Rstop)*R200;
-  CGM_data.R_outer = Rstop;// integrate out to the virial radius of halo
+  CGM_data->R_outer = Rstop;// integrate out to the virial radius of halo
 
   Rstart = 0.0; // you could force a different start if you liked
 
   // stepsize for RK4 integration and radial bins
-  CGM_data.R_inner = Rstart;
-  CGM_data.dr = (CGM_data.R_outer - CGM_data.R_inner)/ double(CGM_data.nbins); 
+  CGM_data->R_inner = Rstart;
+  CGM_data->dr = (CGM_data->R_outer - CGM_data->R_inner)/ double(CGM_data->nbins); 
   
   if (halo_type < 6){
     double T0, n0, r0, dr;
@@ -1357,20 +1371,20 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
     r0 = GalaxySimulationGasHaloScaleRadius*Mpc_cm;
   
     // used for our numerical integration
-    dr = CGM_data.dr;
+    dr = CGM_data->dr;
     this_n = n0;
     this_radius = r0;
 
     // set the bin that we start at (otherwise it doesn't get set!)
-    index = int((this_radius - CGM_data.R_inner)/dr + 1.0e-3);
-    CGM_data.n_rad[index] = this_n;
-    CGM_data.T_rad[index] = T0;
-    CGM_data.rad[index] = this_radius;
+    index = int((this_radius - CGM_data->R_inner)/dr + 1.0e-3);
+    CGM_data->n_rad[index] = this_n;
+    CGM_data->T_rad[index] = T0;
+    CGM_data->rad[index] = this_radius;
 
     /* starting at the point where the user has defined the radius, density, and 
        temperature, use RK4 to integrate the number density outward to R_outer using the expression 
        for dn_dr in another function.  Calculate the temperature using the entropy at this radius. */
-    while(this_radius <= CGM_data.R_outer){
+    while(this_radius <= CGM_data->R_outer){
     
       // calculate RK4 coefficients.
       k1 = halo_dn_dr(this_radius,          this_n);
@@ -1386,10 +1400,10 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
       temperature = halo_S_of_r(this_radius) * POW(this_n,Gamma-1.0);
       
       // store everything in the struct
-      index = int((this_radius - CGM_data.R_inner)/dr + 1.0e-3);    
-      CGM_data.n_rad[index] = this_n;
-      CGM_data.T_rad[index] = temperature;
-      CGM_data.rad[index] = this_radius;
+      index = int((this_radius - CGM_data->R_inner)/dr + 1.0e-3);    
+      CGM_data->n_rad[index] = this_n;
+      CGM_data->T_rad[index] = temperature;
+      CGM_data->rad[index] = this_radius;
     }
         
     /* now we do the same thing as above, but integrating inward to zero radius. */
@@ -1397,7 +1411,7 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
     this_radius = r0;
     dr *= -1.0;
     
-    while(this_radius > CGM_data.R_inner){
+    while(this_radius > CGM_data->R_inner){
       
       // calculate RK4 coefficients.
       k1 = halo_dn_dr(this_radius,          this_n);
@@ -1413,12 +1427,12 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
       temperature = halo_S_of_r(this_radius) * POW(this_n,Gamma-1.0);
 
       // store everything in the struct
-      index = int((this_radius - CGM_data.R_inner)/(-1.0*dr) + 1.0e-3);
+      index = int((this_radius - CGM_data->R_inner)/(-1.0*dr) + 1.0e-3);
 
       if(index >= 0){
-        CGM_data.n_rad[index] = this_n;
-        CGM_data.T_rad[index] = temperature;
-        CGM_data.rad[index] = this_radius;
+        CGM_data->n_rad[index] = this_n;
+        CGM_data->T_rad[index] = temperature;
+        CGM_data->rad[index] = this_radius;
       }
     }
 
@@ -1433,7 +1447,7 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
     double T_floor = 4e4; // IGM
 
     // boundary condition & quantities for integration
-    dr = -1.0*CGM_data.dr;
+    dr = -1.0*CGM_data->dr;
     this_radius = R200;
     this_ent = halo_S_of_r(this_radius, Grid); // in erg*cm^2
 
@@ -1443,13 +1457,13 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
 		     Gamma/(Gamma-1.));
 
     // set the bin that we start at (otherwise it doesn't get set!)
-    index = int((this_radius - CGM_data.R_inner)/(-1.0*dr) + 1.0e-3);
-    CGM_data.n_rad[index] = 2 * POW(this_press/(mu_ratio*this_ent), 1./Gamma); // n_e ~ n_i
-    CGM_data.T_rad[index] = POW( POW(this_press/mu_ratio, Gamma-1.) * this_ent, 1./Gamma) / kboltz;
-    CGM_data.rad[index] = this_radius;
+    index = int((this_radius - CGM_data->R_inner)/(-1.0*dr) + 1.0e-3);
+    CGM_data->n_rad[index] = 2 * POW(this_press/(mu_ratio*this_ent), 1./Gamma); // n_e ~ n_i
+    CGM_data->T_rad[index] = POW( POW(this_press/mu_ratio, Gamma-1.) * this_ent, 1./Gamma) / kboltz;
+    CGM_data->rad[index] = this_radius;
 
     // integrate inward from R200    
-    while(this_radius > CGM_data.R_inner){
+    while(this_radius > CGM_data->R_inner){
       
       // calculate RK4 coefficients.
       k1 = halo_dP_dr(this_radius,          this_press,             Grid);
@@ -1463,16 +1477,16 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
       this_ent = halo_S_of_r(this_radius, Grid); // entropy @ new radius
 
       // store density and temperature in the struct
-      index = int((this_radius - CGM_data.R_inner)/(-1.0*dr) + 1.0e-3);
+      index = int((this_radius - CGM_data->R_inner)/(-1.0*dr) + 1.0e-3);
       if (index >= 0){
-        CGM_data.n_rad[index] = 2 * POW(this_press/(mu_ratio*this_ent), 1./Gamma);
-        CGM_data.T_rad[index] = POW( POW(this_press/mu_ratio, Gamma-1.) * this_ent, 1./Gamma) / kboltz;
-        CGM_data.rad[index] = this_radius;
+        CGM_data->n_rad[index] = 2 * POW(this_press/(mu_ratio*this_ent), 1./Gamma);
+        CGM_data->T_rad[index] = POW( POW(this_press/mu_ratio, Gamma-1.) * this_ent, 1./Gamma) / kboltz;
+        CGM_data->rad[index] = this_radius;
       }
     }
     
     // Reset to boundary state
-    dr = CGM_data.dr;
+    dr = CGM_data->dr;
     this_radius = R200;
     this_ent = halo_S_of_r(this_radius, Grid); // in erg*cm^2
 
@@ -1485,11 +1499,11 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
     double this_temp, this_dens;
     double deriv, r0, y0, y_offset, k;
 
-    index = int((this_radius - CGM_data.R_inner)/(1.0*dr) + 1.0e-3);
+    index = int((this_radius - CGM_data->R_inner)/(1.0*dr) + 1.0e-3);
     this_dens = 2 * POW(this_press/(mu_ratio*this_ent), 1./Gamma);
     this_temp = POW( POW(this_press/mu_ratio, Gamma-1.) * this_ent, 1./Gamma) / kboltz;
 
-    deriv = (log10(this_temp) - log10(CGM_data.T_rad[index-1]))
+    deriv = (log10(this_temp) - log10(CGM_data->T_rad[index-1]))
           / (log10(this_radius) - log10(this_radius-dr));
 
     r0 = log10(this_radius);
@@ -1500,14 +1514,14 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
 
     // Set constant dlog(P)/dlog(r)
     double prev_press, dlP_dlr, this_dPdr, press_vir;
-    prev_press = mu_ratio * CGM_data.n_rad[index-1]/2.0 * kboltz*CGM_data.T_rad[index-1];
+    prev_press = mu_ratio * CGM_data->n_rad[index-1]/2.0 * kboltz*CGM_data->T_rad[index-1];
     press_vir = this_press;
     
     dlP_dlr = (log10(this_press) - log10(prev_press))
             / (log10(this_radius) - log10(this_radius-dr));
     assert (dlP_dlr < 0.0);
     
-    while(this_radius <= CGM_data.R_outer){
+    while(this_radius <= CGM_data->R_outer){
 
       this_dPdr = this_press/this_radius * dlP_dlr;
 
@@ -1518,22 +1532,22 @@ double HaloGasTemperature(FLOAT R, struct CGMdata& CGM_data){
       this_press = POW(10, dlP_dlr*log10(this_radius/R200) + log10(press_vir));
 
       // store everything in the struct
-      index = int((this_radius - CGM_data.R_inner)/dr + 1.0e-3);    
-      if (index < CGM_data.nbins) {
-        CGM_data.n_rad[index] = this_dens;
-        CGM_data.T_rad[index] = this_temp;
-        CGM_data.rad[index] = this_radius;
+      index = int((this_radius - CGM_data->R_inner)/dr + 1.0e-3);    
+      if (index < CGM_data->nbins) {
+        CGM_data->n_rad[index] = this_dens;
+        CGM_data->T_rad[index] = this_temp;
+        CGM_data->rad[index] = this_radius;
       }
       else
         break;
     }
   }
     
-  if (CGM_data.R_inner == 0) {
+  if (CGM_data->R_inner == 0) {
     // this integration acts a little squirrelly around r=0 because the mass values are garbage.  Cheap fix.
-    CGM_data.rad[0]=CGM_data.rad[1];
-    CGM_data.n_rad[0]=CGM_data.n_rad[1];
-    CGM_data.T_rad[0]=CGM_data.T_rad[1];
+    CGM_data->rad[0]=CGM_data->rad[1];
+    CGM_data->n_rad[0]=CGM_data->n_rad[1];
+    CGM_data->T_rad[0]=CGM_data->T_rad[1];
   }
   
   return;
@@ -1724,6 +1738,124 @@ double halo_mod_DMmass_at_r(FLOAT r){
   else {
     return NFWDarkMatterMassEnclosed(r);
   }
+}
+
+int read_cgm_data(struct CGMdata* CGMdata_ptr, char* fname) {
+
+  long_int* psize = new long_int[1];
+  hid_t  file_id, grp_id, dset_id, attr_id;
+  herr_t status;
+  herr_t h5_error = -1;
+
+  /* Get the size of the arrays */
+  if (MyProcessorNumber == ROOT_PROCESSOR) {  
+
+    if (debug) fprintf(stderr,"Reading from %s.\n",fname);
+    file_id = H5Fopen(name, H5F_ACC_RDONLY, H5P_DEFAULT);
+
+    grp_id = H5Gopen(file_id, "data");
+    if (grp_id == h5_error) {
+      fprintf(stderr, "Can't open group 'data' in %s.\n",fname);
+    }
+    attr_id = H5Aopen_name(grp_id, "size");
+    if (attr_id == h5_error) {
+      fprintf(stderr,"Failed to open size attribute in %s.\n",fname);
+      return FAIL;
+    }
+    status = H5Aread(attr_id, HDF5_I8, psize);
+    if (attr_id == h5_error) {
+      fprintf(stderr,"Failed to read size attribute in %s.\n",fname);
+      return FAIL;
+    }
+    status = H5Aclose(attr_id);
+    if (attr_id == h5_error) {
+      fprintf(stderr,"Failed to close size attribute in %s.\n",fname);
+      return FAIL;
+    }
+    status = H5Gclose(grp_id);
+    if (status == h5_error) {
+      fprintf(stderr,"Failed to close group 'data' in %s.\n",fname);
+      return FAIL;
+    }
+  }
+
+  #ifdef USE_MPI
+    MPI_Bcast(psize, 1, MPI_LONG_INT, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  #endif
+
+  // Switch from working with buffers to just an integer
+  int size = *psize;
+  delete [] psize;
+
+  struct CGMdata temp(size);
+  CGMdata_ptr = &(temp);
+
+  /* get and broadcast the rest of the data */
+  
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+
+    dset_id = H5Dopen(file_id, "/data/radius");
+    if (dset_id == h5_error) {
+      fprintf(stderr,"Can't open /data/radius in %s.\n", name);
+      return FAIL;
+    }
+    status = H5Dread(dset_id, HDF5_R8, H5S_ALL, 
+                      H5S_ALL, H5P_DEFAULT, temp.rad);
+    if (status == h5_error) {
+      fprintf(stderr, "Failed to read /data/radius in %s.\n",name);
+      return FAIL;
+    }
+    status = H5Dclose(dset_id);
+    if (status == h5_error) {
+      fprintf(stderr,"Failed to close /data/radius in %s.\n",name);
+      return FAIL;
+    }
+
+    dset_id = H5Dopen(file_id, "/data/number_density");
+    if (dset_id == h5_error) {
+      fprintf(stderr,"Can't open /data/number_density in %s.\n", name);
+      return FAIL;
+    }
+    status = H5Dread(dset_id, HDF5_R8, H5S_ALL, 
+                      H5S_ALL, H5P_DEFAULT, temp.n_rad);
+    if (status == h5_error) {
+      fprintf(stderr, "Failed to read /data/number_density in %s.\n",name);
+      return FAIL;
+    }
+    status = H5Dclose(dset_id);
+    if (status == h5_error) {
+      fprintf(stderr,"Failed to close /data/number_density in %s.\n",name);
+      return FAIL;
+    }
+
+    dset_id = H5Dopen(file_id, "/data/temperature");
+    if (dset_id == h5_error) {
+      fprintf(stderr,"Can't open /data/temperature in %s.\n", name);
+      return FAIL;
+    }
+    status = H5Dread(dset_id, HDF5_R8, H5S_ALL, 
+                      H5S_ALL, H5P_DEFAULT, temp.T_rad);
+    if (status == h5_error) {
+      fprintf(stderr, "Failed to read /data/temperature in %s.\n",name);
+      return FAIL;
+    }
+    status = H5Dclose(dset_id);
+    if (status == h5_error) {
+      fprintf(stderr,"Failed to close /data/temperature in %s.\n",name);
+      return FAIL;
+    }
+
+    status = H5Fclose(file_id);
+  }
+
+  #ifdef USE_MPI
+    MPI_Bcast(temp.rad, size, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
+    MPI_Bcast(temp.n_rad, size, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
+    MPI_Bcast(temp.T_rad, size, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  #endif
+
+  return SUCCESS;
+
 }
 
 /* -------------------- END OF Routines used for initializing the circumgalactic medium -------------------- */
