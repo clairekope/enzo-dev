@@ -1226,9 +1226,7 @@ double HaloGasDensity(FLOAT R, struct CGMdata* CGM_data){
 
     return this_number_density*mu*mh;  // return physical density
     
-  } else if(GalaxySimulationGasHalo >= 4 && GalaxySimulationGasHalo <= 6){
-    /* assumes entropy is a power-law function of radius OR a cored power-law function
-       of radius and gas is in hydrostatic equilibrium w/the NFW halo.  */
+  } else if(GalaxySimulationGasHalo >= 4 && GalaxySimulationGasHalo <= 7){
 
     double this_radius_cgs, Rstart;
     int index;
@@ -1238,9 +1236,6 @@ double HaloGasDensity(FLOAT R, struct CGMdata* CGM_data){
     if(index<0) index=0;  // check our indices
     if(index>=CGM_data->nbins) index=CGM_data->nbins-1;
     return CGM_data->n_rad[index]*mu*mh;  // return physical density
-
-  } else if(GalaxySimulationGasHalo == 7){
-
 
   } else if(GalaxySimulationGasHalo == 8){
     /* Eqn 24 in the Appendix of Voit 2019; a fit to the theoretical density profile of a precipitation-regulated NFW halo.
@@ -1294,8 +1289,7 @@ double HaloGasTemperature(FLOAT R, struct CGMdata* CGM_data){
 
     return GalaxySimulationGasHaloTemperature;
 
-  } else if(GalaxySimulationGasHalo >= 4 && GalaxySimulationGasHalo <= 6){
-    /* assumes entropy is a power-law function of radius and gas is in hydrostatic equilibrium */
+  } else if(GalaxySimulationGasHalo >= 4 && GalaxySimulationGasHalo <= 7){
 
     double this_radius_cgs;
     int index;
@@ -1305,10 +1299,7 @@ double HaloGasTemperature(FLOAT R, struct CGMdata* CGM_data){
     if(index>=CGM_data->nbins) index=CGM_data->nbins-1;
     return CGM_data->T_rad[index];  // return temperature in Kelvin
   
-  } else if(GalaxySimulationGasHalo == 7){
-
-
-  } else if(GalaxySimulationGasHalo == 8){
+  }  else if(GalaxySimulationGasHalo == 8){
     /* Theoretical temperature profile of a precipitation-regulated NFW halo, using fits to n(r) and S(r) */
     double this_radius_kpc, this_number_density, this_entropy;
     this_radius_kpc = R*LengthUnits/CM_PER_KPC;
