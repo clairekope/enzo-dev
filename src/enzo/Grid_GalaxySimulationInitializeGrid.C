@@ -97,7 +97,7 @@ struct CGMdata {
 /* Internal Routines for CGM setup */
 double HaloGasDensity(FLOAT R, struct CGMdata*);
 double HaloGasTemperature(FLOAT R, struct CGMdata*);
-int read_cgm_data(struct CGMdata* CGMdata_ptr, char* fname);
+int read_cgm_data(struct CGMdata* &CGMdata_ptr, char* fname);
 
 /* Internal Routines for DiskGravity Setup */
 double DiskGravityCircularVelocity(FLOAT rsph, FLOAT rcyl, FLOAT z);
@@ -331,9 +331,13 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
     struct CGMdata temp(8192);
     CGM_data = &temp;
     halo_init(CGM_data, this, largest_rad);
-  } else { // will be different length
-    read_cgm_data(CGM_data, GasHaloFile);
+
+  } else { // may be different length
+    if (read_cgm_data(CGM_data, GasHaloFile) == FAIL) {
+      ENZO_FAIL("Failure in Grid_GalaxySimulationInitializedGrid read_cgm_data");
+    }
   }
+
   if (debug) printf("Grid_GalaxySimulationInitialize: Made halo profile\n");
 
   // for (int i=0; i<CGM_data->nbins; ++i)
@@ -1731,7 +1735,7 @@ double halo_mod_DMmass_at_r(FLOAT r){
   }
 }
 
-int read_cgm_data(struct CGMdata* CGMdata_ptr, char* fname) {
+int read_cgm_data(struct CGMdata* &CGMdata_ptr, char* fname) {
 
   long_int* psize = new long_int[1];
   hid_t  file_id, grp_id, dset_id, attr_id;
@@ -1742,7 +1746,7 @@ int read_cgm_data(struct CGMdata* CGMdata_ptr, char* fname) {
   if (MyProcessorNumber == ROOT_PROCESSOR) {  
 
     if (debug) fprintf(stderr,"Reading from %s.\n",fname);
-    file_id = H5Fopen(name, H5F_ACC_RDONLY, H5P_DEFAULT);
+    file_id = H5Fopen(fname, H5F_ACC_RDONLY, H5P_DEFAULT);
 
     grp_id = H5Gopen(file_id, "data");
     if (grp_id == h5_error) {
@@ -1778,8 +1782,7 @@ int read_cgm_data(struct CGMdata* CGMdata_ptr, char* fname) {
   int size = *psize;
   delete [] psize;
 
-  struct CGMdata temp(size);
-  CGMdata_ptr = &(temp);
+  CGMdata_ptr = new struct CGMdata(size);
 
   /* get and broadcast the rest of the data */
   
@@ -1787,52 +1790,52 @@ int read_cgm_data(struct CGMdata* CGMdata_ptr, char* fname) {
 
     dset_id = H5Dopen(file_id, "/data/radius");
     if (dset_id == h5_error) {
-      fprintf(stderr,"Can't open /data/radius in %s.\n", name);
+      fprintf(stderr,"Can't open /data/radius in %s.\n", fname);
       return FAIL;
     }
     status = H5Dread(dset_id, HDF5_R8, H5S_ALL, 
-                      H5S_ALL, H5P_DEFAULT, temp.rad);
+                      H5S_ALL, H5P_DEFAULT, CGMdata_ptr->rad);
     if (status == h5_error) {
-      fprintf(stderr, "Failed to read /data/radius in %s.\n",name);
+      fprintf(stderr, "Failed to read /data/radius in %s.\n",fname);
       return FAIL;
     }
     status = H5Dclose(dset_id);
     if (status == h5_error) {
-      fprintf(stderr,"Failed to close /data/radius in %s.\n",name);
+      fprintf(stderr,"Failed to close /data/radius in %s.\n",fname);
       return FAIL;
     }
 
     dset_id = H5Dopen(file_id, "/data/number_density");
     if (dset_id == h5_error) {
-      fprintf(stderr,"Can't open /data/number_density in %s.\n", name);
+      fprintf(stderr,"Can't open /data/number_density in %s.\n", fname);
       return FAIL;
     }
     status = H5Dread(dset_id, HDF5_R8, H5S_ALL, 
-                      H5S_ALL, H5P_DEFAULT, temp.n_rad);
+                      H5S_ALL, H5P_DEFAULT, CGMdata_ptr->n_rad);
     if (status == h5_error) {
-      fprintf(stderr, "Failed to read /data/number_density in %s.\n",name);
+      fprintf(stderr, "Failed to read /data/number_density in %s.\n",fname);
       return FAIL;
     }
     status = H5Dclose(dset_id);
     if (status == h5_error) {
-      fprintf(stderr,"Failed to close /data/number_density in %s.\n",name);
+      fprintf(stderr,"Failed to close /data/number_density in %s.\n",fname);
       return FAIL;
     }
 
     dset_id = H5Dopen(file_id, "/data/temperature");
     if (dset_id == h5_error) {
-      fprintf(stderr,"Can't open /data/temperature in %s.\n", name);
+      fprintf(stderr,"Can't open /data/temperature in %s.\n", fname);
       return FAIL;
     }
     status = H5Dread(dset_id, HDF5_R8, H5S_ALL, 
-                      H5S_ALL, H5P_DEFAULT, temp.T_rad);
+                      H5S_ALL, H5P_DEFAULT, CGMdata_ptr->T_rad);
     if (status == h5_error) {
-      fprintf(stderr, "Failed to read /data/temperature in %s.\n",name);
+      fprintf(stderr, "Failed to read /data/temperature in %s.\n",fname);
       return FAIL;
     }
     status = H5Dclose(dset_id);
     if (status == h5_error) {
-      fprintf(stderr,"Failed to close /data/temperature in %s.\n",name);
+      fprintf(stderr,"Failed to close /data/temperature in %s.\n",fname);
       return FAIL;
     }
 
@@ -1840,10 +1843,18 @@ int read_cgm_data(struct CGMdata* CGMdata_ptr, char* fname) {
   }
 
   #ifdef USE_MPI
-    MPI_Bcast(temp.rad, size, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
-    MPI_Bcast(temp.n_rad, size, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
-    MPI_Bcast(temp.T_rad, size, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
+    MPI_Bcast(CGMdata_ptr->rad, size, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
+    MPI_Bcast(CGMdata_ptr->n_rad, size, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
+    MPI_Bcast(CGMdata_ptr->T_rad, size, MPI_DOUBLE, ROOT_PROCESSOR, MPI_COMM_WORLD);
   #endif
+
+  // printf("Radius %e to %e\n", CGMdata_ptr->rad[0], CGMdata_ptr->rad[size-1]);
+  // printf("Number density %e to %e\n", CGMdata_ptr->n_rad[0], CGMdata_ptr->n_rad[size-1]);
+  // printf("Temperature %e to %e\n", CGMdata_ptr->T_rad[0], CGMdata_ptr->T_rad[size-1]);
+
+  CGMdata_ptr->R_inner = CGMdata_ptr->rad[0];
+  CGMdata_ptr->R_outer = CGMdata_ptr->rad[size-1];
+  CGMdata_ptr->dr = (CGMdata_ptr->R_outer - CGMdata_ptr->R_inner)/(size-1);
 
   return SUCCESS;
 
