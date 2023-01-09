@@ -288,7 +288,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     // if we resolve free expansion, all energy is thermally coupled
 
     float p_free = sqrt(2.0 * ejectaMass*SolarMass*ejectaEnergy)/SolarMass/1e5;//1.73e4*sqrt(ejectaMass*ejectaEnergy/1e51/3.); // free exp. momentum eq 15
-    float r_free = 2.75 * pow(ejectaMass / 3 / nmean, 1. / 3.); // free exp radius eq 2
+    float r_free = 2.75 * pow(ejectaMass / 3. / nmean, 1. / 3.); // free exp radius eq 2
     bool use_free = false; // could just deposit free expansion into host cell, really...
     // assuming r_sedov == dx, solve for t3
 
@@ -309,11 +309,14 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     // Cioffi:
         // pTerminal = 4.8e5 * pow(nmean, -1.0 / 7.0) * pow(ejectaEnergy / 1e51, 13.0 / 14.0) * pow(zZsun, -3.0/14.0); // cioffi 1988, as written in Hopkins 2018
     // Thornton, 1998, M_s * V_s, eqs 22, 23, 33, 34
-        pTerminal = 1.6272e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25) * pow(zZsun, -0.36);
+        // pTerminal = 1.6272e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25) * pow(zZsun, -0.36);
+        // pTerminal = 1.6272e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25) * pow(zZsun, -0.36);
+    // edited to sqrt(2 * Mr * Er) AIW 2022
+        pTerminal = 2.7298e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.12) * pow(zZsun, -0.14); // adjusted zZsun power from 0.36 to 0.14.  AIW-2022
     // kimm & ostriker 2015 
         // pTerminal = 2.8e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.17) * pow(zZsun, -0.36);
     else
-        pTerminal = 8.3619e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.25);
+        pTerminal = 8.5721e5 * pow(ejectaEnergy/1e51, 13./14.) * pow(nmean, -0.12);
 
     /* fading radius of a supernova, using gas energy of the host cell and ideal gas approximations */
     float T = max(0.1, BaryonField[GENum][index] * (Gamma-1) * muField[index] * TemperatureUnits);
@@ -353,15 +356,15 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     {  // this calculation for SNe only
         // coupledMomenta = p_free * min(sqrt(1+ (nCouple * dmean * pow(cellwidth * pc_cm, 3) / SolarMass)/(ejectaMass)), pTerminal/p_free/pow(1+dxeff));
         if (cw_eff < r_free){
-            coupledMomenta = min(p_free * pow(cw_eff/r_free, 3.0), p_sedov);
-            printf("STARSS_FB: modifying free phase: p = %e\n", coupledMomenta);
+            coupledMomenta = min(p_free * pow(cw_eff/r_free, 2), p_sedov);
+            printf("STARSS_FB: Coupling free phase: p = %e (pf=%e)\n", coupledMomenta, p_free);
         }
         if (r_free < cw_eff && dxeff <= 1){
                 coupledMomenta = min(p_sedov, pTerminal*dxeff);
                 printf("STARSS_FB: Coupling Sedov-Terminal phase: p = %e (ps = %e, pt = %e, dxe = %e)\n", coupledMomenta, p_sedov, pTerminal, dxeff);
         }
         if (dxeff > 1){   
-                coupledMomenta = pTerminal/ sqrt(min(1.5, dxeff));
+                coupledMomenta = pTerminal / min(4, dxeff*dxeff);
                if (printout) printf("STARSS_FB: Coupling Terminal phase: p = %e; dxeff = %e\n", coupledMomenta, dxeff);
             }
 
