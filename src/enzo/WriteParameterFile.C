@@ -1245,9 +1245,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   /* Write out Grackle specific parameters */
 
-  /*if (GrackleWriteParameters(fptr) == FAIL) {
+  if (GrackleWriteParameters(fptr) == FAIL) {
     ENZO_FAIL("Error in GrackleWriteParameters.\n");
-  }*/
+  }
 
   if (UsePhysicalUnit) {
     /* Change input physical parameters into code units */
