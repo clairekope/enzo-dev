@@ -401,7 +401,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     if (winds)
     { // simple divide momenta and thermal energy
         
-        coupledMomenta = sqrt(ejectaMass*SolarMass* 0.5 * ejectaEnergy)/SolarMass/1e5;
+        coupledMomenta = sqrt(ejectaMass*SolarMass* 2.0 * ejectaEnergy)/SolarMass/1e5;
 
     }
 
