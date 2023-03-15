@@ -393,8 +393,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DiskGravityStellarDiskScaleHeightz = 2.5E-4;      // Mpc
   DiskGravityStellarBulgeMass        = 1.0E10;      // Solar Masses
   DiskGravityStellarBulgeR           = 4.0E-4;      // Mpc
-  DiskGravityDarkMatterR             = 2.3E-2;      // Mpc
-  DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
+  DiskGravityDarkMatterMass          = 1.0e12;        // Solar Masses
+  DiskGravityDarkMatterConcentration = 10.0;
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
@@ -470,15 +470,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2OpticalDepthApproximation = 1;
   H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
-  CRModel                     = 0;                 // off
-  CRDiffusion                 = 0;                 // off
+  CRModel                     = 0;                 // off                                                                          
+  CRDiffusion                 = 0;                 // off                                                                          
+  CRHeating                   = 0;                 // off                                                                          
+  CRStreaming                 = 0;                 // off                                                                          
+  CRStreamVelocityFactor      = 1.0;                // Alfven velocity (only relevant when CRStreaming == 1)                        
+  CRStreamStabilityFactor     = 1000.0;             // This should be large and calibrated for each simulation
   CRkappa                     = 0.0;
   CRCourantSafetyNumber       = 0.5;
-  CRFeedback                  = 0.0;               // no stellar feedback into CRs
-  CRdensFloor                 = 0.0;               // off
-  CRmaxSoundSpeed             = 0.0;               // off 
-  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
-  CosmologySimulationUniformCR= 1e-20;             // FIXME
+  CRFeedback                  = 0.0;               // no stellar feedback into CRs                                                 
+  CRdensFloor                 = tiny_number;       // off                                                                          
+  CRmaxSoundSpeed             = 0.0;               // off                                                                          
+  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas                                                  
+  CosmologySimulationUniformCR= 1e-20;             // FIXME   
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
@@ -589,6 +593,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years
+  StarMakerVelDivCrit              = TRUE;
+  StarMakerSelfBoundCrit           = FALSE;
+  StarMakerThermalCrit             = TRUE;
+  StarMakerUseJeansMass            = TRUE;
+  StarMakerH2Crit                  = FALSE;
+  StarMakerTemperatureThreshold    = 1.1e4;        // in K
   StarMassEjectionFraction         = 0.25;
   StarMetalYield                   = 0.02;
   StarEnergyToThermalFeedback      = 1.0e-5;
@@ -766,6 +776,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerMinimumMassRampStartMass = FLOAT_UNDEFINED;
   StarMakerMinimumMassRampEndTime   = FLOAT_UNDEFINED;
   StarMakerMinimumMassRampEndMass   = FLOAT_UNDEFINED;
+
+  StarFeedbackThermalEfficiencyRamp = 0;
+  StarFeedbackThermalEfficiencyRampStartTime  = FLOAT_UNDEFINED;
+  StarFeedbackThermalEfficiencyRampStartValue = FLOAT_UNDEFINED;
+  StarFeedbackThermalEfficiencyRampEndTime    = FLOAT_UNDEFINED;
+  StarFeedbackThermalEfficiencyRampEndValue   = FLOAT_UNDEFINED;
       
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
