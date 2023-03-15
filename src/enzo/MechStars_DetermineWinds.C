@@ -17,7 +17,7 @@
 #include "StarParticleData.h"
 #include "phys_constants.h"
 
-int determineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
+int DetermineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
                         float massMsun, float zZsun, float TimeUnits, float dtFixed){
     float Zsolar = CoolData.SolarMetalFractionByMass;
     bool oldEnough = (age < 0.0001)?(false):(true);
@@ -26,7 +26,7 @@ int determineWinds(float age, float* eWinds, float* mWinds, float* zWinds,
     float e_factor = 0.0;
  // I dont want to deal with new particles
     // printf("Computing Winds for age = %f, Msun = %e\n", age, massMsun);
-    if (StellarWinds && oldEnough && massMsun > 11){
+    if (MechStarsUseStellarWinds && oldEnough && massMsun > 11){
 
         if (0.001 < age && age < 1.0){
             wind_factor =4.763 * min((0.01 + zZsun), 1.0) ;

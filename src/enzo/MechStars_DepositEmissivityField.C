@@ -1,6 +1,4 @@
 /*
-
-    *** CURRENTLY UNTESTED AND UNUSED ***
     Couples the mechanical stars to the radiation machinery in ENZO by filling
     in the emissivity0 field.  
     Code must be compiled with "make emissivity-yes" and "make photon-yes".
@@ -30,9 +28,8 @@
 #include "phys_constants.h"
 //#include "gFLDProblem.h"
 
-int MechStars_depositEmissivityField(int index, float cellwidth,
-                float* emissivity0, float age, float mass, 
-                float TimeUnits, float dt)
+
+int MechStars_CalcPhotonRates(Star* star, const float Time)
 {
     // Modeling after fFLDSplit_RadiationSource.F90 to fill in Emissivity0 field.
         //    etaconst = h_nu0*NGammaDot*specconst/dV
@@ -42,6 +39,7 @@ int MechStars_depositEmissivityField(int index, float cellwidth,
         const float LsunToErg = 3.85e33; // erg/s
         const float evPerErg = 6.2415e11;
         const float h_nu0 = 13.6/evPerErg; // erg
+        float age = Time - star->ReturnBirthTime();
         /*
             Calculate rates of photons given the age-based luminosity in Hopkins 2017.  Units are
             L_sun/M_sun.  While they are given, we dont bother with IR/optical bands here.
@@ -62,13 +60,14 @@ int MechStars_depositEmissivityField(int index, float cellwidth,
             Psi_fuv = 572.*pow(age/3.4, -1.5);
         }
         // convert to better units
-        Psi_ion *= mass; // L_sun
-        Psi_ion *= LsunToErg/TimeUnits*dt; // erg/code_time
-        /* 
-            assuming all those photons are in the HI ionization range, the number
-            of photons is 
-         */
-        float NGammaDot = Psi_ion / h_nu0;
+        Psi_ion *= star->ReturnMass(); // L_sun
+        return Psi_ion;
+        // Psi_ion *= LsunToErg/TimeUnits*dt; // erg/code_time
+        // /* 
+        //     assuming all those photons are in the HI ionization range, the number
+        //     of photons is 
+        //  */
+        // float NGammaDot = Psi_ion / h_nu0;
         
 
         // /*
@@ -77,15 +76,15 @@ int MechStars_depositEmissivityField(int index, float cellwidth,
         //     This routine only works with HI radiation for now, as the 
         //     rest of the rates would require another Starburst99 sim to get
         //  */
-        if (MechStarsRadiationSpectrum != -1){
-            ENZO_FAIL("MechStars only implemented for RadHydroESpectrum = -1\n");
-        }
-        const float specconst = 1.0;    
+        // if (MechStarsRadiationSpectrum != -1){
+        //     ENZO_FAIL("MechStars only implemented for RadHydroESpectrum = -1\n");
+        // }
+        // const float specconst = 1.0;    
         
-        /*
-            Apply selected to Emissivity0 in the form of etaconst.  
-         */
-        emissivity0[index] += pow(cellwidth, 3.0)*specconst*NGammaDot*h_nu0;
+        // /*
+        //     Apply selected to Emissivity0 in the form of etaconst.  
+        //  */
+        // emissivity0[index] += pow(cellwidth, 3.0)*specconst*NGammaDot*h_nu0;
 
         return SUCCESS;
 }

@@ -22,11 +22,11 @@
 #include "StarParticleData.h"
 #include "phys_constants.h"
 
-int determineSN(float age, int *nSNII, int *nSNIA, float massMsun,
+int DetermineSN(float age, int *nSNII, int *nSNIA, float massMsun,
                 float TimeUnits, float dtFixed);
-int determineWinds(float age, float *eWinds, float *zWinds, float *mWinds,
+int DetermineWinds(float age, float *eWinds, float *zWinds, float *mWinds,
                    float massMsun, float zZsun, float TimeUnits, float dtFixed);
-int checkCreationCriteria(float *Density, float *Metals,
+int CheckCreationCriteria(float *Density, float *Metals,
                           float *Temperature, float *DMField,
                           float *Vel1, float *Vel2, float *Vel3, float* TotE,
                           float *CoolingTime, int *GridDim,
@@ -39,22 +39,19 @@ int FindField(int field, int farray[], int numfields);
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, float *MassUnits, FLOAT Time);
-int MechStars_depositEmissivityField(int index, float cellwidth,
+int MechStars_DepositEmissivityField(int index, float cellwidth,
                                      float *emissivity0, float age, float mass,
                                      float TimeUnits, float dt);
 
 int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMetal,
                                     float *Temperature, float *CoolingTime, float *DMField)
 {
-
-    //fprintf(stdout,"IN FEEDBACK ROUTINE\n  %d   %d   %d\n",
-    //SingleSN, StellarWinds, UnrestrictedSN);
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
 
     float Zsolar = 0.02;
     float stretchFactor = 2.0; // distance in cells required from grid edge for FB to function.
-    bool debug = false;
+    bool internal_debug = false;
     float startFB = MPI_Wtime();
     int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -143,7 +140,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                     || zp > GridRightEdge[2] 
                     || zp < GridLeftEdge[2])
                     {
-                    if (debug){
+                    if (internal_debug){
                         fprintf(stderr, "[%d--%e] Particle %" ISYM "  with type %" ISYM " out of grid! Mass: %" GSYM " age: %" FSYM "\npos: %" FSYM ", %" FSYM " %" FSYM ", Vel: %" FSYM " %" FSYM " %f\nLeftEdge: %" FSYM " %" FSYM " %" FSYM "\nRightEdge: %" FSYM " %" FSYM " %" FSYM "\n",
                                 level, dx, pIndex, ParticleType[pIndex], ParticleMass[pIndex] * MassUnits,
                                 age, xp, yp, zp,
@@ -168,37 +165,37 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
             if (xp < CellLeftEdge[0][0] + borderDx)
             {
-                if (debug) printf("Shifting particle X %e -> %e\n", xp, xp + borderDx+0.5*dx);
+                if (internal_debug) printf("Shifting particle X %e -> %e\n", xp, xp + borderDx+0.5*dx);
                 xp = CellLeftEdge[0][0] + borderDx + 0.5 * dx;
                 shifted++;
             }
             if (xp > CellLeftEdge[0][0] + gridDx - borderDx)
             {
-                if (debug) printf("Shifting particle X %e -> %e\n", xp, xp - borderDx - 0.5*dx);
+                if (internal_debug) printf("Shifting particle X %e -> %e\n", xp, xp - borderDx - 0.5*dx);
                 xp = CellLeftEdge[0][0] + gridDx - borderDx - 0.5*dx;
                 shifted = 1;
             }
             if (yp < CellLeftEdge[1][0] + borderDx)
             {
-                if (debug) printf("Shifting particle Y %e -> %e\n", yp, yp + borderDx+0.5*dx);
+                if (internal_debug) printf("Shifting particle Y %e -> %e\n", yp, yp + borderDx+0.5*dx);
                 yp = CellLeftEdge[1][0] + borderDx + 0.5 * dx;
                 shifted = 1;
             }
             if (yp > CellLeftEdge[1][0] + gridDy - borderDx)
             {
-                if (debug) printf("Shifting particleY %e -> %e\n", yp, yp - borderDx - 0.5*dx);
+                if (internal_debug) printf("Shifting particleY %e -> %e\n", yp, yp - borderDx - 0.5*dx);
                 yp = CellLeftEdge[1][0] + gridDy - borderDx - 0.5 * dx;
                 shifted = 1;
             }
             if (zp < CellLeftEdge[2][0] + borderDx)
             {
-                if (debug) printf("Shifting particle Z %e -> %e\n", zp, zp + borderDx+0.5*dx);
+                if (internal_debug) printf("Shifting particle Z %e -> %e\n", zp, zp + borderDx+0.5*dx);
                 zp = CellLeftEdge[2][0] + borderDx + 0.5 * dx;
                 shifted = 1;
             }
             if (zp > CellLeftEdge[2][0] + gridDz - borderDx)
             {
-                if (debug) printf("Shifting particle Z %e -> %e\n", zp, zp - borderDx-0.5*dx);
+                if (internal_debug) printf("Shifting particle Z %e -> %e\n", zp, zp - borderDx-0.5*dx);
                 zp = CellLeftEdge[2][0] + gridDz - borderDx - 0.5 * dx;
                 shifted = 1;
             }
@@ -224,16 +221,16 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
             /* determine how many supernova events */
 
-            if (SingleSN)
+            if (MechStarsUseSingleSN)
             {
                 /* 
                     Determine SN events from rates (currently taken from
                     Hopkins, 2018)
                  */
-                determineSN(age, &nSNII, &nSNIA, pmassMsun,
+                DetermineSN(age, &nSNII, &nSNIA, pmassMsun,
                             TimeUnits, dtFixed);
                 numSN += nSNII + nSNIA;
-                if ((nSNII > 0 || nSNIA > 0) && debug)
+                if ((nSNII > 0 || nSNIA > 0) && internal_debug)
                     fprintf(stdout, "SUPERNOVAE!!!! %d %d level = %d age = %f\n", nSNII, nSNIA, level, age);
                 if (nSNII > 0 || nSNIA > 0)
                 {
@@ -269,12 +266,12 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
             /*
                 Ignore very old stars, veryvery young stars, and ones whose mass is depleted
              */
-            if (StellarWinds && age > 0.001 && ParticleMass[pIndex] * MassUnits > 1)
+            if (MechStarsUseStellarWinds && age > 0.001 && ParticleMass[pIndex] * MassUnits > 1)
             {
                 // printf("Checking Winds\n");
                 float zZsun = min(ParticleAttribute[2][pIndex] / Zsolar, MechStarsCriticalMetallicity);
 
-                determineWinds(age, &windEnergy, &windMass, &windMetals,
+                DetermineWinds(age, &windEnergy, &windMass, &windMetals,
                                ParticleMass[pIndex] * MassUnits, zZsun,
                                TimeUnits, dtFixed);
                 if (windMass > 100)
@@ -296,7 +293,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
             */
             if (StarMakerEmissivityField)
             {
-                MechStars_depositEmissivityField(index, CellWidth[0][0], BaryonField[EmisNum],
+                MechStars_DepositEmissivityField(index, CellWidth[0][0], BaryonField[EmisNum],
                                                  age, ParticleMass[pIndex] * MassUnits, TimeUnits, dtFixed);
             }
         }

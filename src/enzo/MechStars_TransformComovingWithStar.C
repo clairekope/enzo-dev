@@ -5,7 +5,7 @@
 #include "typedefs.h"
 #include "StarParticleData.h"
 
-int transformComovingWithStar(float* Density, float* Metals, 
+int TransformComovingWithStar(float* Density, float* Metals, 
         float* MetalsSNII, float* MetalsSNIA,
         float* Vel1, float* Vel2, float* Vel3, 
         float* TE, float* GE,

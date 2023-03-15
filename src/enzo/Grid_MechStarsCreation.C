@@ -22,7 +22,7 @@
 #include "StarParticleData.h"
 #include "phys_constants.h"
 //Prototypes
-    int checkCreationCriteria(float* Density,
+    int CheckCreationCriteria(float* Density,
                         float* Metals,
                         float* Temperature,float* DMField,
                         float* Vel1, float* Vel2, float* Vel3, float* TotE,
@@ -167,7 +167,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                 int createStar = false;
         
 
-                    createStar = checkCreationCriteria(BaryonField[DensNum],
+                    createStar = CheckCreationCriteria(BaryonField[DensNum],
                         totalMetal, Temperature, DMField,
                         BaryonField[Vel1Num], BaryonField[Vel2Num],
                         BaryonField[Vel3Num], BaryonField[TENum], 

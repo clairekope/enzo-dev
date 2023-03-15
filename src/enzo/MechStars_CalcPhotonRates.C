@@ -20,7 +20,7 @@
 //#include "gFLDProblem.h"
 
 
-float MechStars_calcPhotonRates(Star* star, const float Time, float TimeUnits)
+float MechStars_CalcPhotonRates(Star* star, const float Time, float TimeUnits)
 {
     // Modeling after fFLDSplit_RadiationSource.F90 to fill in Emissivity0 field.
         //    etaconst = h_nu0*NGammaDot*specconst/dV
@@ -54,7 +54,7 @@ float MechStars_calcPhotonRates(Star* star, const float Time, float TimeUnits)
         }
         // convert to better units
         //Psi_ion *= star->ReturnMass(); // L_sun
-	// printf("calcPhotonRates: t = %f, birth = %f, age = %f, psi_ion = %f\n", 
+	// printf("CalcPhotonRates: t = %f, birth = %f, age = %f, psi_ion = %f\n", 
 	       //	       Time*TimeUnits/Myr_s, star->ReturnBirthTime()*TimeUnits/Myr_s, age, Psi_ion);
         return Psi_ion;
 

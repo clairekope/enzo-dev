@@ -658,15 +658,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StellarWindRadius                = 0.01;  // in code unit
   StellarWindTemperature           = 100.0;  // in K
 /* mechanical feedback parameters */
-  StellarWinds                     = 1;
-  SingleSN                         = 1;
+  MechStarsUseStellarWinds                     = 1;
+  MechStarsUseSingleSN                         = 1;
   StarMakerMaximumFormationMass    = 1e4;
   StarMakerMaximumMass             = 1e5;
-  DepositUnresolvedEnergyAsThermal = 0;
   StarMakeLevel                    = MaximumRefinementLevel;
   NEvents                          = 0;
-  AnalyticSNRShellMass             = 0;
-  UnrestrictedSN                     = 0; // false by default
+  MechStarsAnalyticSNRShellMass             = 0;
+  MechStarsUnrestrictedSN                     = 0; // false by default
   MechStarsCriticalMetallicity      = 1e-12; // dont check for metals in formation
   MechStarsMetallicityFloor         = 1e-20; // set initial simulation metallicity to this (Zsun)
   MechStarsSeedField                = 0; // dont seed metals from pop3 imf

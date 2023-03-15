@@ -20,7 +20,7 @@
 
 void mt_init(unsigned_int seed);
 unsigned_long_int mt_random();
-int determineSN(float age, int* nSNII, int* nSNIA, 
+int DetermineSN(float age, int* nSNII, int* nSNIA, 
                 float massMsun, float TimeUnits, float dt){
     if (NEvents > 0){
         *nSNII = 1;
@@ -37,7 +37,7 @@ int determineSN(float age, int* nSNII, int* nSNIA,
     *nSNIA = 0;
     float RII=0, RIA=0, PII=0, PIA=0;
     float random;
-    if (SingleSN == 1 && NEvents < 0)
+    if (MechStarsUseSingleSN == 1 && NEvents < 0)
     {   
     
         if (age < 3.401)
@@ -63,7 +63,7 @@ int determineSN(float age, int* nSNII, int* nSNIA,
         /* rates -> probabilities */
         if (RII > 0){
             PII = RII * massMsun * (TimeUnits*dt) / Myr_s ;
-            if (PII > 1 && UnrestrictedSN)
+            if (PII > 1 && MechStarsUnrestrictedSN)
                 while (PII > 1){
                     *nSNII += 1;
                     PII -= 1;
@@ -72,9 +72,9 @@ int determineSN(float age, int* nSNII, int* nSNIA,
             std::binomial_distribution<> dist(1, PII);
             random = dist(e2);
             // fprintf(stdout, "PII =%f -- %f %e %f dt = %f rnd = %e; URS = %lld\n", 
-            //                     PII, RII, massMsun, age, dt * TimeUnits/Myr_s, random, UnrestrictedSN);
+            //                     PII, RII, massMsun, age, dt * TimeUnits/Myr_s, random, MechStarsUnrestrictedSN);
 
-            if (PII > 1.0 && !UnrestrictedSN){
+            if (PII > 1.0 && !MechStarsUnrestrictedSN){
                 ENZO_FAIL("PII too large!");
             }
             // int psn = *nSNII;
@@ -88,7 +88,7 @@ int determineSN(float age, int* nSNII, int* nSNIA,
         
         if (RIA > 0){
             PIA = RIA*massMsun / Myr_s * TimeUnits * dt;
-            if (PIA > 1.0 && UnrestrictedSN)
+            if (PIA > 1.0 && MechStarsUnrestrictedSN)
                 while (PIA > 1.0){
                     *nSNIA += 1;
                     PIA -= 1;

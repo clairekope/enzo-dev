@@ -23,7 +23,7 @@ extern "C" void FORTRAN_NAME(cic_deposit)(float *xPosition, float *yPosition,
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, float *MassUnits, float Time);
-int transformComovingWithStar(float *Density, float *Metals,
+int TransformComovingWithStar(float *Density, float *Metals,
                               float *MetalsSNII, float *MetalsSNIA,
                               float *Vel1, float *Vel2, float *Vel3,
                               float *TE, float *GE,
@@ -234,7 +234,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                                         +BaryonField[Vel3Num][flat]*BaryonField[Vel3Num][flat]);
 
                     }
-        transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum],
+        TransformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum],
                                   BaryonField[MetalIINum], BaryonField[MetalIaNum],
                                   BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
                                   BaryonField[TENum], BaryonField[GENum],
@@ -424,7 +424,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float centralMass = 0;
     float centralMetals = 0;
     float maxEvacFraction = 0.75;
-    if (coupledEnergy > 0 && AnalyticSNRShellMass && !winds)
+    if (coupledEnergy > 0 && MechStarsAnalyticSNRShellMass && !winds)
     {
             if (dxeff < 1) // goes like a sphere sweeping up density
                 shellMass = 4 * M_PI / 3 * dmean * pow((cw_eff*pc_cm),3) / SolarMass; // min(1e8, coupledMomenta / shellVelocity); //Msun
@@ -475,7 +475,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     // }
 
     float shellMetals = min(maxEvacFraction*centralMetals * MassUnits, zZsun * SolarMetalFractionByMass * shellMass);
-    if (AnalyticSNRShellMass && printout)
+    if (MechStarsAnalyticSNRShellMass && printout)
     {
         fprintf(stdout, "STARSS_FB: Shell_m = %e Shell_z = %e shell_V= %e P = %e M_C = %e\n",
                 shellMass, shellMetals, shellVelocity, coupledMomenta, centralMass);
@@ -518,7 +518,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     float coupledMetals = 0.0, SNIAmetals = 0.0, SNIImetals = 0.0, P3metals = 0.0;
     if (winds)
         coupledMetals = ejectaMetal; //+ shellMetals; // winds only couple to metallicity
-    if (AnalyticSNRShellMass && !winds) 
+    if (MechStarsAnalyticSNRShellMass && !winds) 
         coupledMetals += shellMetals;
     SNIAmetals = (StarMakerTypeIaSNe) ? nSNIA * 1.4 : 0.0;
     if (!StarMakerTypeIaSNe)
@@ -595,7 +595,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                 rho_buffer[buffind] = BaryonField[DensNum][flat];
             }
 
-    if (shellMass > 0 && AnalyticSNRShellMass)
+    if (shellMass > 0 && MechStarsAnalyticSNRShellMass)
         // do
         {
             float zsubtracted = 0;
@@ -642,7 +642,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     // real amount of momenta.  Not sure what to do on that one...
     minusRho *= MassUnits; // Msun
     minusZ *= MassUnits;
-    if (minusRho != coupledMass - ejectaMass && shellMass > 0 && AnalyticSNRShellMass)
+    if (minusRho != coupledMass - ejectaMass && shellMass > 0 && MechStarsAnalyticSNRShellMass)
     {
         if (printout) fprintf(stdout, "STARSS_FB: Of %e, only subtracted %e; rescaling the coupling mass\n", shellMass, minusRho);
         float oldcouple = coupledMass;
@@ -869,7 +869,7 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
                     ejectaMass, ejectaMetal);
     }
 
-    transformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum],
+    TransformComovingWithStar(BaryonField[DensNum], BaryonField[MetalNum],
                             BaryonField[MetalIINum], BaryonField[MetalIaNum],
                             BaryonField[Vel1Num], BaryonField[Vel2Num],
                             BaryonField[Vel3Num],

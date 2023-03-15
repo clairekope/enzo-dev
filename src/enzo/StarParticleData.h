@@ -164,15 +164,15 @@ SPEXTERN float StarFeedbackThermalEfficiencyRampEndTime;
 SPEXTERN float StarFeedbackThermalEfficiencyRampEndValue;
 
 /* STARSS feedback */
-SPEXTERN int StellarWinds;
-SPEXTERN int SingleSN;
+SPEXTERN int MechStarsUseStellarWinds;
+SPEXTERN int MechStarsUseSingleSN;
 SPEXTERN float StarMakerMaximumFormationMass;
 SPEXTERN float StarMakerMaximumMass;
 SPEXTERN int DepositUnresolvedEnergyAsThermal;
 SPEXTERN int StarMakeLevel;
 SPEXTERN int NEvents;
-SPEXTERN int AnalyticSNRShellMass;
-SPEXTERN int UnrestrictedSN;
+SPEXTERN int MechStarsAnalyticSNRShellMass;
+SPEXTERN int MechStarsUnrestrictedSN;
 SPEXTERN int MechStarsSeedField;
 SPEXTERN float MechStarsCriticalMetallicity;
 SPEXTERN int MechStarsRadiationSpectrum;

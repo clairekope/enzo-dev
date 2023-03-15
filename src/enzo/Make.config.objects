@@ -748,12 +748,12 @@ OBJS_CONFIG_LIB = \
         mbh_maker.o \
         mcooling.o \
         MakeFieldConservative.o\
-        MechStars_checkCreationCriteria.o\
-        MechStars_determineSN.o\
-        MechStars_determineWinds.o\
-        MechStars_transformComovingWithStar.o\
-        MechStars_depositEmissivity.o\
-        MechStars_calcPhotonRates.o\
+        MechStars_CheckCreationCriteria.o\
+        MechStars_DetermineSN.o\
+        MechStars_DetermineWinds.o\
+        MechStars_TransformComovingWithStar.o\
+        MechStars_DepositEmissivity.o\
+        MechStars_CalcPhotonRates.o\
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \
 	MersenneTwister.o \

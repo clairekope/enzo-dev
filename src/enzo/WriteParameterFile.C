@@ -1126,15 +1126,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
 /* mechanical feedback parameters */
 
-  fprintf(fptr, "StellarWinds                          = %"ISYM"\n",StellarWinds);
-  fprintf(fptr, "SingleSN                              = %"ISYM"\n", SingleSN);
+  fprintf(fptr, "MechStarsUseStellarWinds                          = %"ISYM"\n",MechStarsUseStellarWinds);
+  fprintf(fptr, "MechStarsUseSingleSN                              = %"ISYM"\n", MechStarsUseSingleSN);
   fprintf(fptr, "StarMakerMaximumFormationMass         = %"GSYM"\n", StarMakerMaximumFormationMass);
   fprintf(fptr, "StarMakerMaximumMass                  = %"GSYM"\n", StarMakerMaximumMass);
-  fprintf(fptr, "DepositUnresolvedEnergyAsThermal      = %"ISYM"\n", DepositUnresolvedEnergyAsThermal);
   fprintf(fptr, "NEvents                               = %"ISYM"\n", NEvents);
-  fprintf(fptr, "AnalyticSNRShellMass                  = %"ISYM"\n", AnalyticSNRShellMass);
+  fprintf(fptr, "MechStarsAnalyticSNRShellMass                  = %"ISYM"\n", MechStarsAnalyticSNRShellMass);
   fprintf(fptr, "StarMakerMinimumRefinementLevel       = %"ISYM"\n", StarMakeLevel);
-  fprintf(fptr, "UnrestrictedSN                        = %"ISYM"\n", UnrestrictedSN);
+  fprintf(fptr, "MechStarsUnrestrictedSN                        = %"ISYM"\n", MechStarsUnrestrictedSN);
   fprintf(fptr, "MechStarsCriticalMetallicity          = %"GSYM"\n", MechStarsCriticalMetallicity);
   fprintf(fptr, "MechStarsSeedField                    = %"ISYM"\n", MechStarsSeedField);
   fprintf(fptr, "MechStarsRadiationSpectrum            = %"ISYM"\n", MechStarsRadiationSpectrum);
