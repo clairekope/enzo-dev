@@ -57,20 +57,20 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
 
     /* Compute size (in floats) of the current grid. */
-
     size = 1;
     for (dim = 0; dim < GridRank; dim++)
         size *= GridDimension[dim];
     int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
         HMNum, H2INum, H2IINum, DINum, DIINum, HDINum;
-    /* Find fields: density, total energy, velocity1-3. */
 
+    /* Find fields: density, total energy, velocity1-3. */
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                          Vel3Num, TENum) == FAIL)
     {
         fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
         return FAIL;
     }
+
     /* Set the units */
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
           TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
@@ -82,6 +82,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
     }
     FLOAT dx = CellWidth[0][0];
     MassUnits = DensityUnits * pow(LengthUnits * dx, 3) / SolarMass;
+
     /*
         get metallicity field and set flag; assumed true thoughout feedback
         since so many quantities are metallicity dependent
@@ -109,10 +110,9 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
     int numSN = 0; // counter of events
     int c = 0;     // counter of particles
-    // printf("\nIterating all particles  ");
+
     for (int pIndex = 0; pIndex < NumberOfParticles; pIndex++)
     {
-
         if (ParticleType[pIndex] == PARTICLE_TYPE_STAR && ParticleMass[pIndex] > 00.0 && ParticleAttribute[0][pIndex] > 0.0)
         {
             float age = (Time - ParticleAttribute[0][pIndex]) * TimeUnits / Myr_s; // Myr
@@ -126,10 +126,10 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
             /* error check particle position; Cant be on the border or outside grid
                 If on border, reposition to within grid for CIC deposit */
-
             FLOAT gridDx = GridDimension[0] * dx;
             FLOAT gridDy = GridDimension[1] * dx;
             FLOAT gridDz = GridDimension[2] * dx;
+
             /* Keep particle 2 cells from edge since we cant transfer to
                 neighboring grids */
             FLOAT borderDx = (stretchFactor)*dx;
@@ -158,8 +158,8 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                                 ParticleAcceleration[2][pIndex]);
                     }
                     continue;
-                        // EnzoFatalException("Star Maker Mechanical: particle out of grid!\n");
-                        //raise(SIGABRT); // fails more quickly and puts out a core dump for analysis
+                    // EnzoFatalException("Star Maker Mechanical: particle out of grid!\n");
+                    //raise(SIGABRT); // fails more quickly and puts out a core dump for analysis
                     }
             int shifted = 0;
 
@@ -206,7 +206,6 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
 
             index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
 
-
             float shieldedFraction = 0, dynamicalTime = 0, freeFallTime = 0;
             bool gridShouldFormStars = true, notEnoughMetals = false;
             float zFraction = totalMetal[index];
@@ -230,8 +229,10 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
                 DetermineSN(age, &nSNII, &nSNIA, pmassMsun,
                             TimeUnits, dtFixed);
                 numSN += nSNII + nSNIA;
+
                 if ((nSNII > 0 || nSNIA > 0) && internal_debug)
                     fprintf(stdout, "SUPERNOVAE!!!! %d %d level = %d age = %f\n", nSNII, nSNIA, level, age);
+
                 if (nSNII > 0 || nSNIA > 0)
                 {
                     /* set feedback qtys based on number and types of events */
@@ -268,7 +269,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
              */
             if (MechStarsUseStellarWinds && age > 0.001 && ParticleMass[pIndex] * MassUnits > 1)
             {
-                // printf("Checking Winds\n");
+
                 float zZsun = min(ParticleAttribute[2][pIndex] / Zsolar, MechStarsCriticalMetallicity);
 
                 DetermineWinds(age, &windEnergy, &windMass, &windMetals,
@@ -289,7 +290,7 @@ int grid::MechStars_FeedbackRoutine(int level, float *mu_field, float *totalMeta
             }
             
             /* 
-            if these stars are used in conjunction with FLDImplicit or FLDSplit.  This functionality has not been verified
+            If these stars are used in conjunction with FLDImplicit or FLDSplit, this functionality has not been verified
             */
             if (StarMakerEmissivityField)
             {

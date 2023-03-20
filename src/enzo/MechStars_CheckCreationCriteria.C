@@ -39,7 +39,7 @@ int CheckCreationCriteria(float* Density, float* Metals,
     bool use_F2 = true; // use FIRE-2 methods of self-shielded fractionn and virial parameter
     float Zsolar = SolarMetalFractionByMass;
     float maxZ = 0.0;
-    bool debug = false;
+    bool internal_debug = false;
     int status = PASS;
     float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
                 TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
@@ -58,11 +58,14 @@ int CheckCreationCriteria(float* Density, float* Metals,
     int jplus = i+(j+1)*GridDim[0]+k*GridDim[0]*GridDim[1];
     int kminus = i+j*GridDim[0]+(k-1)*GridDim[0]*GridDim[1];
     int kplus = i+j*GridDim[0]+(k+1)*GridDim[0]*GridDim[1];
+   
     /*
     Checking creation criteria!
     */
+
     // if this isnt finest grid in this space, continue
     if (RefinementField[index] != 0) status = FAIL;
+
     /* Baryon overdensity. */
     if (StarMakerOverDensityThreshold > 0){
         
@@ -106,12 +109,10 @@ int CheckCreationCriteria(float* Density, float* Metals,
     dzvz = (Vel3[kplus] - Vel3[kminus])/2.0;
 
     /* Chck for converging flow */
-
     div = dxvx+dyvy+dzvz;
     if (div > 0.0) status = FAIL;
 
     /* check for virial parameter */
-
     vfactor = (dxvx*dxvx+dxvy*dxvy+dxvz*dxvz 
                     +dyvx*dyvx+dyvy*dyvy+dyvz*dyvz
                     +dzvx*dzvx+dzvy*dzvy+dzvz*dzvz) / CellWidth / CellWidth;
@@ -130,13 +131,13 @@ int CheckCreationCriteria(float* Density, float* Metals,
     float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
 
     if (MechStarsUseVirialParameter){
-        if (alpha < 20 && debug) 
+        if (alpha < 20 && internal_debug) 
             fprintf(stdout, "STARSS_CHCR: Compare alphas: F3 = %f; Energy method = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
-                                alpha, AltAlpha, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
+                            alpha, AltAlpha, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
         if (AltAlpha > 1.0) status = FAIL;
     }
-    /* Is cooling time < dynamical time or temperature < 1e4 */
 
+    /* Is cooling time < dynamical time or temperature < 1e4 */
     *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5); //seconds
     if (Temperature[index] > 1.1e4)
     {
@@ -145,12 +146,8 @@ int CheckCreationCriteria(float* Density, float* Metals,
       else if (*dynamicalTime/TimeUnits < CoolingTime[index]) 
 	        return FAIL;   
     }
-    // printf("CheckCreationCriteria: T_dyn=%e, min = %e\n", *dynamicalTime / yr_s, StarMakerMinimumDynamicalTime);
-    // if (*dynamicalTime / yr_s < StarMakerMinimumDynamicalTime){
-    // return FAIL;
-    //}
-    /* is gas mass > critical jeans mass? */
 
+    /* is gas mass > critical jeans mass? */
     float baryonMass = Density[index]*DensityUnits
             *LengthUnits*LengthUnits*LengthUnits
             *CellWidth*CellWidth*CellWidth
@@ -162,7 +159,6 @@ int CheckCreationCriteria(float* Density, float* Metals,
     if (jeansMass > max(baryonMass, 1e3)) status = FAIL;
     
     /* Is self Shielded fraction > 0.0 by Krumholz & Gnedin */
-
     float gradRho = (Density[index+1]-Density[index-1])
                     *(Density[index+1]-Density[index-1]);
     gradRho += (Density[jplus]-Density[jminus])
@@ -170,6 +166,7 @@ int CheckCreationCriteria(float* Density, float* Metals,
     gradRho +=  (Density[kplus]-Density[kminus])
                 *(Density[kplus]-Density[kminus]);
     gradRho = pow(gradRho, 0.5);
+
     // factors were given in physical units
     float TauFactor = 434.8/*cm**2/g*/ * MassUnits/pow(LengthUnits*CellWidth, 2); // cm**2/g
     float Tau = TauFactor * Density[index] *(CellWidth+Density[index]/gradRho);
@@ -179,9 +176,6 @@ int CheckCreationCriteria(float* Density, float* Metals,
     float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/Zsolar)/
                 log(1+0.6*Phi+0.01*Phi*Phi);
     *shieldedFraction = 1.0 - 3.0/(1.0+4.0*Psi);
-    // if (debug)
-    //     fprintf(stdout, "FS parts: Tau = %"GSYM" Phi = %"GSYM" Psi = %"GSYM" FS = %"GSYM"\n",
-    //     Tau, Phi, Psi, *shieldedFraction);
 
     if (MechStarsUseAnalyticShieldedFraction==1)
         {
@@ -189,6 +183,7 @@ int CheckCreationCriteria(float* Density, float* Metals,
         }
     else
         *shieldedFraction = 1.0; // kinda arbitrary, but just for testing.
+
     if (MechStarsUseMeasuredShieldedFraction)
     {
         if (MultiSpecies < 2){
@@ -199,32 +194,6 @@ int CheckCreationCriteria(float* Density, float* Metals,
         *shieldedFraction = H2II[index] / (H2II[index] + H2[index]);
     }
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
-    //if (status && debug)
-    //{
-    //    fprintf(stdout, "Check Creation positive! n_b = %"GSYM" M_b = %"GSYM" gradRho = %"GSYM" Fs = %"FSYM" M_j = %"GSYM" VirialPar = %"FSYM" divergence = %"FSYM" Temperature = %"GSYM" cSnd = %"GSYM" AltJeans = %"GSYM" AltAlpha = %"GSYM" Z = %"GSYM"\n",
-    //    dmean, baryonMass, gradRho, *shieldedFraction, jeansMass, alpha, div, Temperature[index], cSound*VelocityUnits/1e5, altJeans, Metals[index]/Density[index]/Zsolar);
-    //}
-    //if (status && debug) fprintf(stdout, "passed creation criteria\n");
-    // if (MechStarsSeedField && Metals[index]/Density[index]/Zsolar > MechStarsCriticalMetallicity && !continuingFormation)
-    //     *notEnoughMetals = false;
-    // if (status && (Metals[index]/Density[index]/Zsolar < MechStarsCriticalMetallicity)){
-    //         status = FAIL;
-    // }
-
-    // else if (status && Metals[index]/Density[index]/Zsolar < MechStarsCriticalMetallicity && MechStarsSeedField
-    //     && !continuingFormation)
-    // {
-    //   //  if (debug) fprintf(stdout,"No metals, criteria passed, but not forming\n");
-    //     status = FAIL;
-    //     /* May want to qualify this with H2 fraction/H2 self-shield approximations, but
-    //     This is really just to give a non-uniform seed-field in Pop3 metals*/
-    //     *gridShouldFormStars = true;
-    //     if (Metals[index]/Density[index]/Zsolar > maxZ) maxZ = Metals[index]/Density[index]/Zsolar;
-    //     /* Store index of this grid to potentially be center of P3 seed later */
-    //     seedIndex[0] = i; 
-    //     seedIndex[1] = j;
-    //     seedIndex[2] = k;
-    // }
 
     return status;
 

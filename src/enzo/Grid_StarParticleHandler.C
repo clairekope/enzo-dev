@@ -669,18 +669,19 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Convert the species densities into fractional densities (i.e. divide
      by total baryonic density).  At the end we will multiply by the new
      density so that species fractions are maintained. */
-   if (!STARFEED_METHOD(MECHANICAL)){
+   if (!STARFEED_METHOD(MECHANICAL)){ //fractional density doesnt play nice with CIC used in MechStars
+
       for (field = 0; field < NumberOfBaryonFields; field++)
          if (((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
 	         FieldType[field] == MetalSNIaDensity || FieldType[field] == MetalSNIIDensity))
-            {    //fractional density doesnt play nice with CIC used in MechStars
-#ifdef EMISSIVITY
-      /* 
-         it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
-         baryons field is used, but no longer needed since it is set to <=ExtraType1
-         so the values will scale inside StarParticleHandler 
-      */
-#endif
+            {  
+
+            /* 
+               Emissivity used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
+               baryons field is used, but no longer needed since it is set to <=ExtraType1
+               so the values will scale inside StarParticleHandler 
+            */
+
             for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
 	            for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	               index = (k*GridDimension[1] + j)*GridDimension[0] +
@@ -843,18 +844,18 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleType[i] = NormalStarType;
     } 
     if (STARMAKE_METHOD(MECHANICAL)){
-       NumberOfNewParticlesSoFar = NumberOfParticles;
-         int nRetStars = 0;
-         nRetStars = MechStars_Creation(tg, temperature,
-            dmfield, MetalPointer, level, cooling_time, MaximumNumberOfNewParticles,
-            &NumberOfNewParticles);
-         //fprintf(stdout, "Created %d new stars!", NumberOfNewParticles);
-         if (nRetStars != NumberOfNewParticles) fprintf(stdout, "star count return and pointer mismatch!\n");
-         for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++){
-            tg->ParticleType[i] = NormalStarType;
-            //fprintf(stdout, "Set star %d type %d", i, NormalStarType);
-
-         }
+      NumberOfNewParticlesSoFar = NumberOfParticles;
+      int nRetStars = 0;
+      
+      nRetStars = MechStars_Creation(tg, temperature,
+         dmfield, MetalPointer, level, cooling_time, MaximumNumberOfNewParticles,
+         &NumberOfNewParticles);
+      
+      // TODO: promote to error?
+      if (nRetStars != NumberOfNewParticles) fprintf(stdout, "star count return and pointer mismatch!\n");
+      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++){
+         tg->ParticleType[i] = NormalStarType;
+      }
     }
     if (STARMAKE_METHOD(MOM_STAR)) {
 

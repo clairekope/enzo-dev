@@ -26,15 +26,15 @@
 #include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
-	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, double *MassUnits, FLOAT Time);
+       float *TemperatureUnits, float *TimeUnits,
+       float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
-					 float *Initialdt,
-					 FLOAT TestStarParticleStarVelocity[],
+           float *Initialdt,
+           FLOAT TestStarParticleStarVelocity[],
            FLOAT TestStarParticleStarPosition[],
-					 int NumberOfTestStars, float clusterRadius, 
-			     char *TestStarInitializationFilename)
+           int NumberOfTestStars, float clusterRadius, 
+           char *TestStarInitializationFilename)
 {
   /* declarations */
 
@@ -63,7 +63,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   double MassUnits = 1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+         &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.\n");
   }
 
@@ -170,7 +170,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     if (file_id == -1) ENZO_FAIL("Error opening field file.");
     
     this->read_dataset(GridRank, OutDims, density, file_id,
-		       HDF5_REAL, field, FALSE, NULL, NULL);
+           HDF5_REAL, field, FALSE, NULL, NULL);
 
     this->read_dataset(GridRank, OutDims, edensity, file_id,
                       HDF5_REAL, efield, FALSE, NULL, NULL);
@@ -312,21 +312,6 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   ParticleAttribute[2][i] = 0.0;  // Metal fraction
   ParticleAttribute[3][i] = 0.0;  // metalfSNIa
   }
-  // delete [] density_field; 
-  // delete [] electron_density_field;
-  // delete [] hi_field;
-  // delete [] hii_field; 
-  // delete [] hei_field;
-  // delete [] heii_field; 
-  // delete [] heiii_field; 
-  // delete [] h2i_field;
-  // delete [] h2ii_field; 
-  // delete [] hm_field; 
-  // delete [] z_field;
-  // delete [] v1_field; 
-  // delete [] v2_field; 
-  // delete [] v3_field;
-  // delete [] ge_field;
   return SUCCESS;
 }
 
