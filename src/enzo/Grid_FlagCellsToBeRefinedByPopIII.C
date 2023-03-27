@@ -88,29 +88,23 @@ int grid::FlagCellsToBeRefinedByPopIII(int level)
         return NumberOfFlaggedCells;
     }
     int istar = 0;
-    // printf("[%d] Checking particles %d<->%d::%f<->%f\n", level, 2*nCellsPerRadius,                        
-    //                 PopIIISupernovaMustRefineResolution, 
-    //                 CellWidth[0][0]*LengthUnits/pc_cm, PopIIISupernovaRadius);
     int np = 0;
+
     while (istar < NumberOfParticles)
     {   
-            // added similar forced refinement on Pop2 particles
+        // added similar forced refinement on Pop2 particles
         int type = ParticleType[istar];
         if (ParticleAttribute[0][istar] > 0.0 && (type == 5)) // if its a star
         {
             /* factor = birthtime + lifetime + refineTime */
             float factor;
-            // if (type == 5) 
-                factor = (ParticleAttribute[0][istar] + ParticleAttribute[1][istar]) * TimeUnits + PopIIIMustRefineRegionLifetime * 3.1557e13;
-            // else if (type == 7)
-            //     factor = ParticleAttribute[0][istar]*TimeUnits + 25.0 * Myr_s;
+            factor = (ParticleAttribute[0][istar] + ParticleAttribute[1][istar]) * TimeUnits + PopIIIMustRefineRegionLifetime * 3.1557e13;
             float m = ParticleMass[istar]*(DensityUnits*pow(LengthUnits*CellWidth[0][0], 3))/SolarMass;
+
             if (
                     ((((11 < m && m < 40) || (140 < m && m < 260)) || (m < 1e-10)) && (Time * TimeUnits < factor))
-                    // || (type==7 && Time * TimeUnits < factor)
-                    )
+                )
             {
-                // fprintf(stdout, "Flagging cells for particle m=%"FSYM" fact=%"FSYM" Time=%"FSYM"\n", m, factor/3.1557e13, Time*TimeUnits/3.1557e13);
                 // refine a radius a*Pop3 SN radius
                 FLOAT radius = 1.4 * PopIIISupernovaRadius * 3.086e18 / LengthUnits;
                 CellSize = FLOAT(CellWidth[0][0]);
@@ -146,7 +140,6 @@ int grid::FlagCellsToBeRefinedByPopIII(int level)
             NumberOfFlaggedCells += 1;
             }
     }
-    // fprintf(stdout, "[ %d ] P3 flagged %d cells\n", level, NumberOfFlaggedCells);
 
     return NumberOfFlaggedCells;
 }

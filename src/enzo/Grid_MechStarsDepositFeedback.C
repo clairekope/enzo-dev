@@ -55,9 +55,9 @@ int grid::MechStars_DepositFeedback(float ejectaEnergy,
     //printf("STARSS_FB: In Feedback deposition\n");
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
-    bool debug = true;
+    bool internal_debug = true;
     bool criticalDebug = false;
-    bool printout = debug & !winds;
+    bool printout = internal_debug & !winds;
     int index = ip + jp * GridDimension[0] + kp * GridDimension[0] * GridDimension[1];
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     /*
