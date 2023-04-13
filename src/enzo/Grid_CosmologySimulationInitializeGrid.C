@@ -290,11 +290,12 @@ int grid::CosmologySimulationInitializeGrid(
     if (UseMetallicityField) {
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
       if (StarMakerTypeIaSNe)
-	FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
-  FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
+        FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
+      if (StarMakerTypeIISNeMetalField)
+        FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
       if(MultiMetals){
-	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
-	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+        FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
+        FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
       }
       if (MechStarsSeedField)
         FieldType[SNColourNum = NumberOfBaryonFields++] = SNColour;
@@ -519,10 +520,12 @@ int grid::CosmologySimulationInitializeGrid(
 
     if (StarMakerTypeIaSNe)
       for (i = 0; i < size; i++)
-	BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
-	  * BaryonField[0][i];
-  BaryonField[MetalIINum][i] = CosmologySimulationInitialFractionMetalII
-    * BaryonField[0][i];
+        BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
+          * BaryonField[0][i];
+    if (StarMakerTypeIISNeMetalField)
+      for (i = 0; i < size; i++)
+        BaryonField[MetalIINum][i] = CosmologySimulationInitialFractionMetalII
+        * BaryonField[0][i];
     if (MultiMetals) {
       for (i = 0; i < size; i++) {
 	BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
