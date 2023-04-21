@@ -748,7 +748,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = ExtraNames[1];
     }
     if(MechStarsSeedField){
-      fprintf(stdout, "\nSN_colour set to %d\n", i+1);
       DataLabel[i++] = ColourName;
     }
   }
