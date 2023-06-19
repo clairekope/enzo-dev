@@ -56,7 +56,8 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
-
+  
+  /* Get Units. */
 
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
     VelocityUnits = 1, TimeUnits = 1;

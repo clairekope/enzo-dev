@@ -121,7 +121,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
 		MetalNum = SNColourNum;
 
-	float BubbleVolume = (4.0 * pi / 3.0) * radius * radius * radius;
+  const int ncolor = 7;
+  int MetalNumArray[ncolor] = {SNColourNum, Metal2Num, MetalIaNum, MetalIINum, 
+  	MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum};
+
+  float BubbleVolume = (4.0 * pi / 3.0) * radius * radius * radius;
 
 	/***********************************************************************
                                 SUPERNOVAE
@@ -923,8 +927,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
          -- Enforce a minimum temperature for cold gas accretion --
   ************************************************************************/
 
-	float MinimumTemperature = 1e4, AdditionalEnergy, GasEnergy;
-	ionizedFraction = 0.999; // Assume an initial HII region
+  int nc;
+  float MinimumTemperature = 1e4, AdditionalEnergy, GasEnergy, rho_change;
+  ionizedFraction = 0.999;  // Assume an initial HII region
 
 	if (cstar->FeedbackFlag == FORMATION)
 	{
@@ -1004,29 +1009,24 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 						if (MultiSpecies)
 						{
 							BaryonField[DeNum][index] = BaryonField[DensNum][index] * ionizedFraction;
-							BaryonField[HINum][index] = BaryonField[DensNum][index] * (1 - ionizedFraction) * fhz;
+							BaryonField[HINum][index] = BaryonField[DensNum][index] * (1-ionizedFraction) * fhz;
 							BaryonField[HIINum][index] = BaryonField[DensNum][index] * ionizedFraction * fhz;
-							BaryonField[HeINum][index] = BaryonField[DensNum][index] * (1 - ionizedFraction) * fhez;
-							BaryonField[HeIINum][index] = BaryonField[DensNum][index] * (ionizedFraction)*fhez;
+							BaryonField[HeINum][index] = BaryonField[DensNum][index] * (1-ionizedFraction) * fhez;
+							BaryonField[HeIINum][index] = BaryonField[DensNum][index] * (ionizedFraction) * fhez;
 							BaryonField[HeIIINum][index] = 1e-10 * BaryonField[DensNum][index];
 						}
-						if (MultiSpecies > 1)
-						{
+						if (MultiSpecies > 1) {
 							BaryonField[HMNum][index] = tiny_number;
 							BaryonField[H2INum][index] = tiny_number;
 							BaryonField[H2IINum][index] = tiny_number;
 						}
-						if (MultiSpecies > 2)
-						{
+						if (MultiSpecies > 2) {
 							BaryonField[DINum][index] = BaryonField[DensNum][index] * fh *
-														CoolData.DeuteriumToHydrogenRatio * (1 - ionizedFraction);
+					CoolData.DeuteriumToHydrogenRatio * (1-ionizedFraction);
 							BaryonField[DIINum][index] = BaryonField[DensNum][index] * fh *
-														 CoolData.DeuteriumToHydrogenRatio * ionizedFraction;
+					CoolData.DeuteriumToHydrogenRatio * ionizedFraction;
 							BaryonField[HDINum][index] = tiny_number * BaryonField[DensNum][index];
 						}
-
-						/* factor is initialized to zero and never set--should we be setting the metals to zero?  
-								Why is standard metal_density field never touched?*/
 
 						// only do this for P2 star formation; p3 may artificially remove metals from neighboring regions
 						if (cstar->ReturnType() == PopII){
@@ -1041,11 +1041,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 									*CellWidth[0][0]*CellWidth[0][0]*CellWidth[0][0];
 							if (Metal2Num > 0)
 								BaryonField[Metal2Num][index] *= factor;
-
-							CellsModified++;
+						} else { 
+							for (nc = 0; nc < ncolor; nc++) {
+								if (MetalNumArray[nc] > 0) {
+									BaryonField[MetalNumArray[nc]][index] *= rho_change;
+								}
+							}
 						}
-					} // END if inside radius
-
+					CellsModified++;
+					}
 				} // END i-direction
 			}	 // END j-direction
 		}		  // END k-direction
