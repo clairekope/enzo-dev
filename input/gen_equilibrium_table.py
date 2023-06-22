@@ -8,7 +8,7 @@
 # As is, this script makes a table spanning 1e-29 to 1e-23 g/cm^3
 # and 1e4 to 1e6 K using 50 cells on a side. The constant metallicity is 
 # 0.27 Zsun and the HM2012 UV background is used. The table is calculated for
-# redshift 0. The table size and are included in the resulting HDF5 filename.
+# redshift 0. The table size and metallicity are included in the resulting HDF5 filename.
 #
 ###############################################################################
 

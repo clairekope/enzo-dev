@@ -1,5 +1,5 @@
 import yt
-es = yt.simulation('TestStarParticleSingle.enzo', 'Enzo')
+es = yt.load_simulation('TestStarParticleSingle.enzo', 'Enzo')
 es.get_time_series()
 for ds in es:
     yt.ProjectionPlot(ds, 'x', 'density').save()
