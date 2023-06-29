@@ -53,6 +53,11 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
 
+    /* If StarMakerMinimumRefinementLevel was never set (default: -1),
+       set to MaximumRefinementLevel. */
+    if (StarMakeLevel < 0)
+        StarMakeLevel = MaximumRefinementLevel;
+
     /* If limiting timesteps for SNe, return if not the right level */
     if (level < StarMakeLevel) return 0;
     
@@ -86,13 +91,13 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
              != -1)
     {
         MetallicityField = TRUE;
-               float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
-                        TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
-                if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-                        &TimeUnits, &VelocityUnits, &MassUnits, this->Time) == FAIL) {
-                    fprintf(stderr, "Error in GetUnits.\n");
-                    return FAIL;
-                    }
+        float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
+                TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
+        if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+                &TimeUnits, &VelocityUnits, &MassUnits, this->Time) == FAIL) {
+            fprintf(stderr, "Error in GetUnits.\n");
+            return FAIL;
+            }
     }
     else
         MetalNum = 0;
@@ -150,7 +155,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                 */
                 int index = i+ j*GridDimension[0]+k*GridDimension[0]*GridDimension[1];
                 if (BaryonField[NumberOfBaryonFields][index] != 0.0) continue;
-                float shieldedFraction = 0;
+                float shieldedFraction = 1;
                 float freeFallTime = 0;
                 float dynamicalTime = 0;
                 float Time = this->Time;
@@ -173,15 +178,15 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         host cell.  If your simulation has very small (>15 Msun) baryon mass
                         per cell, it will break your sims! - AIW
                     */
-                    float divisor = freeFallTime * TimeUnits / Myr_s;
+                    float fftime = freeFallTime * TimeUnits / Myr_s;
                     float MaximumStarMass = StarMakerMaximumMass;
                     if (MaximumStarMass < 0)
-                        MaximumStarMass = conversion_fraction * BaryonField[DensNum][index] * MassUnits;
+                        MaximumStarMass = conversion_fraction * BaryonField[DensNum][index] * MassUnits; // TODO: DensityUnits?
                     float BulkSFR = 0.0;
                     // if (use_F2)
-                        BulkSFR = shieldedFraction * conversion_fraction * BaryonField[DensNum][index] * MassUnits / divisor;
+                        BulkSFR = shieldedFraction * conversion_fraction * BaryonField[DensNum][index] * MassUnits / fftime;
                     // else
-                    //     BulkSFR = StarMakerMassEfficiency * BaryonField[DensNum][index] * MassUnits / divisor;
+                    //     BulkSFR = StarMakerMassEfficiency * BaryonField[DensNum][index] * MassUnits / fftime;
                     
                     // Probability has the last word
                     // FIRE-2 uses p = 1 - exp (-MassShouldForm*dt / M_gas_particle) to convert a whole particle to star particle
@@ -199,14 +204,14 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
                         CoolingTime[index]*TimeUnits/Myr_s, p_form, random, RAND_MAX);
                     
-                    if (BulkSFR < 0 && !use_F2){
+                    if (BulkSFR < 0){
                         printf("Negative formation mass: %f %f\n",shieldedFraction, freeFallTime); // TODO: promote to error
                         continue;
                     }
 
                     /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
-                    float newMass = min(shieldedFraction * conversion_fraction * BaryonField[DensNum][index], MaximumStarMass / MassUnits); 
-                    if ((newMass*MassUnits < StarMakerMinimumMass) /* too small */
+                    float newMass = min(BulkSFR * fftime, MaximumStarMass); 
+                    if ((newMass < StarMakerMinimumMass) /* too small */
                         || (random > p_form) /* too unlikely */
                         || (newMass > BaryonField[DensNum][index])) /* too big compared to cell 
                                                                     (make sure min/max mass is within reasonable range for gas mass)*/
@@ -217,15 +222,16 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     int n_newStars = 1; // track how many stars to form
                     float mFormed = 0; // track total mass formed thus far
                     float massPerStar = newMass;
-                    if (newMass * MassUnits > 5e3){
+                    if (newMass > 5e3){ // TODO: parameterize
                         // for large particles, split them into several that have slightly different birth times,
                         // with each being created i * dynamical time after the first
-                        n_newStars = floor(newMass * MassUnits / 5e3) * 5;
+                        n_newStars = floor(newMass / 5e3) * 5;
                         massPerStar = newMass / n_newStars;
                         // TODO: add global debug flag
                         fprintf(stdout, "STARSS_CR: High predicted cluster mass; splitting %e Msun into %d %e Msun clusters\n",
-                                newMass * MassUnits, n_newStars, massPerStar * MassUnits);
+                                newMass, n_newStars, massPerStar);
                     }
+                    massPerStar /= MassUnits;
 
                     for (int n = 0; n < n_newStars; n++){
                         

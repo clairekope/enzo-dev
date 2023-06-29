@@ -2095,6 +2095,7 @@ General Star Formation
       13 - Distributed stellar feedback model (So et al. 2014)
       14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback 
              / Simpson et al. (2015)
+      15 - Mechanical feedback
 
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
@@ -2131,7 +2132,7 @@ General Star Formation
 ``StarMakerVelDivCrit`` (external)
     Check that the gas flow is converging; 
     i.e., that the velocity divergence is negative.
-    Only implemented for ``StarParticleCreation`` method = 0.
+    Only implemented for ``StarParticleCreation`` method = 0 and 15.
     Default: 1.
 
 ``StarMakerSelfBoundCrit`` (external)
@@ -2151,6 +2152,17 @@ General Star Formation
     Based on Hopkins et al. 2013. This option is only implemented for 
     ``StarParticleCreation`` method = 0 and is different from method 11.
     Default: 0   
+
+``StarMakerMinimumRefinementLevel`` (external)
+    Form stars on any level finer than this arbitrary refinement level. 
+    Disabled if -1. Only used by ``StarParticleCreation`` method = 15.
+    Defualt: -1
+
+``StarMakerMaximumMass`` (external)
+    Maximum allowed particle mass (in Msun).
+    Disabled if negative.
+    Only used by ``StarParticleCreation`` method = 15.
+    Default: 1e5
 
 ``StarMakerTypeIaSNe`` (external)
     This parameter turns on thermal and chemical feedback from Type Ia
@@ -2188,15 +2200,23 @@ The parameters below are considered in ``StarParticleCreation`` method
 0, 1, 2, 7, 8, 13 and 14.
 
 ``StarMakerOverDensityThreshold`` (external)
-    The overdensity threshold in code units (for cosmological simulations, note that code units are relative to the total mean density, not
+    The overdensity threshold in code units 
+    (for cosmological simulations, note that code units are relative to the total mean density, not
     just the dark matter mean density) before star formation will be
-    considered. For ``StarParticleCreation`` method = 7 in cosmological
-    simulations, however, ``StarMakerOverDensityThreshold`` should be in
+    considered. 
+  
+    For ``StarParticleCreation`` method = 7 in cosmological
+    simulations, ``StarMakerOverDensityThreshold`` should be in
     particles/cc, so it is not the ratio with respect to the
     ``DensityUnits`` (unlike most other
     star_makers). This way one correctly represents the Jeans
     collapse and molecular cloud scale physics even in cosmological
-    simulations. Default: 100
+    simulations. 
+
+    For ``StarParticleCreation`` method = 15, this value is used
+    to check both the physical density *and* the number density.
+
+    Default: 100
 ``StarMakerSHDensityThreshold`` (external)
     The critical density of gas used in Springel & Hernquist star
     formation ( \\rho_{th} in the paper) used to determine the star
@@ -2223,16 +2243,16 @@ The parameters below are considered in ``StarParticleCreation`` method
     When used, the factor of dt / t_dyn is removed from the calculation of 
     the star particle mass above.  Instead of the local dynamical time, the 
     timescale over which feedback occurs is a constant set by the parameter 
-    ``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
+``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
     conduction as the timesteps can be very short, which causes the calculated 
     star particle mass to never exceed reasonable values for 
-    ``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
+``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
     actually forming stars, and when combined with conduction, results in too 
     much heat being transferred out of hot gas.  When running a cosmological 
     simulation with conduction and star formation, one must use this otherwise 
     bad things will happen.  (1 - ON; 0 - OFF)  Default: 0.
 ``StarMakerTemperatureThreshold``
-    Vary the temperature threshold in Kelvin for star formation (method 2). 
+    Vary the temperature threshold in Kelvin for star formation (methods 2 & 15). 
     Below this temperature, the comparison between the cooling and dynamical
     times is ignored when testing for star formation.
     Default: 1.1e4
@@ -2331,6 +2351,7 @@ Molecular Hydrogen Regulated Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The parameters below are considered in ``StarParticleCreation`` method 11.
+This creation method requires ``MultiSpecies`` > 0
 
 ``H2StarMakerEfficiency`` (external)
     See :ref:`molecular_hydrogen_regulated_star_formation`.
@@ -2810,7 +2831,7 @@ Radiative Transfer (Ray Tracing) Parameters
     summed into the global variable ``EscapedPhotonCount[]``. This variable
     also keeps track of the number of photons passing this radius
     multiplied by 0.5, 1, and 2. Units are in kpc. Not used if set to
-    0. Default: 0.
+    1. Default: 0.
 ``RadiativeTransferSourceClustering`` (external)
     Set to 1 to turn on ray merging from combined virtual sources on a
     binary tree. Default: 0.

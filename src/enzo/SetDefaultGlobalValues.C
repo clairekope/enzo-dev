@@ -666,7 +666,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MechStarsUseSingleSN                         = 1;
   StarMakerMaximumFormationMass    = 1e4;
   StarMakerMaximumMass             = 1e5;
-  StarMakeLevel                    = MaximumRefinementLevel;
+  StarMakeLevel                    = -1;
   NEvents                          = 0;
   MechStarsAnalyticSNRShellMass             = 0;
   MechStarsUnrestrictedSN                     = 0; // false by default
@@ -676,7 +676,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MechStarsRadiationSpectrum        = 0; // no field by default!
   MechStarsUseAnalyticShieldedFraction  = 1; // use analytic shielded fraction to determine star formation.
   MechStarsUseMeasuredShieldedFraction = 0;
-  MechStarsUseVirialParameter       = 1;
   MechStarsFadeSNR                  = 1; // Fade the SNR if radius doesnt resolve r_merge (Cioffi)
   PhotonTestMechStarDeposited       = 0;
   PythonTopGridSkip                = 0;

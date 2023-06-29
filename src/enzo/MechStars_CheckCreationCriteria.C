@@ -76,19 +76,21 @@ int CheckCreationCriteria(float* Density, float* Metals,
     }
     else if (StarMakerOverDensityThreshold < 0) 
     { // checking number density
+      // TODO don't fix mu
         float nb = Density[index]*DensityUnits/mh/0.81;
         if (nb < -1*StarMakerOverDensityThreshold)
             status = FAIL;
             
     }
 
-    /* in addition to the converging flow check, we check
-        the virial parameter of the gas to see if it is 
-        locally gravitationally bound*/
     // check that metals exist in enough quantity
     if (Metals[index]/Density[index] < MechStarsCriticalMetallicity) // metallicity in absolute
         status = FAIL;
-    
+
+    /* in addition to the converging flow check, we check
+        the virial parameter of the gas to see if it is 
+        locally gravitationally bound*/
+
     float div = 0.0; //divergence
     float alpha = 0.0; //virial parameter
     float vfactor= 0.0; //norm of velocity gradient tensor
@@ -96,50 +98,59 @@ int CheckCreationCriteria(float* Density, float* Metals,
 
     float dxvx, dxvy, dxvz, dyvx, dyvy, dyvz, dzvx, dzvy, dzvz;
     
-    dxvx = (Vel1[iplus] - Vel1[iminus])/2.0;
-    dxvy = (Vel2[iplus] - Vel2[iminus])/2.0;
-    dxvz = (Vel3[iplus] - Vel3[iminus])/2.0;
-    
-    dyvx = (Vel1[jplus] - Vel1[jminus])/2.0;
-    dyvy = (Vel2[jplus] - Vel2[jminus])/2.0;
-    dyvz = (Vel3[jplus] - Vel3[jminus])/2.0;
-    
-    dzvx = (Vel1[kplus] - Vel1[kminus])/2.0;
-    dzvy = (Vel2[kplus] - Vel2[kminus])/2.0;
-    dzvz = (Vel3[kplus] - Vel3[kminus])/2.0;
+    if (StarMakerVelDivCrit) {
 
-    /* Chck for converging flow */
-    div = dxvx+dyvy+dzvz;
-    if (div > 0.0) status = FAIL;
+        dxvx = (Vel1[iplus] - Vel1[iminus])/2.0;
+        dxvy = (Vel2[iplus] - Vel2[iminus])/2.0;
+        dxvz = (Vel3[iplus] - Vel3[iminus])/2.0;
+        
+        dyvx = (Vel1[jplus] - Vel1[jminus])/2.0;
+        dyvy = (Vel2[jplus] - Vel2[jminus])/2.0;
+        dyvz = (Vel3[jplus] - Vel3[jminus])/2.0;
+        
+        dzvx = (Vel1[kplus] - Vel1[kminus])/2.0;
+        dzvy = (Vel2[kplus] - Vel2[kminus])/2.0;
+        dzvz = (Vel3[kplus] - Vel3[kminus])/2.0;
 
-    /* check for virial parameter */
-    vfactor = (dxvx*dxvx+dxvy*dxvy+dxvz*dxvz 
-                    +dyvx*dyvx+dyvy*dyvy+dyvz*dyvz
-                    +dzvx*dzvx+dzvy*dzvy+dzvz*dzvz) / CellWidth / CellWidth;
+        /* Chck for converging flow */
+        div = dxvx+dyvy+dzvz;
+        if (div > 0.0) status = FAIL;
+
+    }
+
+    float totalDensity = (Density[index]+DMField[index])*DensityUnits;
+
+    if (StarMakerSelfBoundCrit){
+
+        /* check for virial parameter */
+        vfactor = (dxvx*dxvx+dxvy*dxvy+dxvz*dxvz 
+                        +dyvx*dyvx+dyvy*dyvy+dyvz*dyvz
+                        +dzvx*dzvx+dzvy*dzvy+dzvz*dzvz) / CellWidth / CellWidth;
+        
+        /* approximate taking gas as monatomic and mu = 0.6*/
+        /* Gravitational constant [cm3g-1s-2]*/
+        float Gcode = GravConst*DensityUnits*pow(TimeUnits,2);
+        float KBcode = kboltz*MassUnits/(LengthUnits*CellWidth)/pow(TimeUnits,2);
+        cSound = sqrt(5/3*kboltz*Temperature[index]/mh/0.6)/VelocityUnits;
+        alpha = ((vfactor) + pow(cSound/(CellWidth), 2.0))
+                / (8.0 * M_PI* Gcode * Density[index]);
+
+        // alternative formula for virial parameter
+        float TE = TotE[index] * Density[index] * EnergyUnits; // total energy of cell
+        float PE =  GravConst * pow(totalDensity,2) * pow(CellWidth*LengthUnits, 5); // Approx grav PE of cell, taking r = dx
+        float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
+
     
-    /* approximate taking gas as monatomic and mu = 0.6*/
-    /* Gravitational constant [cm3g-1s-2]*/
-    float Gcode = GravConst*DensityUnits*pow(TimeUnits,2);
-    float KBcode = kboltz*MassUnits/(LengthUnits*CellWidth)/pow(TimeUnits,2);
-    cSound = sqrt(5/3*kboltz*Temperature[index]/mh/0.6)/VelocityUnits;
-    alpha = ((vfactor) + pow(cSound/(CellWidth), 2.0))
-            / (8.0 * M_PI* Gcode * Density[index]);
-    float totalDensity = (Density[index]
-			  +DMField[index])*DensityUnits;
-    float TE = TotE[index] * Density[index] * EnergyUnits; // total energy of cell
-    float PE =  GravConst * pow(totalDensity,2) * pow(CellWidth*LengthUnits, 5); // Approx grav PE of cell, taking r = dx
-    float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
-
-    if (MechStarsUseVirialParameter){
         if (alpha < 20 && internal_debug) 
             fprintf(stdout, "STARSS_CHCR: Compare alphas: F3 = %f; Energy method = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
                             alpha, AltAlpha, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
+
         if (AltAlpha > 1.0) status = FAIL;
     }
 
     /* Is cooling time < dynamical time or temperature < 1e4 */
     *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5); //seconds
-    if (Temperature[index] > 1.1e4)
+    if (Temperature[index] > StarMakerTemperatureThreshold)
     {
       if (MultiSpecies > 0) 
 	        return FAIL; //no hot gas forming stars!

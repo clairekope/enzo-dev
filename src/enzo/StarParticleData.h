@@ -180,5 +180,4 @@ SPEXTERN float MechStarsMetallicityFloor;
 SPEXTERN int MechStarsUseAnalyticShieldedFraction;
 SPEXTERN int MechStarsFadeSNR;
 SPEXTERN int MechStarsUseMeasuredShieldedFraction;
-SPEXTERN int MechStarsUseVirialParameter;
 #endif
