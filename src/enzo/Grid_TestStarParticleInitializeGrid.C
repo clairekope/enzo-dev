@@ -149,50 +149,27 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     char *dII_density = "DII_Density";
     char *hdI_density = "HDI_Density";
 
-    float *dfield = new float [size];
-    float *gefield = new float  [size];
-    float *v1field = new float  [size];
-    float *v2field = new float  [size];
-    float *v3field = new float  [size];
-
-    if (MetalCooling) {
-      float *zfield = new float  [size];
-    }
-
-    if (MultiSpecies) {
-      float *hifield = new float  [size];
-      float *hiifield = new float  [size];
-      float *heifield = new float  [size];
-      float *heiifield = new float  [size];
-      float *heiiifield = new float  [size];
-      float *efield = new float  [size];
-
-      if (MultiSpecies > 1) {
-        float *hmfield = new float  [size];
-        float *h2ifield = new float  [size];
-        float *h2iifield = new float  [size];
-        
-      }
-      if (MultiSpecies > 2){
-        float *difield = new float  [size];
-        float *diifield = new float  [size];
-        float *hdifield = new float  [size];
-      }
-    }
-
-    /////////////////////////////////////////////////////////////////
-    printf("TestStarParticleInitialize\n");
-    printf("Active size = %d, OutDim = %d, gz = %d, Grid dim = %ld\n", ActiveDims[0], OutDims[0], gz, 
-                  (GridDimension[0]));
-    fflush(stdout);
-    ////////////////////////////////////////////////////////////////
-
+    /* Prepare HDF5 file */
     filename = strtok(TestStarInitializationFilename, delim);
     file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       OutDims[GridRank-dim-1] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
 
+    if (debug) {
+      printf("TestStarParticleInitialize 1st dim:\n");
+      printf("\tActive size = %d, OutDim = %d, Ghost zones = %d, Grid dim = %ld\n", ActiveDims[0], OutDims[0], gz, 
+                    (GridDimension[0]));
+      fflush(stdout);
+    }
+
     if (file_id == -1) ENZO_FAIL("Error opening field file.");
+
+    /* Load base fields */
+    float *dfield = new float [size];
+    float *gefield = new float  [size];
+    float *v1field = new float  [size];
+    float *v2field = new float  [size];
+    float *v3field = new float  [size];
     
     this->read_dataset(GridRank, OutDims, density, file_id,
            HDF5_REAL, dfield, FALSE, NULL, NULL);
@@ -209,7 +186,43 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     this->read_dataset(GridRank, OutDims, velocity3, file_id,
                       HDF5_REAL, v3field, FALSE, NULL, NULL);
 
+    for (n=0; n < size; n++){
+      BaryonField[DensNum][n] = dfield[n];
+      BaryonField[GENum][n] = gefield[n];
+      BaryonField[TENum][n] = BaryonField[GENum][n]; //0.5 * density_field[cindex] 
+      BaryonField[Vel1Num][n] = v1field[n];
+      BaryonField[Vel2Num][n] = v2field[n];
+      BaryonField[Vel3Num][n] = v3field[n];
+    }
+
+    delete [] dfield;
+    delete [] gefield;
+    delete [] v1field;
+    delete [] v2field;
+    delete [] v3field;
+
+    /* Load Metals */
+    if (MetalCooling) {
+      float *zfield = new float  [size];
+
+      this->read_dataset(GridRank, OutDims, metal_density, file_id,
+                  HDF5_REAL, zfield, FALSE, NULL, NULL);
+
+      for (n=0; n < size; n++)
+        BaryonField[MetalNum][n] = zfield[n];
+
+      delete [] zfield;
+    }
+
+    /* Load Chemistry species */
     if (MultiSpecies) {
+      float *hifield = new float  [size];
+      float *hiifield = new float  [size];
+      float *heifield = new float  [size];
+      float *heiifield = new float  [size];
+      float *heiiifield = new float  [size];
+      float *efield = new float  [size];
+
       this->read_dataset(GridRank, OutDims, hI_density, file_id,
                         HDF5_REAL, hifield, FALSE, NULL, NULL);
 
@@ -228,51 +241,6 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
       this->read_dataset(GridRank, OutDims, edensity, file_id,
                         HDF5_REAL, efield, FALSE, NULL, NULL);
 
-      if (MultiSpecies > 1){
-        this->read_dataset(GridRank, OutDims, h2I_density, file_id,
-                          HDF5_REAL, h2ifield, FALSE, NULL, NULL);
-
-        this->read_dataset(GridRank, OutDims, h2II_density, file_id,
-                          HDF5_REAL, h2iifield, FALSE, NULL, NULL);
-
-        this->read_dataset(GridRank, OutDims, hm_density, file_id,
-                          HDF5_REAL, hmfield, FALSE, NULL, NULL);
-      }
-      
-      if (MultiSpecies > 2){
-        this->read_dataset(GridRank, OutDims, dI_density, file_id,
-                          HDF5_REAL, difield, FALSE, NULL, NULL);
-
-        this->read_dataset(GridRank, OutDims, dII_density, file_id,
-                          HDF5_REAL, diifield, FALSE, NULL, NULL);
-
-        this->read_dataset(GridRank, OutDims, hdI_density, file_id,
-                          HDF5_REAL, hdifield, FALSE, NULL, NULL);
-      }
-    }
-
-    if (MetalCooling)
-      this->read_dataset(GridRank, OutDims, metal_density, file_id,
-                        HDF5_REAL, zfield, FALSE, NULL, NULL);
-
-    h5error = H5Fclose(file_id);
-    if (h5error == -1) ENZO_FAIL("Error closing initial conditions file.");
-
-    for (n=0; n < size; n++){
-      BaryonField[DensNum][n] = dfield[n];
-      BaryonField[GENum][n] = gefield[n];
-      BaryonField[TENum][n] = BaryonField[GENum][n]; //0.5 * density_field[cindex] 
-      BaryonField[Vel1Num][n] = v1field[n];
-      BaryonField[Vel2Num][n] = v2field[n];
-      BaryonField[Vel3Num][n] = v3field[n];
-    }
-
-    if (MetalCooling) {
-      for (n=0; n < size; n++)
-        BaryonField[MetalNum][n] = zfield[n];
-    }
-
-    if (MultiSpecies) {
       for (n=0; n < size; n++){
         BaryonField[HINum][n] = hifield[n];
         BaryonField[HIINum][n] = hiifield[n];
@@ -281,48 +249,70 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
         BaryonField[HeIIINum][n] = heiiifield[n];
         BaryonField[DeNum][n] = efield[n];
       }
-      if (MultiSpecies > 1){
-        for (n=0; n < size; n++){
-          BaryonField[H2INum][n] = h2ifield[n];
-          BaryonField[H2IINum][n] = h2iifield[n];
-          BaryonField[HMNum][n] = hmfield[n];
-        }
-      }
-      if (MultiSpecies > 2){
-        for (n=0; n < size; n++){
-          BaryonField[DINum][n] = difield[n];
-          BaryonField[DIINum][n] = diifield[n];
-          BaryonField[HDINum][n] = hdifield[n];
-        }
-      }
-    }
-    delete [] dfield;
-    delete [] gefield;
-    delete [] v1field;
-    delete [] v2field;
-    delete [] v3field;
 
-    if (MetalCooling)
-      delete [] zfield;
-
-    if (MultiSpecies){
       delete [] hifield;
       delete [] hiifield;
       delete [] heifield;
       delete [] heiifield;
       delete [] heiiifield;
       delete [] efield;
+
       if (MultiSpecies > 1) {
+        float *hmfield = new float  [size];
+        float *h2ifield = new float  [size];
+        float *h2iifield = new float  [size];
+
+        this->read_dataset(GridRank, OutDims, h2I_density, file_id,
+                          HDF5_REAL, h2ifield, FALSE, NULL, NULL);
+
+        this->read_dataset(GridRank, OutDims, h2II_density, file_id,
+                          HDF5_REAL, h2iifield, FALSE, NULL, NULL);
+
+        this->read_dataset(GridRank, OutDims, hm_density, file_id,
+                          HDF5_REAL, hmfield, FALSE, NULL, NULL);  
+
+        for (n=0; n < size; n++){
+          BaryonField[H2INum][n] = h2ifield[n];
+          BaryonField[H2IINum][n] = h2iifield[n];
+          BaryonField[HMNum][n] = hmfield[n];
+        }
+
         delete [] hmfield;
         delete [] h2ifield;
         delete [] h2iifield;
+
       }
-      if (MultiSpecies > 2) {
+
+      if (MultiSpecies > 2){
+        float *difield = new float  [size];
+        float *diifield = new float  [size];
+        float *hdifield = new float  [size];
+
+        this->read_dataset(GridRank, OutDims, dI_density, file_id,
+                          HDF5_REAL, difield, FALSE, NULL, NULL);
+
+        this->read_dataset(GridRank, OutDims, dII_density, file_id,
+                          HDF5_REAL, diifield, FALSE, NULL, NULL);
+
+        this->read_dataset(GridRank, OutDims, hdI_density, file_id,
+                          HDF5_REAL, hdifield, FALSE, NULL, NULL);
+
+        for (n=0; n < size; n++){
+          BaryonField[DINum][n] = difield[n];
+          BaryonField[DIINum][n] = diifield[n];
+          BaryonField[HDINum][n] = hdifield[n];
+        }
+
         delete [] difield;
         delete [] diifield;
         delete [] hdifield;
+
       }
     }
+
+    h5error = H5Fclose(file_id);
+    if (h5error == -1) ENZO_FAIL("Error closing initial conditions file.");
+
   }
   printf("Central Mass: %f \n",CentralMass);
 
