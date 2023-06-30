@@ -2126,7 +2126,7 @@ General Star Formation
     star formation. When spatial resolution gets high enough to
     resolve the Jeans length, the Jeans Mass check restricts star
     formation that should occur. Only implemented for
-    ``StarParticleCreation`` method = 0.
+    ``StarParticleCreation`` method = 0 and 15.
     Default: 1.
 
 ``StarMakerVelDivCrit`` (external)

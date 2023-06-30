@@ -149,26 +149,32 @@ int CheckCreationCriteria(float* Density, float* Metals,
     }
 
     /* Is cooling time < dynamical time or temperature < 1e4 */
-    *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5); //seconds
-    if (Temperature[index] > StarMakerTemperatureThreshold)
-    {
-      if (MultiSpecies > 0) 
-	        return FAIL; //no hot gas forming stars!
-      else if (*dynamicalTime/TimeUnits < CoolingTime[index]) 
-	        return FAIL;   
+    if (StarMakerThermalCrit) {
+        *dynamicalTime = pow(3.0*pi/32.0/GravConst/totalDensity, 0.5); //seconds
+        if (Temperature[index] > StarMakerTemperatureThreshold)
+        {
+        if (MultiSpecies > 0) 
+                return FAIL; //no hot gas forming stars!
+        else if (*dynamicalTime/TimeUnits < CoolingTime[index]) 
+                return FAIL;   
+        }
     }
 
     /* is gas mass > critical jeans mass? */
-    float baryonMass = Density[index]*DensityUnits
-            *LengthUnits*LengthUnits*LengthUnits
-            *CellWidth*CellWidth*CellWidth
-            /SolarMass;
-    float IsoSndSpeed = 1.3095e8 * Temperature[index];
-    float jeansMass = pi/(6.0*pow(Density[index]*DensityUnits, 0.5))
-            *pow(pi*IsoSndSpeed/GravConst, 1.5)/SolarMass;
-    float altJeans = 2 * pow(cSound*VelocityUnits/1e5/0.2, 3) * pow((Density[index]*DensityUnits/(mh/0.6)/1e3), -0.5);
-    if (jeansMass > max(baryonMass, 1e3)) status = FAIL;
-    
+    if (StarMakerUseJeansMass) {
+        float baryonMass = Density[index]*DensityUnits
+                *LengthUnits*LengthUnits*LengthUnits
+                *CellWidth*CellWidth*CellWidth
+                /SolarMass;
+        float IsoSndSpeed = 1.3095e8 * Temperature[index];
+        float jeansMass = pi/(6.0*pow(Density[index]*DensityUnits, 0.5))
+                *pow(pi*IsoSndSpeed/GravConst, 1.5)/SolarMass;
+        
+        float altJeans = 2 * pow(cSound*VelocityUnits/1e5/0.2, 3) * pow((Density[index]*DensityUnits/(mh/0.6)/1e3), -0.5);
+        
+        if (jeansMass > max(baryonMass, 1e3)) status = FAIL;
+    }
+
     /* Is self Shielded fraction > 0.0 by Krumholz & Gnedin */
     float gradRho = (Density[index+1]-Density[index-1])
                     *(Density[index+1]-Density[index-1]);
@@ -197,7 +203,7 @@ int CheckCreationCriteria(float* Density, float* Metals,
 
     if (MechStarsUseMeasuredShieldedFraction)
     {
-        if (MultiSpecies < 2){
+        if (MultiSpecies < 2){ // TODO promote to error
             fprintf(stdout, "MechStarsUseMeasuredShieldedFraction = 1 can only function with MultiSpecies > 1\n");
             ENZO_VFAIL("MechStars_CheckCreationCriteria\n");
         }

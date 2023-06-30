@@ -6,19 +6,17 @@
 ProblemType            = 90        // TestStarParaticle
 TopGridRank            = 3
 TopGridDimensions      = 50 50 50
+OutputTemperature = 1
+OutputCoolingTime = 1
+Initialdt = 0.0010017410642
 
 StarParticleCreation   = 32768
 NumberOfTestStars      = 0.0
 
-#TestStarParticleDensity = 1.0
-#TestStarParticleEnergy  = 6.55410093179e-06
-#TestProblemInitialMetallicityFraction  =  2e-3
 TestStarInitializationFilename = SF_ICs_sine_bump.h5
 TestStarParticleStarMass = 100.0
-
-OutputTemperature = 1
-OutputCoolingTime = 1
-Initialdt = 0.0010017410642
+StarMakerUseJeansMass = 0
+MechStarsUseAnalyticShieldedFraction = 0 
 
 #
 #  Units
@@ -55,10 +53,16 @@ CellFlaggingMethod        = 0
 #
 # Cooling
 #
-RadiativeCooling  =  0
 MultiSpecies  =  1 // Required for now (parameterize H2 criterion)
+use_grackle                     = 1
+with_radiative_cooling          = 1
+MetalCooling                    = 1
+grackle_data_file               = /home/claire/research/grackle/input/CloudyData_UVB=HM2012.h5
+CMBTemperatureFloor             = 1
+UVbackground                    = 1
+RadiativeCooling                = 1
+H2FormationOnDust               = 1
 
-#MetalCooling  =  3
 #CloudyCoolingGridFile  =  solar_2008_3D_metals.h5
 #CMBTemperatureFloor = 0
 #TestProblemMultiSpecies = 1

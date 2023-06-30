@@ -101,8 +101,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     }
     else
         MetalNum = 0;
-    if (!MetalNum){
-        fprintf(stderr, "Can only use mechanical star maker routines with metallicity enabled!");
+    if (!MetalNum){ // TODO promote to Error
+        fprintf(stderr, "Grid_MechStarsCreation: Can only use mechanical star maker routines with metallicity enabled!");
         return FAIL;
     }
     MetalIaNum = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
