@@ -40,7 +40,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 
   float CentralMass = 1.0;
 
-  int i, dim, j, k, size, active_size, index, cindex, n;
+  int dim, i, j, k, active_size, index, cindex;
   float TestInitialdt = *Initialdt;
   int DensNum, TENum, GENum, DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, Vel1Num, Vel2Num, Vel3Num; 
@@ -78,10 +78,6 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
       ActiveDims[dim] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
       active_size *= ActiveDims[dim];
     }
-
-    int size = 1;
-    for (dim = 0; dim < GridRank; dim++)
-      size *= GridDimension[dim];    
 
     /* create fields */
     NumberOfBaryonFields = 0;
@@ -165,11 +161,11 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     if (file_id == -1) ENZO_FAIL("Error opening field file.");
 
     /* Load base fields */
-    float *dfield = new float [size];
-    float *gefield = new float  [size];
-    float *v1field = new float  [size];
-    float *v2field = new float  [size];
-    float *v3field = new float  [size];
+    float *dfield = new float [active_size];
+    float *gefield = new float  [active_size];
+    float *v1field = new float  [active_size];
+    float *v2field = new float  [active_size];
+    float *v3field = new float  [active_size];
     
     this->read_dataset(GridRank, OutDims, density, file_id,
            HDF5_REAL, dfield, FALSE, NULL, NULL);
@@ -186,13 +182,22 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     this->read_dataset(GridRank, OutDims, velocity3, file_id,
                       HDF5_REAL, v3field, FALSE, NULL, NULL);
 
-    for (n=0; n < size; n++){
-      BaryonField[DensNum][n] = dfield[n];
-      BaryonField[GENum][n] = gefield[n];
-      BaryonField[TENum][n] = BaryonField[GENum][n]; //0.5 * density_field[cindex] 
-      BaryonField[Vel1Num][n] = v1field[n];
-      BaryonField[Vel2Num][n] = v2field[n];
-      BaryonField[Vel3Num][n] = v3field[n];
+    index = 0;
+    cindex = 0;
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+        index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
+        for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+          cindex = (i-GridStartIndex[0]) + ActiveDims[0] *
+	          ((j-GridStartIndex[1]) + (k-GridStartIndex[2])*ActiveDims[1]);
+          BaryonField[DensNum][index] = dfield[cindex];
+          BaryonField[GENum][index] = gefield[cindex];
+          BaryonField[TENum][index] = BaryonField[GENum][cindex]; //0.5 * density_field[cindex] 
+          BaryonField[Vel1Num][index] = v1field[cindex];
+          BaryonField[Vel2Num][index] = v2field[cindex];
+          BaryonField[Vel3Num][index] = v3field[cindex];
+        }
+      }
     }
 
     delete [] dfield;
@@ -203,25 +208,35 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 
     /* Load Metals */
     if (MetalCooling) {
-      float *zfield = new float  [size];
+      float *zfield = new float  [active_size];
 
       this->read_dataset(GridRank, OutDims, metal_density, file_id,
                   HDF5_REAL, zfield, FALSE, NULL, NULL);
 
-      for (n=0; n < size; n++)
-        BaryonField[MetalNum][n] = zfield[n];
+      index = 0;
+      cindex = 0;
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+        for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+          index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+            cindex = (i-GridStartIndex[0]) + ActiveDims[0] *
+              ((j-GridStartIndex[1]) + (k-GridStartIndex[2])*ActiveDims[1]);
+            BaryonField[MetalNum][index] = zfield[cindex];
+          }
+        }
+      }
 
       delete [] zfield;
     }
 
     /* Load Chemistry species */
     if (MultiSpecies) {
-      float *hifield = new float  [size];
-      float *hiifield = new float  [size];
-      float *heifield = new float  [size];
-      float *heiifield = new float  [size];
-      float *heiiifield = new float  [size];
-      float *efield = new float  [size];
+      float *hifield = new float  [active_size];
+      float *hiifield = new float  [active_size];
+      float *heifield = new float  [active_size];
+      float *heiifield = new float  [active_size];
+      float *heiiifield = new float  [active_size];
+      float *efield = new float  [active_size];
 
       this->read_dataset(GridRank, OutDims, hI_density, file_id,
                         HDF5_REAL, hifield, FALSE, NULL, NULL);
@@ -241,13 +256,22 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
       this->read_dataset(GridRank, OutDims, edensity, file_id,
                         HDF5_REAL, efield, FALSE, NULL, NULL);
 
-      for (n=0; n < size; n++){
-        BaryonField[HINum][n] = hifield[n];
-        BaryonField[HIINum][n] = hiifield[n];
-        BaryonField[HeINum][n] = heifield[n];
-        BaryonField[HeIINum][n] = heiifield[n];
-        BaryonField[HeIIINum][n] = heiiifield[n];
-        BaryonField[DeNum][n] = efield[n];
+      index = 0;
+      cindex = 0;
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+        for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+          index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+            cindex = (i-GridStartIndex[0]) + ActiveDims[0] *
+              ((j-GridStartIndex[1]) + (k-GridStartIndex[2])*ActiveDims[1]);
+            BaryonField[HINum][index] = hifield[cindex];
+            BaryonField[HIINum][index] = hiifield[cindex];
+            BaryonField[HeINum][index] = heifield[cindex];
+            BaryonField[HeIINum][index] = heiifield[cindex];
+            BaryonField[HeIIINum][index] = heiiifield[cindex];
+            BaryonField[DeNum][index] = efield[cindex];
+          }
+        }
       }
 
       delete [] hifield;
@@ -258,9 +282,9 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
       delete [] efield;
 
       if (MultiSpecies > 1) {
-        float *hmfield = new float  [size];
-        float *h2ifield = new float  [size];
-        float *h2iifield = new float  [size];
+        float *hmfield = new float  [active_size];
+        float *h2ifield = new float  [active_size];
+        float *h2iifield = new float  [active_size];
 
         this->read_dataset(GridRank, OutDims, h2I_density, file_id,
                           HDF5_REAL, h2ifield, FALSE, NULL, NULL);
@@ -271,10 +295,19 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
         this->read_dataset(GridRank, OutDims, hm_density, file_id,
                           HDF5_REAL, hmfield, FALSE, NULL, NULL);  
 
-        for (n=0; n < size; n++){
-          BaryonField[H2INum][n] = h2ifield[n];
-          BaryonField[H2IINum][n] = h2iifield[n];
-          BaryonField[HMNum][n] = hmfield[n];
+        index = 0;
+        cindex = 0;
+        for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+          for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+            index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
+            for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+              cindex = (i-GridStartIndex[0]) + ActiveDims[0] *
+                ((j-GridStartIndex[1]) + (k-GridStartIndex[2])*ActiveDims[1]);
+              BaryonField[H2INum][index] = h2ifield[cindex];
+              BaryonField[H2IINum][index] = h2iifield[cindex];
+              BaryonField[HMNum][index] = hmfield[cindex];
+            }
+          }
         }
 
         delete [] hmfield;
@@ -284,9 +317,9 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
       }
 
       if (MultiSpecies > 2){
-        float *difield = new float  [size];
-        float *diifield = new float  [size];
-        float *hdifield = new float  [size];
+        float *difield = new float  [active_size];
+        float *diifield = new float  [active_size];
+        float *hdifield = new float  [active_size];
 
         this->read_dataset(GridRank, OutDims, dI_density, file_id,
                           HDF5_REAL, difield, FALSE, NULL, NULL);
@@ -297,10 +330,19 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
         this->read_dataset(GridRank, OutDims, hdI_density, file_id,
                           HDF5_REAL, hdifield, FALSE, NULL, NULL);
 
-        for (n=0; n < size; n++){
-          BaryonField[DINum][n] = difield[n];
-          BaryonField[DIINum][n] = diifield[n];
-          BaryonField[HDINum][n] = hdifield[n];
+        index = 0;
+        cindex = 0;
+        for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+          for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+            index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
+            for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+              cindex = (i-GridStartIndex[0]) + ActiveDims[0] *
+                ((j-GridStartIndex[1]) + (k-GridStartIndex[2])*ActiveDims[1]);
+              BaryonField[DINum][index] = difield[cindex];
+              BaryonField[DIINum][index] = diifield[cindex];
+              BaryonField[HDINum][index] = hdifield[cindex];
+            }
+          }
         }
 
         delete [] difield;
