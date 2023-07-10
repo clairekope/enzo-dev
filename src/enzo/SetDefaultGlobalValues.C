@@ -664,8 +664,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 /* mechanical feedback parameters */
   MechStarsUseStellarWinds                     = 1;
   MechStarsUseSingleSN                         = 1;
-  StarMakerMaximumFormationMass    = 1e4;
-  StarMakerMaximumMass             = 1e5;
+  StarMakerMaximumFormationMass    = -1;
+  StarMakerMaximumMass             = -1;
+  StarMakerSplitMass               = 1.0e3;
+  StarMakerMaximumVelocity         = 150.0;
   StarMakeLevel                    = -1;
   NEvents                          = 0;
   MechStarsAnalyticSNRShellMass             = 0;

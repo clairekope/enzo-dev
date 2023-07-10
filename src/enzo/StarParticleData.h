@@ -168,6 +168,8 @@ SPEXTERN int MechStarsUseStellarWinds;
 SPEXTERN int MechStarsUseSingleSN;
 SPEXTERN float StarMakerMaximumFormationMass;
 SPEXTERN float StarMakerMaximumMass;
+SPEXTERN float StarMakerSplitMass;
+SPEXTERN float StarMakerMaximumVelocity;
 SPEXTERN int DepositUnresolvedEnergyAsThermal;
 SPEXTERN int StarMakeLevel;
 SPEXTERN int NEvents;

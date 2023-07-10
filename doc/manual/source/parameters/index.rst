@@ -2158,11 +2158,34 @@ General Star Formation
     Disabled if -1. Only used by ``StarParticleCreation`` method = 15.
     Defualt: -1
 
+``StarMakerMaximumFormationMass`` (external)
+    Only used by ``StarParticleCreation`` method = 15,
+    as this method allows large particles to be split into
+    an arbitrary number of child particles with mass ``StarMakerMaximumMass``.
+    This parameter sets the total amount of gas that can be removed from a cell
+    and turned into one or more star particles. If -1, this limit is
+    ``StarMakerMassEfficiency * cell_mass``.
+    Default: -1
+
 ``StarMakerMaximumMass`` (external)
-    Maximum allowed particle mass (in Msun).
-    Disabled if negative.
+    Maximum allowed particle mass (in Msun). If a star would form with
+    mass greater than this value, it is split into stars **near**
+    ``StarMakerSplitMass``. Disabled if negative.
     Only used by ``StarParticleCreation`` method = 15.
-    Default: 1e5
+    Default: -1
+
+``StarMakerSplitMass`` (external)
+    Target mass for child particles created when the mass
+    of a new star particle exceed ``StarMakerMaximumMass``.
+    Resulting child particles will have mass
+    ``parent_mass / floor(parent_mass / StarMakerSplitMass)``.
+    Default: 1e3
+
+``StarMakerMaximumVelocity`` (external)
+    Maximum velocity (in km/s) a new star particle can have
+    in any Cartesian direction.
+    Only implemented for ``StarParticleCreation`` method = 15.
+    Default: 150
 
 ``StarMakerTypeIaSNe`` (external)
     This parameter turns on thermal and chemical feedback from Type Ia
@@ -2243,10 +2266,10 @@ The parameters below are considered in ``StarParticleCreation`` method
     When used, the factor of dt / t_dyn is removed from the calculation of 
     the star particle mass above.  Instead of the local dynamical time, the 
     timescale over which feedback occurs is a constant set by the parameter 
-``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
+    ``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
     conduction as the timesteps can be very short, which causes the calculated 
     star particle mass to never exceed reasonable values for 
-``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
+    ``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
     actually forming stars, and when combined with conduction, results in too 
     much heat being transferred out of hot gas.  When running a cosmological 
     simulation with conduction and star formation, one must use this otherwise 

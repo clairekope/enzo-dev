@@ -47,9 +47,9 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         float *DMField, float* totalMetal, int level, float* CoolingTime,
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar)
 {
-    bool use_F2 = true; // use FIRE-2 methods of self-shielded fractionn and virial parameter
+    bool use_F2 = true; // use FIRE-2 methods of self-shielded fraction and virial parameter
     float conversion_fraction = StarMakerMassEfficiency; // max fraction of baryon mass that gets converted to stars
-                                   // on successful formation check
+                                                         // on successful formation check
     if (MyProcessorNumber != ProcessorNumber)
         return 0;
 
@@ -101,9 +101,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
     }
     else
         MetalNum = 0;
-    if (!MetalNum){ // TODO promote to Error
-        fprintf(stderr, "Grid_MechStarsCreation: Can only use mechanical star maker routines with metallicity enabled!");
-        return FAIL;
+    if (!MetalNum){
+        ENZO_FAIL("Grid_MechStarsCreation: Can only use mechanical star maker routines with metallicity enabled!");
     }
     MetalIaNum = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
     MetalIINum = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
@@ -122,13 +121,6 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
         fprintf(stderr, "Error in GetUnits.\n");
     return FAIL;
     }
-
-    /*  
-        ReDefine MassUnits so that code * mass = physical (Msun)
-        and physical (Msun) / MassUnits = code
-        instead of mass in grams
-    */
-    MassUnits = DensityUnits*pow(LengthUnits*CellWidth[0][0], 3)/SolarMass;
 
     /* Index of last cell that was capable of star formation but has no metals */
     int *seedIndex = new int [3];
@@ -178,60 +170,66 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         host cell.  If your simulation has very small (>15 Msun) baryon mass
                         per cell, it will break your sims! - AIW
                     */
-                    float fftime = freeFallTime * TimeUnits / Myr_s;
-                    float MaximumStarMass = StarMakerMaximumMass;
-                    if (MaximumStarMass < 0)
-                        MaximumStarMass = conversion_fraction * BaryonField[DensNum][index] * MassUnits; // TODO: DensityUnits?
-                    float BulkSFR = 0.0;
-                    // if (use_F2)
-                        BulkSFR = shieldedFraction * conversion_fraction * BaryonField[DensNum][index] * MassUnits / fftime;
-                    // else
-                    //     BulkSFR = StarMakerMassEfficiency * BaryonField[DensNum][index] * MassUnits / fftime;
+                    float fftime = freeFallTime * TimeUnits / Myr_s; // TODO: add a floor
+
+                    float cell_mass_msun = BaryonField[DensNum][index] * POW(CellWidth[0][0], 3) * MassUnits/SolarMass;
+
+                    float bulk_mass = conversion_fraction * cell_mass_msun;
+
+                    /* Maximum mass of all particles allowed to form */
+                    float MaximumFormMass = StarMakerMaximumFormationMass;
+                    if (MaximumFormMass < 0)
+                        MaximumFormMass = bulk_mass;
+                    
+                    float star_mass = shieldedFraction * bulk_mass; // /fftime
                     
                     // Probability has the last word
                     // FIRE-2 uses p = 1 - exp (-MassShouldForm*dt / M_gas_particle) to convert a whole particle to star particle
                     //  We convert a fixed portion of the baryon mass (or the calculated amount)
-                    float p_form = 1.0 - exp(-1*BulkSFR * (this->dtFixed * TimeUnits / Myr_s)
-                                    / (conversion_fraction * BaryonField[DensNum][index] * MassUnits)); 
+                    float p_form = 1.0 - exp(-1*star_mass/fftime * (this->dtFixed * TimeUnits / Myr_s) 
+                                            / (bulk_mass)); 
                     
                     float random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX);
                     
-                    if (internal_debug && BulkSFR > 0)
-                        printf("[t=%f, np = %d] BulkSFR = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", 
+                    if (internal_debug && star_mass > 0)
+                        printf("[t=%f, np = %d] star_mass = %12.5e; Cell_mass = %12.5e; f_s = %12.5e; t_ff = %12.5e;  time-factor = %12.5e; nb = %12.5e; tdyn = %3.3f; t_cool = %3.3f; pform = %12.5e, rand = %12.5e; rand_max = %ld\n", 
                         Time*TimeUnits/Myr_s, 0,
-                        BulkSFR * MassUnits, BaryonField[DensNum][index] * MassUnits, 
+                        star_mass * MassUnits, BaryonField[DensNum][index] * MassUnits, 
                         shieldedFraction, freeFallTime*TimeUnits / Myr_s, 1.0/(freeFallTime*TimeUnits) * Myr_s,
                         BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
                         CoolingTime[index]*TimeUnits/Myr_s, p_form, random, RAND_MAX);
                     
-                    if (BulkSFR < 0){
+                    if (star_mass < 0){
                         printf("Negative formation mass: %f %f\n",shieldedFraction, freeFallTime); // TODO: promote to error
                         continue;
                     }
 
                     /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
-                    float newMass = min(BulkSFR * fftime, MaximumStarMass); 
+                    float newMass = min(star_mass, MaximumFormMass); 
                     if ((newMass < StarMakerMinimumMass) /* too small */
-                        || (random > p_form) /* too unlikely */
-                        || (newMass > BaryonField[DensNum][index])) /* too big compared to cell 
-                                                                    (make sure min/max mass is within reasonable range for gas mass)*/
+                        || (random > p_form)             /* too unlikely */
+                        || (newMass > cell_mass_msun)) /* too big compared to cell 
+                                                          make sure min/max mass is within reasonable range for gas mass)*/
                         { 
                             continue;
                         }
 
+                    float maxStarMass = StarMakerMaximumMass;
+                    if (maxStarMass < 0) // disabled
+                        maxStarMass = MaximumFormMass;
+
                     int n_newStars = 1; // track how many stars to form
-                    float mFormed = 0; // track total mass formed thus far
                     float massPerStar = newMass;
-                    if (newMass > 5e3){ // TODO: parameterize
+                    if (newMass > maxStarMass){
                         // for large particles, split them into several that have slightly different birth times,
                         // with each being created i * dynamical time after the first
-                        n_newStars = floor(newMass / 5e3) * 5;
+                        n_newStars = floor(newMass / StarMakerSplitMass);
                         massPerStar = newMass / n_newStars;
-                        // TODO: add global debug flag
-                        fprintf(stdout, "STARSS_CR: High predicted cluster mass; splitting %e Msun into %d %e Msun clusters\n",
-                                newMass, n_newStars, massPerStar);
+                        if (debug)
+                            fprintf(stdout, "Grid_MechStarsCreation: High predicted cluster mass; splitting %e Msun into %d %e Msun clusters\n",
+                                    newMass, n_newStars, massPerStar);
                     }
-                    massPerStar /= MassUnits;
+                    massPerStar /= MassUnits; // to code
 
                     for (int n = 0; n < n_newStars; n++){
                         
@@ -240,12 +238,14 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         float vX = 0.0;
                         float vY = 0.0;
                         float vZ = 0.0;
-                        if (HydroMethod != 0) // TODO: promote to error
-                            fprintf(stderr,"Mechanical star maker not tested for anything except HydroMethod = 0\n");
+
+                        if (HydroMethod != 0)
+                            fprintf(stderr,"Warning: Mechanical star maker not tested for anything except HydroMethod = 0\n");
+                        
                         /* average particle velocity over many cells to prevent runaway; 
                             weight by mass so less dense, fast cells have less impact*/
                         float cnter = 0;
-                        float msum = 0;
+                        float rhosum = 0;
                         for (int kp = max(0,k-3); kp <= min(k+3, GridDimension[2]); kp++)
                             for (int jp = max(0,j-3); jp <= min(j+3, GridDimension[1]) ; jp++)
                                 for (int ip = max(0,i-3); ip <= min(i + 3, GridDimension[0]) ; ip++)
@@ -255,20 +255,22 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                                     vX += BaryonField[Vel1Num][ind]*BaryonField[DensNum][ind];
                                     vY += BaryonField[Vel2Num][ind]*BaryonField[DensNum][ind];
                                     vZ += BaryonField[Vel3Num][ind]*BaryonField[DensNum][ind];
-                                    msum += BaryonField[DensNum][ind];
+                                    rhosum += BaryonField[DensNum][ind];
                                 }
-                        vX = vX / msum;
-                        vY = vY / msum;
-                        vZ = vZ / msum;
+                        vX = vX / rhosum;
+                        vY = vY / rhosum;
+                        vZ = vZ / rhosum;
 
-                        float MaxVelocity = 150.*1.0e5/VelocityUnits;
-                        if (vX > MaxVelocity || vY > MaxVelocity || vZ > MaxVelocity){
-                            // then we're getting unrealistically large velocity for a cluster of stars.  
-                            // break and reanalyze on later timesteps, waiting for gas to calm down or something.
-                            break;
-                        }
-                        
+                        float max_velocity = StarMakerMaximumVelocity * km_cm/VelocityUnits;
+                        /* Cap velocity along each Cartesian direction to max_velocity. 
+                           It would be better to cap the vector length but at least this
+                           matches the changes made when porting STARSS to enzo-e  --CK */
+                        if (abs(vX) > max_velocity) vX = vX/abs(vX) * max_velocity; 
+                        if (abs(vY) > max_velocity) vY = vY/abs(vY) * max_velocity;
+                        if (abs(vZ) > max_velocity) vZ = vZ/abs(vZ) * max_velocity;
+                            
                         ParticleArray->ParticleMass[nCreated] = massPerStar;
+
                         float ctime = Time;
                         if (n > 0){
                             float mod = n * 3.0*dynamicalTime/TimeUnits / float (n_newStars); // spread formation out over 3 dynamical times
@@ -276,41 +278,60 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         }
                         ParticleArray->ParticleAttribute[0][nCreated] = ctime;
                         ParticleArray->ParticleAttribute[1][nCreated] = dynamicalTime/TimeUnits;
-                        ParticleArray->ParticleAttribute[2][nCreated] = totalMetal[index]
-                                    /BaryonField[DensNum][index];
+                        ParticleArray->ParticleAttribute[2][nCreated] = totalMetal[index]/BaryonField[DensNum][index];
+                        
                         if (StarMakerTypeIaSNe)
                             ParticleArray->ParticleAttribute[3][nCreated] = BaryonField[MetalIaNum][index];
 
                         ParticleArray->ParticleType[nCreated] = PARTICLE_TYPE_STAR;
 
+                        /* Randomly assign velocity if multiple particles */
+                        if (n_newStars > 1) {
+                            
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.1 + 0.95;
+                            ParticleArray->ParticleVelocity[0][nCreated] = 
+                                (abs(vX) > max_velocity) ? (max_velocity*(vX/abs(vX))) : (vX*random);
+                            
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.1 + 0.95;
+                            ParticleArray->ParticleVelocity[1][nCreated] = 
+                                (abs(vY) > max_velocity) ? (max_velocity*(vY/abs(vY))) : (vY*random);
+                            
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.1 + 0.95;
+                            ParticleArray->ParticleVelocity[2][nCreated] = 
+                                (abs(vZ) > max_velocity) ? (max_velocity*(vZ/abs(vZ))) : (vZ*random);
 
+                            /* give it position near the center of host cell */
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.25;
+                            ParticleArray->ParticlePosition[0][nCreated] = CellLeftEdge[0][0]
+                                                    +(dx*(FLOAT(i)-0.5)) + dx*random;
 
-                        random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.1 + 0.95;
-                        ParticleArray->ParticleVelocity[0][nCreated] = 
-                            (abs(vX) > MaxVelocity)?(MaxVelocity*((vX > 0)?(1):(-1))):(vX*random);
-                        random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.1 + 0.95;
-                        ParticleArray->ParticleVelocity[1][nCreated] = 
-                            (abs(vY) > MaxVelocity)?(MaxVelocity*((vY > 0)?(1):(-1))):(vY*random);
-                        random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.1 + 0.95;
-                        ParticleArray->ParticleVelocity[2][nCreated] = 
-                            (abs(vZ) > MaxVelocity)?(MaxVelocity*((vZ > 0)?(1):(-1))):(vZ*random);
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.25;
+                            ParticleArray->ParticlePosition[1][nCreated] = CellLeftEdge[1][0]
+                                                    +(dx*(FLOAT(j)-0.5)) + dx*random;
 
-                        /* give it position at center of host cell */
-                        random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.25;
-                        ParticleArray->ParticlePosition[0][nCreated] = CellLeftEdge[0][0]
-                                                +(dx*(FLOAT(i)-0.5)) + dx*random;
-                        random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.25;
-                        ParticleArray->ParticlePosition[1][nCreated] = CellLeftEdge[1][0]
-                                                +(dx*(FLOAT(j)-0.5)) + dx*random;
-                        random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.25;
-                        ParticleArray->ParticlePosition[2][nCreated] = CellLeftEdge[2][0]
-                                                +(dx*(FLOAT(k)-0.5)) + dx*random;
+                            random = (float)(mt_random()%UINT_MAX)/(float)(UINT_MAX) * 0.5 - 0.25;
+                            ParticleArray->ParticlePosition[2][nCreated] = CellLeftEdge[2][0]
+                                                    +(dx*(FLOAT(k)-0.5)) + dx*random;
+
+                        } else {
+
+                            ParticleArray->ParticleVelocity[0][nCreated] = vX;
+                            ParticleArray->ParticleVelocity[1][nCreated] = vY;
+                            ParticleArray->ParticleVelocity[2][nCreated] = vZ;
+
+                            ParticleArray->ParticlePosition[0][nCreated] = CellLeftEdge[0][0]
+                                                                            +(dx*(FLOAT(i)-0.5));
+                            ParticleArray->ParticlePosition[1][nCreated] = CellLeftEdge[1][0]
+                                                                            +(dx*(FLOAT(j)-0.5));
+                            ParticleArray->ParticlePosition[2][nCreated] = CellLeftEdge[2][0]
+                                                                            +(dx*(FLOAT(k)-0.5));
+
+                        }
 
                         BaryonField[DensNum][index] = BaryonField[DensNum][index] - massPerStar;
                         BaryonField[MetalNum][index] = BaryonField[MetalNum][index] - massPerStar*totalMetal[index]/BaryonField[DensNum][index];
                         if (SNColourNum > 0)
                             BaryonField[SNColourNum][index] = BaryonField[SNColourNum][index] -massPerStar/BaryonField[DensNum][index]*BaryonField[SNColourNum][index]/BaryonField[DensNum][index];
-
 
                         if (nCreated >= MaximumNumberOfNewParticles) return nCreated;
 

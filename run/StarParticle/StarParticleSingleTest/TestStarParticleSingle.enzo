@@ -8,15 +8,19 @@ TopGridRank            = 3
 TopGridDimensions      = 50 50 50
 OutputTemperature = 1
 OutputCoolingTime = 1
-Initialdt = 0.0010017410642
-
-StarParticleCreation   = 32768
-NumberOfTestStars      = 0.0
+#Initialdt = 0.0010017410642
+#dtDataDump = 200
+#CycleSkipDataDump = 10
 
 TestStarInitializationFilename = SF_ICs_sine_bump.h5
-TestStarParticleStarMass = 100.0
+NumberOfTestStars      = 0.0
+
+StarParticleCreation   = 32768
+StarMakerMinimumMass   = 1e3
+StarMakerMaximumMass   = 1e3
+StarMakerSplitMass     = 1e2
 StarMakerUseJeansMass = 0
-MechStarsUseAnalyticShieldedFraction = 0 
+MechStarsUseAnalyticShieldedFraction = 0
 
 #
 #  Units

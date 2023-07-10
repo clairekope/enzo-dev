@@ -1147,6 +1147,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StarMakerMaximumFormationMass = %"FSYM, 
       &StarMakerMaximumFormationMass);
     ret += sscanf(line, "StarMakerMaximumMass = %"FSYM, &StarMakerMaximumMass);
+    ret += sscanf(line, "StarMakerSplitMass = %"FSYM, &StarMakerSplitMass);
+    ret += sscanf(line, "StarMakerMaximumVelocity = %"FSYM, &StarMakerMaximumVelocity);
     ret += sscanf(line, "StarMakerMinimumRefinementLevel = %"ISYM, 
       &StarMakeLevel);
     ret += sscanf(line, "NEvents = %"ISYM, &NEvents);
