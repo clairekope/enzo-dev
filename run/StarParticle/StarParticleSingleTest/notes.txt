@@ -13,3 +13,10 @@ created by the feedback event in the first timestep.
 The particle is also set to be at rest by default, but it can be given a motion
 relative to the gas with the parameter TestStarParticleStarVelocity = vx vy vz, 
 where vx, vy and vz have units of km/s.
+
+An arbitrary set of initial conditions can be specified with the 
+TestStarInitializationFilename parameter. This file should be an HDF5 file
+with datasets for Density, GasEnergy, x-velocity, y-velocity, and z-velocity,
+as well as fields for any chemistry species (MultiSpecies > 0) following the
+Enzo output naming convention. These fields should be the size of the active
+grid region specified by TopGridDimensions.
