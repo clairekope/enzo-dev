@@ -170,7 +170,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         host cell.  If your simulation has very small (>15 Msun) baryon mass
                         per cell, it will break your sims! - AIW
                     */
-                    float fftime = freeFallTime * TimeUnits / Myr_s; // TODO: add a floor
+                    float fftime = max(StarMakerMinimumDynamicalTime * yr_s, freeFallTime * TimeUnits / Myr_s);
 
                     float cell_mass_msun = BaryonField[DensNum][index] * POW(CellWidth[0][0], 3) * MassUnits/SolarMass;
 
@@ -181,7 +181,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     if (MaximumFormMass < 0)
                         MaximumFormMass = bulk_mass;
                     
-                    float star_mass = shieldedFraction * bulk_mass; // /fftime
+                    float star_mass = shieldedFraction * bulk_mass;
                     
                     // Probability has the last word
                     // FIRE-2 uses p = 1 - exp (-MassShouldForm*dt / M_gas_particle) to convert a whole particle to star particle
@@ -199,10 +199,8 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                         BaryonField[DensNum][index]*DensityUnits/(mh/0.6), dynamicalTime / Myr_s, 
                         CoolingTime[index]*TimeUnits/Myr_s, p_form, random, RAND_MAX);
                     
-                    if (star_mass < 0){
-                        printf("Negative formation mass: %f %f\n",shieldedFraction, freeFallTime); // TODO: promote to error
-                        continue;
-                    }
+                    if (star_mass < 0)
+                        ENZO_VFAIL("Negative formation mass: %f %f\n",shieldedFraction, freeFallTime)
 
                     /* New star is MassShouldForm up to `conversion_fraction` * baryon mass of the cell, but at least 15 msun */
                     float newMass = min(star_mass, MaximumFormMass); 

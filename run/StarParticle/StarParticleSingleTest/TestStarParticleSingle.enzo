@@ -6,35 +6,29 @@
 ProblemType            = 90        // TestStarParaticle
 TopGridRank            = 3
 TopGridDimensions      = 50 50 50
+StarParticleFeedback   = 16384 //Star feedback method 14, kinetic feedback
+TestStarParticleDensity = 1.0
+TestStarParticleEnergy  = 6.55410093179e-06
+TestProblemInitialMetallicityFraction  =  2e-3
+TestStarParticleStarMass = 100.0
+StarEnergyToThermalFeedback = 5.59e-6
+StarMassEjectionFraction = 0.25
+StarFeedbackKineticFraction = 0.3
+StarMakerExplosionDelayTime = 0.0
 OutputTemperature = 1
 OutputCoolingTime = 1
-#Initialdt = 0.0010017410642
-#dtDataDump = 200
-#CycleSkipDataDump = 10
-
-TestStarInitializationFilename = SF_ICs_sine_bump.h5
-NumberOfTestStars      = 0.0
-
-StarParticleCreation   = 32768
-StarMakerMinimumMass   = 1e3
-StarMakerMaximumMass   = 1e3
-StarMakerSplitMass     = 1e2
-StarMakerUseJeansMass = 0
-MechStarsUseAnalyticShieldedFraction = 0
-
+Initialdt = 0.0010017410642
 #
 #  Units
 #
-LengthUnits            = 1.2344e+21 // 400 pc
+LengthUnits  =  1.2344e+21
 TimeUnits              = 3.15e13  // 10 Myr
 DensityUnits           = 1.0e-24  // 1 part/cc
-
 #
 #  set I/O and stop/start parameters
 #
 StopTime               = 1
 dtDataDump             = 0.1
-
 #
 #  set Hydro parameters
 #
@@ -45,7 +39,6 @@ PPMDiffusionParameter  = 0       // diffusion off
 PPMFlatteningParameter = 0       // flattening on
 PPMSteepeningParameter = 0       // steepening on
 Gamma = 1.6666667
-
 #
 #  set grid refinement parameters
 #
@@ -53,20 +46,12 @@ StaticHierarchy           = 1    // static hierarchy
 RefineBy                  = 2    // refinement factor
 MaximumRefinementLevel    = 0
 CellFlaggingMethod        = 0
-
 #
 # Cooling
 #
-MultiSpecies  =  1 // Required for now (parameterize H2 criterion)
-use_grackle                     = 1
-with_radiative_cooling          = 1
-MetalCooling                    = 1
-grackle_data_file               = /home/claire/research/grackle/input/CloudyData_UVB=HM2012.h5
-CMBTemperatureFloor             = 1
-UVbackground                    = 1
-RadiativeCooling                = 1
-H2FormationOnDust               = 1
-
+RadiativeCooling  =  0
+#MultiSpecies  =  1
+#MetalCooling  =  3
 #CloudyCoolingGridFile  =  solar_2008_3D_metals.h5
 #CMBTemperatureFloor = 0
 #TestProblemMultiSpecies = 1
