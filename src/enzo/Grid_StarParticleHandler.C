@@ -844,18 +844,47 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleType[i] = NormalStarType;
     } 
     if (STARMAKE_METHOD(MECHANICAL)){
+      float mu_field [size];
+      for (index = 0; index < size; ++index) {
+
+         mu_field[index] = 0.0;
+         // calculate mu
+
+         if (MultiSpecies == 0) {
+            mu_field[index] = Mu;
+         } else {
+
+            if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+                  HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+               ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+            }
+            float mult = 1.0/BaryonField[DensNum][index];
+            mu_field[index] = BaryonField[DeNum][index]*mult + BaryonField[HINum][index]*mult + BaryonField[HIINum][index]*mult +
+                  (BaryonField[HeINum][index]*mult + BaryonField[HeIINum][index]*mult + BaryonField[HeIIINum][index]*mult)/4.0;
+            if (MultiSpecies > 1) {
+               mu_field[index] += BaryonField[HMNum][index]*mult + (BaryonField[H2INum][index]*mult + BaryonField[H2IINum][index]*mult)/2.0;
+            }
+            if (MultiSpecies > 2) {
+               mu_field[index] += (BaryonField[DINum][index]*mult + BaryonField[DIINum][index]*mult)/2.0 + (BaryonField[HDINum][index]*mult/3.0);
+         
+            }
+         }
+      }
+
       NumberOfNewParticlesSoFar = NumberOfParticles;
       int nRetStars = 0;
       
       nRetStars = MechStars_Creation(tg, temperature,
-         dmfield, MetalPointer, level, cooling_time, MaximumNumberOfNewParticles,
+         dmfield, MetalPointer, level, mu_field, cooling_time, MaximumNumberOfNewParticles,
          &NumberOfNewParticles);
       
       // TODO: promote to error?
-      if (nRetStars != NumberOfNewParticles) fprintf(stdout, "star count return and pointer mismatch!\n");
+      if (nRetStars != NumberOfNewParticles) ENZO_FAIL("Grid_StarParticleHandler: mismatch between NumberOfNewParticles and MechStars_Creation star count return!\n");
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++){
          tg->ParticleType[i] = NormalStarType;
       }
+
+      delete [] mu_field;
     }
     if (STARMAKE_METHOD(MOM_STAR)) {
 
@@ -1586,29 +1615,29 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   if (STARFEED_METHOD(MECHANICAL)){
    float mu_field [size];
    for (index = 0; index < size; ++index) {
-	  
-	         mu_field[index] = 0.0;
-	         // calculate mu
 
-	         if (MultiSpecies == 0) {
-	            mu_field[index] = Mu;
-	         } else {
+      mu_field[index] = 0.0;
+      // calculate mu
 
-	            if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
-				         HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-	               ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
-	            }
-            float mult = 1.0/BaryonField[DensNum][index];
-	         mu_field[index] = BaryonField[DeNum][index]*mult + BaryonField[HINum][index]*mult + BaryonField[HIINum][index]*mult +
-	               (BaryonField[HeINum][index]*mult + BaryonField[HeIINum][index]*mult + BaryonField[HeIIINum][index]*mult)/4.0;
-	         if (MultiSpecies > 1) {
-	            mu_field[index] += BaryonField[HMNum][index]*mult + (BaryonField[H2INum][index]*mult + BaryonField[H2IINum][index]*mult)/2.0;
-	         }
-	         if (MultiSpecies > 2) {
-	            mu_field[index] += (BaryonField[DINum][index]*mult + BaryonField[DIINum][index]*mult)/2.0 + (BaryonField[HDINum][index]*mult/3.0);
-	    
-	   }
-   }
+      if (MultiSpecies == 0) {
+         mu_field[index] = Mu;
+      } else {
+
+         if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+               HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+            ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+         }
+         float mult = 1.0/BaryonField[DensNum][index];
+         mu_field[index] = BaryonField[DeNum][index]*mult + BaryonField[HINum][index]*mult + BaryonField[HIINum][index]*mult +
+               (BaryonField[HeINum][index]*mult + BaryonField[HeIINum][index]*mult + BaryonField[HeIIINum][index]*mult)/4.0;
+         if (MultiSpecies > 1) {
+            mu_field[index] += BaryonField[HMNum][index]*mult + (BaryonField[H2INum][index]*mult + BaryonField[H2IINum][index]*mult)/2.0;
+         }
+         if (MultiSpecies > 2) {
+            mu_field[index] += (BaryonField[DINum][index]*mult + BaryonField[DIINum][index]*mult)/2.0 + (BaryonField[HDINum][index]*mult/3.0);
+      
+         }
+      }
    }
        /* Compute the cooling time. */
  
@@ -1617,6 +1646,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       //fprintf(stdout, "CALLING MECH FEEDBACK\n");
       MechStars_FeedbackRoutine(level, &mu_field[0], temperature, MetalPointer, cooling_time, dmfield);
       delete [] cooling_time;
+      delete [] mu_field;
   }
   if (STARFEED_METHOD(MOM_STAR)) {
 

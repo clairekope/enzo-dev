@@ -28,7 +28,7 @@ int FindField(int field, int farray[], int numfields);
 int CheckCreationCriteria(float* Density, float* Metals,
                         float* Temperature,float* DMField,
                         float* Vel1, float* Vel2, float* Vel3, float* TotE,
-                        float* H2II, float* H2,
+                        float* H2II, float* H2, float* Mu,
                         float* CoolingTime, int* GridDim,
                         float* shieldedFraction, float* freeFallTime, 
                         float* dynamicalTime, int i, int j, int k,  
@@ -76,8 +76,7 @@ int CheckCreationCriteria(float* Density, float* Metals,
     }
     else if (StarMakerOverDensityThreshold < 0) 
     { // checking number density
-      // TODO don't fix mu
-        float nb = Density[index]*DensityUnits/mh/0.81;
+        float nb = Density[index]*DensityUnits/mh/Mu[index];
         if (nb < -1*StarMakerOverDensityThreshold)
             status = FAIL;
             
@@ -203,9 +202,8 @@ int CheckCreationCriteria(float* Density, float* Metals,
 
     if (MechStarsUseMeasuredShieldedFraction)
     {
-        if (MultiSpecies < 2){ // TODO promote to error
-            fprintf(stdout, "MechStarsUseMeasuredShieldedFraction = 1 can only function with MultiSpecies > 1\n");
-            ENZO_VFAIL("MechStars_CheckCreationCriteria\n");
+        if (MultiSpecies < 2){
+            ENZO_FAIL("MechStars_CheckCreationCriteria: MechStarsUseMeasuredShieldedFraction = 1 requires MultiSpecies > 1\n");
         }
 
         *shieldedFraction = H2II[index] / (H2II[index] + H2[index]);

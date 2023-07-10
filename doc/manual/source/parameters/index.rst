@@ -2153,40 +2153,6 @@ General Star Formation
     ``StarParticleCreation`` method = 0 and is different from method 11.
     Default: 0   
 
-``StarMakerMinimumRefinementLevel`` (external)
-    Form stars on any level finer than this arbitrary refinement level. 
-    Disabled if -1. Only used by ``StarParticleCreation`` method = 15.
-    Defualt: -1
-
-``StarMakerMaximumFormationMass`` (external)
-    Only used by ``StarParticleCreation`` method = 15,
-    as this method allows large particles to be split into
-    an arbitrary number of child particles with mass ``StarMakerMaximumMass``.
-    This parameter sets the total amount of gas that can be removed from a cell
-    and turned into one or more star particles. If -1, this limit is
-    ``StarMakerMassEfficiency * cell_mass``.
-    Default: -1
-
-``StarMakerMaximumMass`` (external)
-    Maximum allowed particle mass (in Msun). If a star would form with
-    mass greater than this value, it is split into stars **near**
-    ``StarMakerSplitMass``. Disabled if negative.
-    Only used by ``StarParticleCreation`` method = 15.
-    Default: -1
-
-``StarMakerSplitMass`` (external)
-    Target mass for child particles created when the mass
-    of a new star particle exceed ``StarMakerMaximumMass``.
-    Resulting child particles will have mass
-    ``parent_mass / floor(parent_mass / StarMakerSplitMass)``.
-    Default: 1e3
-
-``StarMakerMaximumVelocity`` (external)
-    Maximum velocity (in km/s) a new star particle can have
-    in any Cartesian direction.
-    Only implemented for ``StarParticleCreation`` method = 15.
-    Default: 150
-
 ``StarMakerTypeIaSNe`` (external)
     This parameter turns on thermal and chemical feedback from Type Ia
     supernovae.  The mass loss and luminosity of the supernovae are
@@ -2400,6 +2366,58 @@ This creation method requires ``MultiSpecies`` > 0
     See :ref:`molecular_hydrogen_regulated_star_formation`.
 ``StarFormationOncePerRootGridTimeStep`` (external)
     See :ref:`molecular_hydrogen_regulated_star_formation`.
+
+.. _starss_star_formation_and_feedback_parameters:
+
+STARSS Star Formation and Feedback
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The STARSS creation algorithm uses the star formation criteria
+toggles (e.g. ``StarMakerUseJeansMass``) outlined
+in :ref:`general_star_formation_parameters`.
+
+``StarMakerMinimumRefinementLevel`` (external)
+    Form stars on any level finer than this arbitrary refinement level. 
+    Disabled if -1. Only used by ``StarParticleCreation`` method = 15.
+    Defualt: -1
+
+``StarMakerMaximumFormationMass`` (external)
+    Only used by ``StarParticleCreation`` method = 15,
+    as this method allows large particles to be split into
+    an arbitrary number of child particles with mass ``StarMakerMaximumMass``.
+    This parameter sets the total amount of gas that can be removed from a cell
+    and turned into one or more star particles. If -1, this limit is
+    ``StarMakerMassEfficiency * cell_mass``.
+    Default: -1
+
+``StarMakerMaximumMass`` (external)
+    Maximum allowed particle mass (in Msun). If a star would form with
+    mass greater than this value, it is split into stars **near**
+    ``StarMakerSplitMass``. Disabled if negative.
+    Only used by ``StarParticleCreation`` method = 15.
+    Default: -1
+
+``StarMakerSplitMass`` (external)
+    Target mass for child particles created when the mass
+    of a new star particle exceed ``StarMakerMaximumMass``.
+    Resulting child particles will have mass
+    ``parent_mass / floor(parent_mass / StarMakerSplitMass)``.
+    Default: 1e3
+
+``StarMakerMaximumVelocity`` (external)
+    Maximum velocity (in km/s) a new star particle can have
+    in any Cartesian direction.
+    Only implemented for ``StarParticleCreation`` method = 15.
+    Default: 150
+
+``MechStarsUseAnalyticShieldedFraction`` (external)
+    If true, do math!
+
+``MechStarsUseMeasuredShieldedFraction`` (external)
+    Requires ``MultiSpecies > 1``.
+
+``MechStarsCriticalMetallicity`` (external)
+    How can we uncap this?
 
 .. _popIII_star_formation_parameters:
 

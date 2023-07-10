@@ -26,7 +26,7 @@
                         float* Metals,
                         float* Temperature,float* DMField,
                         float* Vel1, float* Vel2, float* Vel3, float* TotE,
-                        float* H2II, float* H2,
+                        float* H2II, float* H2, float* Mu,
                         float* CoolingTime, int* GridDim,
                         float* shieldedFraction, float* freeFallTime,
                         float* dynamicalTime, int i, int j, int k,
@@ -44,7 +44,7 @@
 
 /* Creation Routine */
 int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
-        float *DMField, float* totalMetal, int level, float* CoolingTime,
+        float *DMField, float* totalMetal, int level, float* Mu, float* CoolingTime,
         int MaximumNumberOfNewParticles, int* NumberOfParticlesSoFar)
 {
     bool use_F2 = true; // use FIRE-2 methods of self-shielded fraction and virial parameter
@@ -158,7 +158,7 @@ int grid::MechStars_Creation(grid* ParticleArray, float* Temperature,
                     BaryonField[Vel1Num], BaryonField[Vel2Num],
                     BaryonField[Vel3Num], BaryonField[TENum], 
                     BaryonField[H2IINum], BaryonField[H2INum],
-                    CoolingTime, GridDimension, &shieldedFraction,
+                    Mu, CoolingTime, GridDimension, &shieldedFraction,
                     &freeFallTime, &dynamicalTime, i,j,k,Time,
                     BaryonField[NumberOfBaryonFields], CellWidth[0][0],
                     &gridShouldFormStars, &notEnoughMetals, 0, seedIndex);
