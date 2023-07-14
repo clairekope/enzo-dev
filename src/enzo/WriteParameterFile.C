@@ -17,6 +17,7 @@
 //   based on it.
 
 #include "preincludes.h" 
+#include <cstdio>
 #include <time.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -1146,6 +1147,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "MechStarsMetallicityFloor             = %"GSYM"\n", MechStarsMetallicityFloor);
   fprintf(fptr, "MechStarsUseAnalyticShieldedFraction  = %"ISYM"\n", MechStarsUseAnalyticShieldedFraction);
   fprintf(fptr, "MechStarsUseMeasuredShieldedFraction  = %"ISYM"\n", MechStarsUseMeasuredShieldedFraction);
+  fprintf(fptr, "MechStarsUseSimpleVirialCriterion     = %"ISYM"\n", MechStarsUseSimpleVirialCriterion);
 
   fprintf(fptr, "MechStarsFadeSNR                      = %"ISYM"\n", MechStarsFadeSNR);
 

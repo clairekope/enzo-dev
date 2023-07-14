@@ -83,8 +83,10 @@ int CheckCreationCriteria(float* Density, float* Metals,
     }
 
     // check that metals exist in enough quantity
-    if (Metals[index]/Density[index] < MechStarsCriticalMetallicity) // metallicity in absolute
-        status = FAIL;
+    if (MechStarsCriticalMetallicity > -1) {
+        if (Metals[index]/Density[index] < MechStarsCriticalMetallicity) // metallicity in absolute
+            status = FAIL;
+    }
 
     /* in addition to the converging flow check, we check
         the virial parameter of the gas to see if it is 
@@ -122,9 +124,9 @@ int CheckCreationCriteria(float* Density, float* Metals,
     if (StarMakerSelfBoundCrit){
 
         /* check for virial parameter */
-        vfactor = (dxvx*dxvx+dxvy*dxvy+dxvz*dxvz 
-                        +dyvx*dyvx+dyvy*dyvy+dyvz*dyvz
-                        +dzvx*dzvx+dzvy*dzvy+dzvz*dzvz) / CellWidth / CellWidth;
+        vfactor = (dxvx*dxvx + dxvy*dxvy + dxvz*dxvz 
+                 + dyvx*dyvx + dyvy*dyvy + dyvz*dyvz
+                 + dzvx*dzvx + dzvy*dzvy + dzvz*dzvz) / CellWidth / CellWidth;
         
         /* approximate taking gas as monatomic and mu = 0.6*/
         /* Gravitational constant [cm3g-1s-2]*/
@@ -138,13 +140,16 @@ int CheckCreationCriteria(float* Density, float* Metals,
         float TE = TotE[index] * Density[index] * EnergyUnits; // total energy of cell
         float PE =  GravConst * pow(totalDensity,2) * pow(CellWidth*LengthUnits, 5); // Approx grav PE of cell, taking r = dx
         float AltAlpha = TE / PE; // canonically, 2 KE / PE, but we explicitly include thermal+internal energy in TE
-
     
         if (alpha < 20 && internal_debug) 
             fprintf(stdout, "STARSS_CHCR: Compare alphas: F3 = %f; Energy method = %f (G, Gcode, rho, mcell, TE, PE = %e %e %f %e %e %e\n", 
                             alpha, AltAlpha, GravConst, Gcode, Density[index], Density[index]*MassUnits/SolarMass, TE, PE);
 
-        if (AltAlpha > 1.0) status = FAIL;
+        if (MechStarsUseSimpleVirialCriterion) {
+            if (AltAlpha > 1.0) status = FAIL;
+        } else {
+            if (alpha > 1.0) status = FAIL;
+        }
     }
 
     /* Is cooling time < dynamical time or temperature < 1e4 */

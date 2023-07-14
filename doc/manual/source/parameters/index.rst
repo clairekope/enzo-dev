@@ -2136,8 +2136,14 @@ General Star Formation
     Default: 1.
 
 ``StarMakerSelfBoundCrit`` (external)
-    Check that the gas is gravitationally self-bound following Equation 3
-    in Hopkins et al. 2013. Only implemented for ``StarParticleCreation`` method = 0.
+    Check that the gas is gravitationally self-bound.
+    Only implemented for ``StarParticleCreation`` method = 0 and 15.
+    For method 0, the criteria follows Equation 3 in 
+    `Hopkins et al. 2013 <https://ui.adsabs.harvard.edu/abs/2013MNRAS.432.2647H/abstract>`. 
+    For method 15, the criteria can either follow Equation C1 in
+    `Hopkins et al. 2018 <https://ui.adsabs.harvard.edu/abs/2018MNRAS.480..800H/abstract>`.
+    or, if ``MechStarsUseSimpleVirialCriterion`` is enabled,
+    a simple comparison between kinetic and potential energy.
     Default: 0.
 
 ``StarMakerThermalCrit`` (external)
@@ -2412,7 +2418,8 @@ in :ref:`general_star_formation_parameters`.
 
 ``MechStarsUseAnalyticShieldedFraction`` (external)
     Use an analytic prescription for the H2 shielding fraction.
-    Setting this to 1 uses the model from Krumholz & Gnedin.
+    Setting this to 1 uses the model from 
+    `Krumholz & Gnedin 2011 <https://iopscience.iop.org/article/10.1088/0004-637X/729/1/36>`.
     Setting to 0 disables the analytic shielded fraction.
     Mutually exclusive with ``MechStarsUseMeasuredShieldedFraction``.
     Default: 1
@@ -2424,8 +2431,18 @@ in :ref:`general_star_formation_parameters`.
     Mutually exclusive with ``MechStarsUseAnalyticShieldedFraction``.
     Default: 0
 
+``MechStarsUseSimpleVirialCriterion`` (external)
+    If ``StarMakerSelfBoundCrit`` is enabled, this option uses a simple
+    comparison of kinetic and potential energy to estimate whether or
+    not a gas cloud is self-bound. If disabled, Equation C1 from
+    `Hopkins et al. 2018 <https://ui.adsabs.harvard.edu/abs/2018MNRAS.480..800H/abstract>`
+    is used instead.
+    Default: 1
+
 ``MechStarsCriticalMetallicity`` (external)
-    How can we uncap this?
+    Set a threshold on the minimum metallicity required for star formation.
+    Disabled if -1.
+    Default: -1
 
 .. _popIII_star_formation_parameters:
 
