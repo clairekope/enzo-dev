@@ -2411,10 +2411,18 @@ in :ref:`general_star_formation_parameters`.
     Default: 150
 
 ``MechStarsUseAnalyticShieldedFraction`` (external)
-    If true, do math!
+    Use an analytic prescription for the H2 shielding fraction.
+    Setting this to 1 uses the model from Krumholz & Gnedin.
+    Setting to 0 disables the analytic shielded fraction.
+    Mutually exclusive with ``MechStarsUseMeasuredShieldedFraction``.
+    Default: 1
 
 ``MechStarsUseMeasuredShieldedFraction`` (external)
+    Estimate the shielding fraction from the H2II fraction
+    (relative to total H2 content). 
     Requires ``MultiSpecies > 1``.
+    Mutually exclusive with ``MechStarsUseAnalyticShieldedFraction``.
+    Default: 0
 
 ``MechStarsCriticalMetallicity`` (external)
     How can we uncap this?

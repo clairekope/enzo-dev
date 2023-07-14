@@ -174,40 +174,44 @@ int CheckCreationCriteria(float* Density, float* Metals,
         if (jeansMass > max(baryonMass, 1e3)) status = FAIL;
     }
 
-    /* Is self Shielded fraction > 0.0 by Krumholz & Gnedin */
-    float gradRho = (Density[index+1]-Density[index-1])
-                    *(Density[index+1]-Density[index-1]);
-    gradRho += (Density[jplus]-Density[jminus])
-                *(Density[jplus]-Density[jminus]);
-    gradRho +=  (Density[kplus]-Density[kminus])
-                *(Density[kplus]-Density[kminus]);
-    gradRho = pow(gradRho, 0.5);
+    if (MechStarsUseAnalyticShieldedFraction && MechStarsUseMeasuredShieldedFraction)
+        ENZO_FAIL("MechStars_CheckCreationCriteria: cannot use both MechStarsUseAnalyticShieldedFraction and MechStarsUseMeasuredShieldedFraction");
 
-    // factors were given in physical units
-    float TauFactor = 434.8/*cm**2/g*/ * MassUnits/pow(LengthUnits*CellWidth, 2); // cm**2/g
-    float Tau = TauFactor * Density[index] *(CellWidth+Density[index]/gradRho);
-
-    float Phi = 0.756*pow(1+3.1*Metals[index]/Density[index]/Zsolar, 0.365);
-
-    float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/Zsolar)/
-                log(1+0.6*Phi+0.01*Phi*Phi);
-    *shieldedFraction = 1.0 - 3.0/(1.0+4.0*Psi);
-
-    if (MechStarsUseAnalyticShieldedFraction==1)
-        {
-            if (*shieldedFraction < 0) status = FAIL;
-        }
-    else
-        *shieldedFraction = 1.0; // kinda arbitrary, but just for testing.
-
-    if (MechStarsUseMeasuredShieldedFraction)
+    if (MechStarsUseAnalyticShieldedFraction == 1) // allows for other analytic formulae
     {
+
+        /* Is self Shielded fraction > 0.0 by Krumholz & Gnedin */
+        float gradRho = (Density[index+1]-Density[index-1])
+                        *(Density[index+1]-Density[index-1]);
+        gradRho += (Density[jplus]-Density[jminus])
+                    *(Density[jplus]-Density[jminus]);
+        gradRho +=  (Density[kplus]-Density[kminus])
+                    *(Density[kplus]-Density[kminus]);
+        gradRho = pow(gradRho, 0.5);
+
+        // factors were given in physical units
+        float TauFactor = 434.8/*cm**2/g*/ * MassUnits/pow(LengthUnits*CellWidth, 2); // cm**2/g
+        float Tau = TauFactor * Density[index] *(CellWidth+Density[index]/gradRho);
+
+        float Phi = 0.756*pow(1+3.1*Metals[index]/Density[index]/Zsolar, 0.365);
+
+        float Psi = 0.6*Tau*(0.01+Metals[index]/Density[index]/Zsolar)/
+                    log(1+0.6*Phi+0.01*Phi*Phi);
+        *shieldedFraction = 1.0 - 3.0/(1.0+4.0*Psi);
+
+        if (*shieldedFraction < 0) status = FAIL;
+
+    } else if (MechStarsUseMeasuredShieldedFraction) {
         if (MultiSpecies < 2){
             ENZO_FAIL("MechStars_CheckCreationCriteria: MechStarsUseMeasuredShieldedFraction = 1 requires MultiSpecies > 1\n");
         }
 
         *shieldedFraction = H2II[index] / (H2II[index] + H2[index]);
+
+    } else {
+        *shieldedFraction = 1.0; // use full mass if not shielding
     }
+    
     *freeFallTime = pow(3*(pi/(32*GravConst*Density[index]*DensityUnits)), 0.5)/TimeUnits; // that theres code-time
 
     return status;
