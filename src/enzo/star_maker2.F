@@ -127,6 +127,7 @@ c
       parameter (sndspdC=1.3095e8_RKIND)
 c
       ii = np
+      betaprime = 0.5
 c
 c  for each zone, : "star" particle is created if answers to all the
 c  following questions are affirmative:
@@ -154,17 +155,18 @@ c              3) is divergence negative?
 c                 (the first calculation is face centered for ZEUS, 
 c                  the second is cell-centered for PPM)
 c
-               if (veldivcrit .eq. 1) then
-                  if (imethod .eq. 2) then
-                     div = u(i+1,j  ,k  ) - u(i,j,k)
-     &                   + v(i  ,j+1,k  ) - v(i,j,k)
-     &                   + w(i  ,j  ,k+1) - w(i,j,k)
-                  else
-                     div = u(i+1,j  ,k  ) - u(i-1,j  ,k  )
-     &                   + v(i  ,j+1,k  ) - v(i  ,j-1,k  )
-     &                   + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
-                  endif
+               if (imethod .eq. 2) then
+                  dvx = u(i+1,j  ,k  ) - u(i,j,k)
+                  dvy = v(i  ,j+1,k  ) - v(i,j,k)
+                  dvz = w(i  ,j  ,k+1) - w(i,j,k)
+               else
+                  dvx = u(i+1,j  ,k  ) - u(i-1,j  ,k  )
+                  dvy = v(i  ,j+1,k  ) - v(i  ,j-1,k  )
+                  dvz = w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
+               endif
 
+               div = dvx + dvy + dvz
+               if (veldivcrit .eq. 1) then
                   if (div .ge. 0._RKIND) goto 10
                endif
 c
