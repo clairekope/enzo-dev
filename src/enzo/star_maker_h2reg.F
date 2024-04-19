@@ -434,15 +434,15 @@ c#endif
                   endif  ! if (H2FloorInColdGas .gt. 0._RKIND)
 
                else if (H2Method .eq. 1) then
-                  H2_fraction = fH2(i,j,k) ! read fraction from chem field
+                  H2_fraction = fH2(i,j,k) ! read from chem field CK 
                endif
 
 c     No star formation if H2_fraction < MinimumH2FractionForStarFormation.
                if (H2_fraction .lt.
      $              MinimumH2FractionForStarFormation) then
 c                  write(4,*) 'Star formation prevented because ',
-c     $                 'H2 fraction too low: f_H2 = ',
-c     $                 MinimumH2FractionForStarFormation
+c    $                 'H2 fraction too low: f_H2 = ',
+c    $                 MinimumH2FractionForStarFormation
                   goto 10
                endif
                
@@ -506,7 +506,6 @@ c     $                 gasfrac, starmass, StarFormationMinimumMass
 #endif
 
                ii = ii + 1
-
 
 c            fill in star particle attributes
 
