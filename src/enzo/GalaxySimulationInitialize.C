@@ -109,6 +109,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationTruncationRadius,
     GalaxySimulationDiskDensityCap;
 
+  int GalaxySimulationDiskPressureBalance;
 
   double GalaxySimulationInitialTemperature,
         GalaxySimulationDarkMatterConcentrationParameter;
@@ -146,6 +147,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationInitialTemperature = 1000.0;
   GalaxySimulationDiskRadius         = 0.2;      // CODE UNITS
   GalaxySimulationDiskTemperature    = 1.e4;     // [K]
+  GalaxySimulationDiskPressureBalance = 0; // off
   GalaxySimulationDiskScaleHeightz   = 325e-6;   // Mpc
   GalaxySimulationDiskScaleHeightR   = 3500e-6;  // Mpc
   GalaxySimulationTruncationRadius   = .026; // [ Mpc ]
@@ -222,6 +224,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationDarkMatterConcentrationParameter);
     ret += sscanf(line, "GalaxySimulationDiskTemperature = %"FSYM,
 		  &GalaxySimulationDiskTemperature);
+    ret += sscanf(line, "GalaxySimulationDiskPressureBalance = %"ISYM,
+      &GalaxySimulationDiskPressureBalance);
     ret += sscanf(line, "GalaxySimulationEquilibrateChem = %"FSYM,
 		  &GalaxySimulationEquilibrateChem);
     if (sscanf(line, "GalaxySimulationEquilibriumFile = %s", filename_holder) == 1) {
@@ -278,7 +282,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   } // end input from parameter file
 
   // If using DiskGravity, make two GalaxySimulation parameters consistent
-  if (DiskGravity > 0) {
+  if (DiskGravity > 0 && DiskGravityDarkMatterUseNFW) {
     GalaxySimulationGalaxyMass = DiskGravityDarkMatterMass;
     GalaxySimulationDarkMatterConcentrationParameter = DiskGravityDarkMatterConcentration;
   }
@@ -323,7 +327,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationTruncationRadius, 
     GalaxySimulationDiskDensityCap,
     GalaxySimulationDarkMatterConcentrationParameter,
-    GalaxySimulationDiskTemperature, 
+    GalaxySimulationDiskTemperature,
+    GalaxySimulationDiskPressureBalance, 
     GalaxySimulationInitialTemperature,
     GalaxySimulationUniformDensity,
     GalaxySimulationEquilibrateChem,
@@ -400,6 +405,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
           GalaxySimulationDiskDensityCap,
           GalaxySimulationDarkMatterConcentrationParameter,
           GalaxySimulationDiskTemperature, 
+          GalaxySimulationDiskPressureBalance,
           GalaxySimulationInitialTemperature,
           GalaxySimulationUniformDensity,
           GalaxySimulationEquilibrateChem,
@@ -476,6 +482,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     if (MetaData.TopGridRank > 2)
       Exterior.InitializeExternalBoundaryFace(2, inflow, outflow,
 					      InflowValue, Dummy);
+    Exterior.InitializeExternalBoundaryParticles(MetaData.ParticleBoundaryType);
 	
     /* Set Global Variables for RPS Wind (see ExternalBoundary_SetGalaxySimulationBoundary.C)*/
 

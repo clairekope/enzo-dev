@@ -531,8 +531,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "DiskGravityStellarDiskScaleHeightz = %"FSYM,&DiskGravityStellarDiskScaleHeightz);
     ret += sscanf(line, "DiskGravityStellarBulgeMass        = %"FSYM,&DiskGravityStellarBulgeMass);
     ret += sscanf(line, "DiskGravityStellarBulgeR           = %"FSYM,&DiskGravityStellarBulgeR);
+    ret += sscanf(line, "DiskGravityDarkMatterUseNFW        = %"ISYM,&DiskGravityDarkMatterUseNFW);
     ret += sscanf(line, "DiskGravityDarkMatterMass          = %"FSYM,&DiskGravityDarkMatterMass);
     ret += sscanf(line, "DiskGravityDarkMatterConcentration = %"FSYM,&DiskGravityDarkMatterConcentration);
+    ret += sscanf(line, "DiskGravityDarkMatterUseB95        = %"ISYM,&DiskGravityDarkMatterUseB95);
+    ret += sscanf(line, "DiskGravityDarkMatterR             = %"FSYM,&DiskGravityDarkMatterR);
+    ret += sscanf(line, "DiskGravityDarkMatterDensity       = %"FSYM,&DiskGravityDarkMatterDensity);
 
     ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);
     ret += sscanf(line, "ExternalGravityConstant = %"FSYM, &ExternalGravityConstant);
@@ -1009,10 +1013,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     	&StarMakerExplosionDelayTime);
     ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
     ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
-    ret += sscanf(line, "StarFeedbackPreSNe = %"ISYM, &StarFeedbackPreSNe);
-    ret += sscanf(line, "StarFeedbackPreSNeMomentum = %"FSYM, &StarFeedbackPreSNeMomentum);
-    ret += sscanf(line, "StarFeedbackPreSNeTimescale = %"FSYM, &StarFeedbackPreSNeTimescale);
-    ret += sscanf(line, "StarFeedbackPreSNeAlpha = %"FSYM, &StarFeedbackPreSNeAlpha);
 
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM,
 		  &StarClusterUseMetalField);
@@ -1409,6 +1409,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line,"MagneticSupernovaRadius = %"FSYM, &MagneticSupernovaRadius);
     ret += sscanf(line,"MagneticSupernovaEnergy = %"FSYM, &MagneticSupernovaEnergy);
     ret += sscanf(line,"MagneticSupernovaDuration = %"FSYM, &MagneticSupernovaDuration);
+
+    // Rotating Pop III Models
+    ret += sscanf(line, "PopIIIRotating  = %"ISYM, &PopIIIRotating);
 
     /* If the dummy char space was used, then make another. */
 
