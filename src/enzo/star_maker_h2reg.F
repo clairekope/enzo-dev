@@ -325,7 +325,7 @@ c          = 2.10e14 seconds * [ rho / 10^-22 g/cm^3 ]^(-1/2)
                timeconstant = 2.10e14_RKIND / t1 /
      $              sqrt( d(i,j,k)*dble(d1) / 1.0e-22_RKIND )
                if (H2Method .eq. 0) then
-c     Calculate molecular hydrogen frection (if H2StarFormation)
+c     Calculate molecular hydrogen fraction (if H2StarFormation)
                   H2_fraction = 1.0
 
 c     Metallicity normalized to Milky Way (solar neighborhood)
@@ -436,7 +436,7 @@ c#endif
                else if (H2Method .eq. 1) then
                   H2_fraction = fH2(i,j,k) ! read fraction from chem field
                endif
-               
+
 c     No star formation if H2_fraction < MinimumH2FractionForStarFormation.
                if (H2_fraction .lt.
      $              MinimumH2FractionForStarFormation) then
